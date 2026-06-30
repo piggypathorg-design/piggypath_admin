@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    color: #F4F4F4;
+    background-color: #0c0620;
+    background-image:
+      /* nebula glow left */
+      radial-gradient(ellipse 40% 30% at 20% 30%, rgba(139,92,246,0.14) 0%, transparent 70%),
+      /* nebula glow right */
+      radial-gradient(ellipse 35% 25% at 80% 20%, rgba(196,181,253,0.09) 0%, transparent 70%),
+      /* deep purple vertical gradient */
+      linear-gradient(180deg, #0c0620 0%, #130930 30%, #1a0d3d 60%, #12082a 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Starfield overlay — CSS only, no JS */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      /* cross-stars (simulated with radial dots at different sizes) */
+      radial-gradient(1px 1px at 8%  12%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(2px 2px at 18% 28%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 32%  8%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(2px 2px at 52% 18%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 10%, #a78bfa 0%, transparent 100%),
+      radial-gradient(2px 2px at 78% 25%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(2px 2px at 88% 15%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 35%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 72% 38%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 42%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(2px 2px at 55% 45%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 40%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 14% 20%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 38% 22%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 18%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 74%  8%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 82% 32%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 48%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 95% 22%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at  6% 38%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 46%  8%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 58% 38%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 22% 55%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 68% 60%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at  4% 65%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 84% 68%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 72%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 78%, #a78bfa 0%, transparent 100%),
+      radial-gradient(1px 1px at 76% 75%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(1px 1px at 12% 82%, #e0d7ff 0%, transparent 100%);
+    opacity: 0.85;
+    animation: twinkleField 6s ease-in-out infinite alternate;
+  }
+
+  /* Larger cross-star shapes overlaid */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(3px 3px at 10% 15%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(3px 3px at 85% 20%, #a78bfa 0%, transparent 100%),
+      radial-gradient(4px 4px at 55% 10%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(3px 3px at 30% 50%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(4px 4px at 70% 55%, #a78bfa 0%, transparent 100%),
+      radial-gradient(3px 3px at 15% 70%, #e0d7ff 0%, transparent 100%),
+      radial-gradient(4px 4px at 92% 65%, #c4b5fd 0%, transparent 100%),
+      radial-gradient(3px 3px at 45% 80%, #a78bfa 0%, transparent 100%);
+    opacity: 0.7;
+    animation: twinkleField 4s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes twinkleField {
+    0%   { opacity: 0.55; }
+    50%  { opacity: 0.9; }
+    100% { opacity: 0.6; }
+  }
+
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+    -webkit-font-smoothing: none;
+    image-rendering: pixelated;
+  }
+}
+
+@layer components {
+  /* Codedex-style dark card — slightly elevated, subtle border */
+  .cdx-card {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.15s ease;
+  }
+  .cdx-card:hover {
+    border-color: #3a3a6a;
+  }
+
+  /* Pixel panel — hard border, no border-radius, retro RPG */
+  .pixel-panel {
+    background: #12123A;
+    border: 2px solid #29366F;
+    position: relative;
+  }
+
+  .glow-teal { box-shadow: 0 0 16px rgba(0, 212, 200, 0.3); }
+  .glow-lime { box-shadow: 0 0 16px rgba(184, 244, 0, 0.3); }
+  .glow-violet { box-shadow: 0 0 16px rgba(139, 92, 246, 0.3); }
+
+  /* Top-nav bar */
+  .top-nav {
+    background: #0f0f23;
+    border-bottom: 1px solid #1e1e3a;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Sidebar stat row — like Codedex profile sidebar */
+  .stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+@layer utilities {
+  .pixel-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: none !important;
+  }
+
+  .text-gradient-lime {
+    background: linear-gradient(90deg, #00D4C8, #B8F400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bg-gradient-teal-lime {
+    background: linear-gradient(90deg, #00D4C8, #B8F400);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-blink {
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+  .animate-wiggle {
+    animation: wiggle 0.5s ease-in-out infinite;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #29366F; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }

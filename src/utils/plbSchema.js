@@ -1,0 +1,368 @@
+export const plbSchema = {
+  // 1 Content Components
+  Title: {
+    category: 'Content', icon: 'Type',
+    fields: [
+      { name: 'title_text', label: 'Title Text', type: 'text', required: true, default: '' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 32 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' }
+    ]
+  },
+  Paragraph: {
+    category: 'Content', icon: 'AlignLeft',
+    fields: [
+      { name: 'text', label: 'Body Text', type: 'textarea', required: true, default: '' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 16 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Left' },
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' }
+    ]
+  },
+  'Rich Text': {
+    category: 'Content', icon: 'FileText',
+    fields: [
+      { name: 'text', label: 'Body copy', type: 'textarea', required: true, default: '' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 16 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Left' },
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
+      { name: 'bold', label: 'Apply bold', type: 'select', options: ['On', 'Off'], default: 'Off' },
+      { name: 'italic', label: 'Apply italic', type: 'select', options: ['On', 'Off'], default: 'Off' }
+    ]
+  },
+  Divider: {
+    category: 'Content', icon: 'Minus',
+    fields: [
+      { name: 'style', label: 'Style', type: 'select', options: ['Solid', 'Dashed', 'Dotted'], default: 'Solid' }
+    ]
+  },
+  Spacer: {
+    category: 'Content', icon: 'Maximize2',
+    fields: [
+      { name: 'height', label: 'Height (px)', type: 'number', required: true, default: 16 }
+    ]
+  },
+  Card: {
+    category: 'Content', icon: 'Square',
+    fields: [
+      { name: 'title_text', label: 'Card heading', type: 'text', default: '' },
+      { name: 'body_text', label: 'Card body copy', type: 'textarea', default: '' },
+      { name: 'block_colour', label: 'Background fill colour', type: 'color', default: '#F1F5F9' },
+      { name: 'text_colour', label: 'Text colour', type: 'color', default: '#1E293B' },
+      { name: 'border', label: 'Border', type: 'select', options: ['Solid', 'Dashed', 'Dotted'], default: 'Solid' },
+      { name: 'border_colour', label: 'Border colour', type: 'color', default: '#E2E8F0' },
+      { name: 'border_radius', label: 'Corner roundness (px)', type: 'number', default: 8 }
+    ]
+  },
+
+  // 2 Media Components
+  'Image': {
+    category: 'Media', icon: 'ImageIcon',
+    fields: [
+      { name: 'source', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
+      { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
+      { name: 'caption', label: 'Caption', type: 'text', default: '' },
+      { name: 'alt_text', label: 'Alt Text (Required)', type: 'text', required: true, default: '' }
+    ]
+  },
+  Video: {
+    category: 'Media', icon: 'Video',
+    fields: [
+      { name: 'source', label: 'Video URL', type: 'text', required: true, default: '' },
+      { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
+      { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
+      { name: 'caption', label: 'Caption', type: 'text', default: '' },
+      { name: 'autoplay', label: 'Autoplay', type: 'select', options: ['On', 'Off'], default: 'Off' },
+      { name: 'loop', label: 'Loop', type: 'select', options: ['On', 'Off'], default: 'Off' }
+    ]
+  },
+  Animation: {
+    category: 'Media', icon: 'Film',
+    fields: [
+      { name: 'source', label: 'Animation URL', type: 'text', required: true, default: '' },
+      { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
+      { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
+      { name: 'caption', label: 'Caption', type: 'text', default: '' },
+      { name: 'loop', label: 'Loop', type: 'select', options: ['On', 'Off'], default: 'On' },
+      { name: 'autoplay', label: 'Autoplay', type: 'select', options: ['On', 'Off'], default: 'On' }
+    ]
+  },
+  Audio: {
+    category: 'Media', icon: 'Volume2',
+    fields: [
+      { name: 'source', label: 'Audio URL', type: 'text', required: true, default: '' },
+      { name: 'visibility', label: 'Volume level', type: 'number', default: 100 },
+      { name: 'autoplay', label: 'Autoplay', type: 'select', options: ['On', 'Off'], default: 'Off' },
+      { name: 'loop', label: 'Loop', type: 'select', options: ['On', 'Off'], default: 'Off' },
+      { name: 'show_controls', label: 'Show Controls', type: 'select', options: ['On', 'Off'], default: 'On' }
+    ]
+  },
+
+  // 3 Mascot
+  'Mascot Emotion': {
+    category: 'Mascot', icon: 'Smile',
+    fields: [
+      { name: 'source', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'emotion', label: 'Emotion', type: 'text', default: '' },
+      { name: 'size', label: 'Size', type: 'select', options: ['Small', 'Medium', 'Large'], default: 'Medium' },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
+    ]
+  },
+  'Mascot Bubble': {
+    category: 'Mascot', icon: 'MessageCircle',
+    fields: [
+      { name: 'bubble_type', label: 'Bubble Type', type: 'select', options: ['Dialogue', 'Speech', 'Thought'], required: true, default: 'Dialogue' },
+      { name: 'text', label: 'Text', type: 'textarea', required: true, default: '' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 15 },
+      { name: 'font_style', label: 'Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Normal' },
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
+      { name: 'bubble_colour', label: 'Bubble Colour', type: 'color', default: '#FFFFFF' }
+    ]
+  },
+
+  // 4 Activity
+  MCQ: {
+    category: 'Activity', icon: 'HelpCircle',
+    fields: [
+      { name: 'question', label: 'Question', type: 'textarea', required: true, default: '' },
+      { name: 'option_a', label: 'Option A', type: 'text', required: true, default: '' },
+      { name: 'option_b', label: 'Option B', type: 'text', required: true, default: '' },
+      { name: 'option_c', label: 'Option C', type: 'text', default: '' },
+      { name: 'option_d', label: 'Option D', type: 'text', default: '' },
+      { name: 'correct_option', label: 'Correct Option', type: 'select', options: ['A', 'B', 'C', 'D'], required: true, default: 'A' },
+      { name: 'why_correct', label: 'Why it is correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why it is incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'hint', label: 'Hint (Optional)', type: 'text', default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+    ]
+  },
+  'Drag & Drop': {
+    category: 'Activity', icon: 'Move',
+    fields: [
+      { name: 'question', label: 'Instruction text', type: 'text', required: true, default: '' },
+      { name: 'bucket_1_name', label: 'Bucket 1 Label', type: 'text', required: true, default: '' },
+      { name: 'bucket_1_items', label: 'Bucket 1 Items (comma-sep)', type: 'textarea', required: true, default: '' },
+      { name: 'bucket_2_name', label: 'Bucket 2 Label', type: 'text', required: true, default: '' },
+      { name: 'bucket_2_items', label: 'Bucket 2 Items (comma-sep)', type: 'textarea', required: true, default: '' },
+      { name: 'bucket_3_name', label: 'Bucket 3 Label', type: 'text', default: '' },
+      { name: 'bucket_3_items', label: 'Bucket 3 Items (comma-sep)', type: 'textarea', default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 15 }
+    ]
+  },
+  'Match Pairs': {
+    category: 'Activity', icon: 'Link',
+    fields: [
+      { name: 'question', label: 'Instruction text', type: 'text', required: true, default: '' },
+      { name: 'column_a', label: 'Column A (comma-sep)', type: 'textarea', required: true, default: '' },
+      { name: 'column_b', label: 'Column B (comma-sep)', type: 'textarea', required: true, default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 15 }
+    ]
+  },
+  Arrange: {
+    category: 'Activity', icon: 'ListOrdered',
+    fields: [
+      { name: 'question', label: 'Instruction text', type: 'text', required: true, default: '' },
+      { name: 'items', label: 'Items (comma-sep)', type: 'textarea', required: true, default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+    ]
+  },
+  Slider: {
+    category: 'Activity', icon: 'Sliders',
+    fields: [
+      { name: 'question', label: 'Question', type: 'text', required: true, default: '' },
+      { name: 'min_value', label: 'Min value', type: 'number', required: true, default: 0 },
+      { name: 'max_value', label: 'Max value', type: 'number', required: true, default: 100 },
+      { name: 'target_value', label: 'Target value', type: 'number', required: true, default: 50 },
+      { name: 'unit', label: 'Unit', type: 'text', default: '%' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'tolerance', label: 'Tolerance', type: 'number', default: 5 },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+    ]
+  },
+  'Fill in the Blank': {
+    category: 'Activity', icon: 'Edit3',
+    fields: [
+      { name: 'question', label: 'Question (use ___ for blank)', type: 'text', required: true, default: '' },
+      { name: 'answer', label: 'Answer', type: 'text', required: true, default: '' },
+      { name: 'hint', label: 'Hint', type: 'text', default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+    ]
+  },
+  Hotspot: {
+    category: 'Activity', icon: 'MousePointer2',
+    fields: [
+      { name: 'image', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'question', label: 'Question', type: 'text', required: true, default: '' },
+      { name: 'hotspot_size', label: 'Hotspot Size (0-5)', type: 'number', required: true, default: 2 },
+      { name: 'hotspot_x', label: 'Hotspot X (%)', type: 'number', required: true, default: 50 },
+      { name: 'hotspot_y', label: 'Hotspot Y (%)', type: 'number', required: true, default: 50 },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+    ]
+  },
+  Reflection: {
+    category: 'Activity', icon: 'MessageSquare',
+    fields: [
+      { name: 'question', label: 'Question', type: 'textarea', required: true, default: '' },
+      { name: 'model_answer', label: 'Model Answer', type: 'textarea', required: true, default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 5 }
+    ]
+  },
+
+  // 5 Visualisation
+  'Pie Chart': {
+    category: 'Visualisation', icon: 'PieChart',
+    fields: [
+      { name: 'type', label: 'Type', type: 'select', options: ['Visual', 'Clickable'], required: true, default: 'Visual' },
+      { name: 'title', label: 'Title', type: 'text', default: '' },
+      { name: 'slice_label_1', label: 'Slice 1 Label', type: 'text', required: true, default: '' },
+      { name: 'slice_value_1', label: 'Slice 1 Value', type: 'number', required: true, default: 0 },
+      { name: 'slice_label_2', label: 'Slice 2 Label', type: 'text', required: true, default: '' },
+      { name: 'slice_value_2', label: 'Slice 2 Value', type: 'number', required: true, default: 0 },
+      { name: 'slice_label_3', label: 'Slice 3 Label', type: 'text', default: '' },
+      { name: 'slice_value_3', label: 'Slice 3 Value', type: 'number', default: 0 },
+      { name: 'slice_label_4', label: 'Slice 4 Label', type: 'text', default: '' },
+      { name: 'slice_value_4', label: 'Slice 4 Value', type: 'number', default: 0 },
+      { name: 'slice_label_5', label: 'Slice 5 Label', type: 'text', default: '' },
+      { name: 'slice_value_5', label: 'Slice 5 Value', type: 'number', default: 0 },
+      { name: 'slice_label_6', label: 'Slice 6 Label', type: 'text', default: '' },
+      { name: 'slice_value_6', label: 'Slice 6 Value', type: 'number', default: 0 },
+      { name: 'correct_slices', label: 'Correct Slices (Clickable)', type: 'text', default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', default: '' }
+    ]
+  },
+  'Bar Graph': {
+    category: 'Visualisation', icon: 'BarChart2',
+    fields: [
+      { name: 'type', label: 'Type', type: 'select', options: ['Visual', 'Clickable'], required: true, default: 'Visual' },
+      { name: 'title', label: 'Title', type: 'text', default: '' },
+      { name: 'bar_label_1', label: 'Bar 1 Label', type: 'text', required: true, default: '' },
+      { name: 'bar_value_1', label: 'Bar 1 Value', type: 'number', required: true, default: 0 },
+      { name: 'bar_label_2', label: 'Bar 2 Label', type: 'text', required: true, default: '' },
+      { name: 'bar_value_2', label: 'Bar 2 Value', type: 'number', required: true, default: 0 },
+      { name: 'bar_label_3', label: 'Bar 3 Label', type: 'text', default: '' },
+      { name: 'bar_value_3', label: 'Bar 3 Value', type: 'number', default: 0 },
+      { name: 'bar_label_4', label: 'Bar 4 Label', type: 'text', default: '' },
+      { name: 'bar_value_4', label: 'Bar 4 Value', type: 'number', default: 0 },
+      { name: 'bar_label_5', label: 'Bar 5 Label', type: 'text', default: '' },
+      { name: 'bar_value_5', label: 'Bar 5 Value', type: 'number', default: 0 },
+      { name: 'bar_label_6', label: 'Bar 6 Label', type: 'text', default: '' },
+      { name: 'bar_value_6', label: 'Bar 6 Value', type: 'number', default: 0 },
+      { name: 'bar_label_7', label: 'Bar 7 Label', type: 'text', default: '' },
+      { name: 'bar_value_7', label: 'Bar 7 Value', type: 'number', default: 0 },
+      { name: 'bar_label_8', label: 'Bar 8 Label', type: 'text', default: '' },
+      { name: 'bar_value_8', label: 'Bar 8 Value', type: 'number', default: 0 },
+      { name: 'correct_bars', label: 'Correct Bars (Clickable)', type: 'text', default: '' },
+      { name: 'why_correct', label: 'Why correct', type: 'textarea', default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', default: '' },
+      { name: 'orientation', label: 'Orientation', type: 'select', options: ['Vertical', 'Horizontal'], default: 'Vertical' }
+    ]
+  },
+  'Line Graph': {
+    category: 'Visualisation', icon: 'TrendingUp',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: '' },
+      { name: 'point_1_label', label: 'Point 1 X-Label', type: 'text', required: true, default: '' },
+      { name: 'point_1_value', label: 'Point 1 Y-Value', type: 'number', required: true, default: 0 },
+      { name: 'point_2_label', label: 'Point 2 X-Label', type: 'text', required: true, default: '' },
+      { name: 'point_2_value', label: 'Point 2 Y-Value', type: 'number', required: true, default: 0 },
+      { name: 'point_3_label', label: 'Point 3 X-Label', type: 'text', default: '' },
+      { name: 'point_3_value', label: 'Point 3 Y-Value', type: 'number', default: 0 },
+      { name: 'point_4_label', label: 'Point 4 X-Label', type: 'text', default: '' },
+      { name: 'point_4_value', label: 'Point 4 Y-Value', type: 'number', default: 0 },
+      { name: 'point_5_label', label: 'Point 5 X-Label', type: 'text', default: '' },
+      { name: 'point_5_value', label: 'Point 5 Y-Value', type: 'number', default: 0 },
+      { name: 'y_axis_label', label: 'Y-Axis Label', type: 'text', default: '' }
+    ]
+  },
+  Table: {
+    category: 'Visualisation', icon: 'Table',
+    fields: [
+      { name: 'headers', label: 'Headers (comma-sep)', type: 'text', required: true, default: '' },
+      { name: 'row_1', label: 'Row 1 (comma-sep)', type: 'text', required: true, default: '' },
+      { name: 'row_2', label: 'Row 2 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_3', label: 'Row 3 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_4', label: 'Row 4 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_5', label: 'Row 5 (comma-sep)', type: 'text', default: '' },
+      { name: 'header_bg', label: 'Header BG Color', type: 'color', default: '#1E293B' },
+      { name: 'header_text_colour', label: 'Header Text Color', type: 'color', default: '#FFFFFF' },
+      { name: 'alternate_rows', label: 'Alternate Rows', type: 'select', options: ['On', 'Off'], default: 'On' }
+    ]
+  },
+
+  // 6 Feedback & Reward
+  'XP Reward': {
+    category: 'Feedback', icon: 'Star',
+    fields: [
+      { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 10 },
+      { name: 'label', label: 'Label', type: 'text', default: 'You earned!' }
+    ]
+  },
+  'Coin Reward': {
+    category: 'Feedback', icon: 'Coins',
+    fields: [
+      { name: 'coins_amount', label: 'Coins Amount', type: 'number', required: true, default: 5 },
+      { name: 'label', label: 'Label', type: 'text', default: 'Coins earned!' }
+    ]
+  },
+  Badge: {
+    category: 'Feedback', icon: 'Award',
+    fields: [
+      { name: 'image', label: 'Badge Image URL', type: 'text', required: true, default: '' },
+      { name: 'badge_name', label: 'Badge Name', type: 'text', required: true, default: '' },
+      { name: 'label', label: 'Label', type: 'text', default: '' }
+    ]
+  },
+  'Achievement Card': {
+    category: 'Feedback', icon: 'Trophy',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', required: true, default: 'Lesson Complete! 🎉' },
+      { name: 'body', label: 'Body Text', type: 'textarea', default: '' }
+    ]
+  },
+  'Progress Bar': {
+    category: 'Feedback', icon: 'Percent',
+    fields: [
+      { name: 'value', label: 'Progress (%)', type: 'number', required: true, default: 50 }
+    ]
+  },
+  'Mascot Feedback': {
+    category: 'Feedback', icon: 'MessageCircle',
+    fields: [
+      { name: 'tone', label: 'Tone', type: 'select', options: ['Happy', 'Sad', 'Disappointed', 'Surprised', 'Thinking', 'Neutral', 'Celebrating'], required: true, default: 'Happy' },
+      { name: 'message', label: 'Message', type: 'textarea', required: true, default: '' }
+    ]
+  },
+
+  // 7 Navigation Buttons
+  'Continue Button': {
+    category: 'Navigation', icon: 'ArrowRight',
+    fields: []
+  },
+  'Back Button': {
+    category: 'Navigation', icon: 'ArrowLeft',
+    fields: []
+  },
+  'Skip Button': {
+    category: 'Navigation', icon: 'FastForward',
+    fields: []
+  }
+};
