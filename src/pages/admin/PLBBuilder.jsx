@@ -81,13 +81,14 @@ function SortableBlock({ id, block, isSelected, onClick, onDelete, isPreviewMode
   const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
 
   if (isPreviewMode) {
+    // In Preview Mode, we just show a static placeholder for the block
     return (
-      <div className="mb-4 bg-[#12123A] border-2 border-[#29366F] rounded-xl p-6 flex flex-col gap-2 relative group overflow-hidden">
+      <div className="mb-4 bg-white dark:bg-[#27272A] border-[3px] border-[#18181B] dark:border-white rounded-xl p-6 flex flex-col gap-2 relative group overflow-hidden shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
         <div className="absolute top-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
-          <Icon size={24} className="text-[#E0D7FF]" />
+          <Icon size={24} className="text-[#18181B] dark:text-white" />
         </div>
-        <div className="text-lg font-bold text-white">{block.type}</div>
-        <div className="text-sm text-[#A1A1AA] line-clamp-3">
+        <div className="text-lg font-black text-[#18181B] dark:text-white">{block.type}</div>
+        <div className="text-sm font-bold text-[#71717A] dark:text-[#A1A1AA] line-clamp-3">
           {Object.entries(block.teen).map(([k, v]) => `${k}: ${v}`).join(' | ')}
         </div>
       </div>
@@ -95,17 +96,17 @@ function SortableBlock({ id, block, isSelected, onClick, onDelete, isPreviewMode
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`relative mb-3 bg-[#12123A] border-[3px] ${isSelected ? 'border-[#00E599] shadow-[4px_4px_0_#00E599]' : 'border-[#29366F] shadow-[4px_4px_0_#09091A]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-colors hover:border-[#8B5CF6]`} onClick={onClick}>
-      <div {...attributes} {...listeners} className="cursor-grab hover:bg-[#1a1a45] p-2 rounded-lg touch-none">
-        <GripVertical size={20} className="text-[#A1A1AA]" />
+    <div ref={setNodeRef} style={style} className={`relative mb-4 bg-white dark:bg-[#27272A] border-[3px] ${isSelected ? 'border-[#00E599] shadow-[4px_4px_0_#00E599]' : 'border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-transform hover:-translate-y-1`} onClick={onClick}>
+      <div {...attributes} {...listeners} className="cursor-grab hover:bg-[#F4F4F5] dark:hover:bg-[#18181B] p-2 rounded-lg touch-none">
+        <GripVertical size={20} className="text-[#18181B] dark:text-white" />
       </div>
-      <div className="w-10 h-10 bg-[#0c0620] border-[2px] border-[#29366F] rounded-lg flex items-center justify-center">
-        <Icon size={20} className="text-white" />
+      <div className="w-10 h-10 bg-[#F4F4F5] dark:bg-[#18181B] border-[3px] border-[#18181B] dark:border-white rounded-lg flex items-center justify-center">
+        <Icon size={20} className="text-[#18181B] dark:text-white" />
       </div>
-      <div className="flex-1 font-bold text-white">
+      <div className="flex-1 font-black text-[#18181B] dark:text-white">
         {block.type}
       </div>
-      <button onClick={(e) => { e.stopPropagation(); onDelete(id); }} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
+      <button onClick={(e) => { e.stopPropagation(); onDelete(id); }} className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors border-[2px] border-transparent hover:border-red-500">
         <Trash2 size={18} />
       </button>
     </div>
@@ -219,55 +220,55 @@ const PLBBuilder = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col font-sans bg-[#0c0620] text-white overflow-hidden relative">
+    <div className="h-screen flex flex-col font-sans bg-[#F4F4F5] dark:bg-[#18181B] text-[#18181B] dark:text-[#F4F4F5] overflow-hidden transition-colors selection:bg-[#00E599] selection:text-[#18181B]">
       {/* Top Header / Toolbar */}
-      <header className="h-16 bg-[#12123A] border-b-2 border-[#29366F] px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
+      <header className="h-20 bg-[#F4F4F5] dark:bg-[#18181B] border-b-[3px] border-[#18181B] dark:border-white px-6 flex items-center justify-between shrink-0 z-20">
         
         {/* Left Side: Back & Meta */}
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#00E599] font-bold transition-colors"
+            className="flex items-center gap-2 text-[#18181B] dark:text-white hover:text-[#8B5CF6] dark:hover:text-[#8B5CF6] font-black transition-colors"
           >
-            <ChevronLeft size={20} /> Dashboard
+            <ChevronLeft size={20} strokeWidth={3} /> Dashboard
           </button>
           
-          <div className="h-8 w-px bg-[#29366F]"></div>
+          <div className="h-8 w-[3px] bg-[#18181B] dark:bg-white"></div>
           
           <div>
-            <h1 className="font-black text-lg text-white leading-tight">{lesson.title}</h1>
-            <p className="text-xs font-bold text-[#A1A1AA]">{lesson.course} &bull; <span className="text-[#00E599]">{lesson.status}</span></p>
+            <h1 className="font-black text-lg text-[#18181B] dark:text-white leading-tight">{lesson.title}</h1>
+            <p className="text-xs font-bold text-[#71717A] dark:text-[#A1A1AA]">{lesson.course} &bull; {lesson.status}</p>
           </div>
         </div>
         
         {/* Center: View Controls */}
-        <div className="flex items-center gap-4 bg-[#0c0620] p-1.5 rounded-xl border border-[#29366F]">
+        <div className="flex items-center gap-4 bg-white dark:bg-[#27272A] p-1.5 rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
           <button 
             onClick={() => setIsPreviewMode(false)}
-            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${!isPreviewMode ? 'bg-[#29366F] text-white' : 'text-[#A1A1AA] hover:text-white'}`}
+            className={`px-4 py-1.5 rounded-lg font-black text-sm transition-all border-[3px] ${!isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white hover:text-[#18181B] dark:hover:text-white'}`}
           >
-            <Edit3 size={16} className="inline mr-2" /> Editor
+            <Edit3 size={16} className="inline mr-2" strokeWidth={3} /> Editor
           </button>
           <button 
             onClick={() => setIsPreviewMode(true)}
-            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${isPreviewMode ? 'bg-[#29366F] text-[#00E599]' : 'text-[#A1A1AA] hover:text-[#00E599]'}`}
+            className={`px-4 py-1.5 rounded-lg font-black text-sm transition-all border-[3px] ${isPreviewMode ? 'bg-[#8B5CF6] text-white border-[#18181B] dark:border-white' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white hover:text-[#18181B] dark:hover:text-white'}`}
           >
-            <Play size={16} className="inline mr-2" /> Preview
+            <Play size={16} className="inline mr-2" strokeWidth={3} /> Preview
           </button>
         </div>
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-[#0c0620] rounded-lg p-1 border border-[#29366F]">
+          <div className="flex bg-white dark:bg-[#27272A] rounded-xl p-1 border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
             <button 
               onClick={() => setVersion('teen')}
-              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'teen' ? 'bg-[#8B5CF6] text-white' : 'text-[#A1A1AA] hover:text-white'}`}
+              className={`px-3 py-1 font-black text-xs rounded-lg transition-colors border-[2px] ${version === 'teen' ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white' : 'bg-transparent border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'}`}
             >
               Teen
             </button>
             <button 
               onClick={() => setVersion('adult')}
-              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'adult' ? 'bg-orange-500 text-white' : 'text-[#A1A1AA] hover:text-white'}`}
+              className={`px-3 py-1 font-black text-xs rounded-lg transition-colors border-[2px] ${version === 'adult' ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white' : 'bg-transparent border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'}`}
             >
               Adult
             </button>
@@ -280,25 +281,25 @@ const PLBBuilder = () => {
         
         {/* Left Sidebar (Components Library) - Hidden in Preview Mode */}
         {!isPreviewMode && (
-          <aside className="w-72 bg-[#12123A] border-r-2 border-[#29366F] overflow-y-auto shrink-0 z-10 flex flex-col">
-            <div className="p-5 border-b-2 border-[#29366F] bg-[#0c0620]">
-              <h2 className="font-black text-xs text-[#E0D7FF] uppercase tracking-wider">Component Library</h2>
+          <aside className="w-72 bg-[#F4F4F5] dark:bg-[#18181B] border-r-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-10 flex flex-col">
+            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A]">
+              <h2 className="font-black text-xs text-[#18181B] dark:text-white uppercase tracking-wider">Component Library</h2>
             </div>
-            <div className="p-4 flex flex-col gap-2">
+            <div className="p-4 flex flex-col gap-3">
               {Object.keys(plbSchema).map(type => {
                 const Icon = iconMap[plbSchema[type].icon] || Type;
                 return (
                   <button 
                     key={type}
                     onClick={() => addBlock(type)}
-                    className="flex items-center gap-3 p-3 bg-[#0c0620] border-[2px] border-[#29366F] rounded-xl hover:border-[#8B5CF6] hover:-translate-y-0.5 transition-all text-left group"
+                    className="flex items-center gap-3 p-3 bg-white dark:bg-[#27272A] border-[3px] border-[#18181B] dark:border-white rounded-xl hover:border-[#8B5CF6] dark:hover:border-[#00E599] shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-1 transition-all text-left group"
                   >
-                    <div className="w-8 h-8 bg-[#12123A] border-[2px] border-[#29366F] rounded-md flex items-center justify-center group-hover:bg-[#8B5CF6] group-hover:border-[#8B5CF6] transition-colors">
-                      <Icon size={16} className="text-[#A1A1AA] group-hover:text-white" />
+                    <div className="w-8 h-8 bg-[#F4F4F5] dark:bg-[#18181B] border-[3px] border-[#18181B] dark:border-white rounded-lg flex items-center justify-center group-hover:bg-[#8B5CF6] dark:group-hover:bg-[#00E599] transition-colors">
+                      <Icon size={16} className="text-[#18181B] dark:text-white" strokeWidth={3} />
                     </div>
                     <div>
-                      <div className="font-bold text-sm text-white">{type}</div>
-                      <div className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wide">{plbSchema[type].category}</div>
+                      <div className="font-black text-sm text-[#18181B] dark:text-white">{type}</div>
+                      <div className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-bold uppercase tracking-wide">{plbSchema[type].category}</div>
                     </div>
                   </button>
                 )
@@ -308,33 +309,33 @@ const PLBBuilder = () => {
         )}
 
         {/* Center Canvas (Canva Style White Page) */}
-        <main className={`flex-1 overflow-y-auto relative bg-transparent p-8 flex flex-col ${isPreviewMode ? 'items-center' : 'items-center'}`}>
+        <main className={`flex-1 overflow-y-auto relative bg-[#E4E4E7] dark:bg-[#000000] p-8 flex flex-col ${isPreviewMode ? 'items-center' : 'items-center'}`}>
           
           {/* Device Toggles overlay in Preview Mode */}
           {isPreviewMode && (
-            <div className="sticky top-0 mb-6 bg-[#12123A]/90 backdrop-blur-md px-4 py-2 rounded-full border-2 border-[#29366F] shadow-lg flex items-center gap-2 z-30">
-              <button onClick={() => setPreviewDevice('desktop')} className={`p-2 rounded-full transition-colors ${previewDevice==='desktop' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
-                <Monitor size={18} />
+            <div className="sticky top-0 mb-6 bg-white dark:bg-[#27272A] px-4 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] flex items-center gap-2 z-30">
+              <button onClick={() => setPreviewDevice('desktop')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='desktop' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
+                <Monitor size={18} strokeWidth={3} />
               </button>
-              <button onClick={() => setPreviewDevice('tablet')} className={`p-2 rounded-full transition-colors ${previewDevice==='tablet' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
-                <Tablet size={18} />
+              <button onClick={() => setPreviewDevice('tablet')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='tablet' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
+                <Tablet size={18} strokeWidth={3} />
               </button>
-              <button onClick={() => setPreviewDevice('mobile')} className={`p-2 rounded-full transition-colors ${previewDevice==='mobile' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
-                <Smartphone size={18} />
+              <button onClick={() => setPreviewDevice('mobile')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='mobile' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
+                <Smartphone size={18} strokeWidth={3} />
               </button>
             </div>
           )}
 
           {/* The White Canvas */}
-          <div className={`w-full ${canvasWidth} min-h-[850px] bg-white text-gray-900 rounded-lg shadow-[0_0_40px_rgba(139,92,246,0.15)] border-4 border-[#29366F] p-8 md:p-12 transition-all duration-300 relative`}>
+          <div className={`w-full ${canvasWidth} min-h-[850px] bg-white dark:bg-[#27272A] rounded-2xl shadow-[12px_12px_0_#18181B] dark:shadow-[#FFFFFF] border-[4px] border-[#18181B] dark:border-white p-8 md:p-12 transition-all duration-300 relative`}>
             
             {blocks.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-                <div className="w-24 h-24 mb-6 rounded-full bg-gray-50 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  <Plus size={32} className="text-gray-300" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-[#A1A1AA]">
+                <div className="w-24 h-24 mb-6 rounded-2xl bg-[#F4F4F5] dark:bg-[#18181B] border-[3px] border-dashed border-[#A1A1AA] flex items-center justify-center">
+                  <Plus size={32} className="text-[#A1A1AA]" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">Blank Canvas</h3>
-                <p className="text-sm font-medium">Click components from the left sidebar to start building.</p>
+                <h3 className="text-xl font-black text-[#18181B] dark:text-white mb-2">Blank Canvas</h3>
+                <p className="text-sm font-bold text-[#71717A]">Click components from the left sidebar to start building.</p>
               </div>
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -367,26 +368,26 @@ const PLBBuilder = () => {
 
         {/* Right Sidebar (Properties Panel) - Hidden in Preview Mode */}
         {!isPreviewMode && (
-          <aside className="w-80 bg-[#12123A] border-l-2 border-[#29366F] overflow-y-auto shrink-0 z-10 flex flex-col">
-            <div className="p-5 border-b-2 border-[#29366F] bg-[#0c0620] flex items-center justify-between">
-              <h2 className="font-black text-xs text-[#E0D7FF] uppercase tracking-wider">Properties ({version})</h2>
+          <aside className="w-80 bg-[#F4F4F5] dark:bg-[#18181B] border-l-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-10 flex flex-col">
+            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] flex items-center justify-between">
+              <h2 className="font-black text-xs text-[#18181B] dark:text-white uppercase tracking-wider">Properties ({version})</h2>
             </div>
             
             <div className="p-6">
               {!selectedBlock ? (
-                <div className="text-sm font-bold text-[#A1A1AA] text-center mt-10 p-6 bg-[#0c0620] rounded-xl border-2 border-dashed border-[#29366F]">
+                <div className="text-sm font-bold text-[#71717A] dark:text-[#A1A1AA] text-center mt-10 p-6 bg-white dark:bg-[#27272A] rounded-xl border-[3px] border-dashed border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
                   Select a block on the canvas to configure its settings.
                 </div>
               ) : (
                 <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-                  <div className="pb-4 border-b-2 border-[#29366F]">
+                  <div className="pb-4 border-b-[3px] border-[#18181B] dark:border-white">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-6 h-6 bg-[#8B5CF6] rounded text-white flex items-center justify-center">
+                      <div className="w-8 h-8 bg-[#8B5CF6] rounded-lg border-[3px] border-[#18181B] dark:border-white text-white flex items-center justify-center shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]">
                         <SettingsIcon type={selectedBlock.type} />
                       </div>
-                      <h3 className="font-black text-xl text-white">{selectedBlock.type}</h3>
+                      <h3 className="font-black text-xl text-[#18181B] dark:text-white">{selectedBlock.type}</h3>
                     </div>
-                    <p className="text-[10px] text-[#A1A1AA] font-bold font-mono bg-[#0c0620] px-2 py-1 rounded inline-block mt-2">{selectedBlock.id}</p>
+                    <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-bold font-mono bg-white dark:bg-[#27272A] px-2 py-1 rounded-md border-[2px] border-[#18181B] dark:border-white inline-block mt-2">{selectedBlock.id}</p>
                   </div>
                   
                   <div className="flex flex-col gap-4">
@@ -394,9 +395,9 @@ const PLBBuilder = () => {
                       const value = selectedBlock[version][field.name] || '';
                       return (
                         <div key={field.name} className="flex flex-col gap-1.5 group">
-                          <label className="text-xs font-bold text-[#E0D7FF] flex justify-between">
+                          <label className="text-xs font-black text-[#18181B] dark:text-white flex justify-between">
                             {field.label} {field.required && <span className="text-red-500">*</span>}
-                            <span className="text-[10px] text-[#A1A1AA] opacity-0 group-hover:opacity-100 transition-opacity">{field.type}</span>
+                            <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] opacity-0 group-hover:opacity-100 transition-opacity">{field.type}</span>
                           </label>
                           
                           {field.type === 'text' || field.type === 'number' ? (
@@ -404,7 +405,7 @@ const PLBBuilder = () => {
                               type={field.type}
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
                             />
                           ) : field.type === 'color' ? (
                             <div className="flex items-center gap-2">
@@ -412,24 +413,24 @@ const PLBBuilder = () => {
                                 type="color"
                                 value={value}
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-10 h-10 p-1 rounded-lg border-2 border-[#29366F] bg-[#0c0620] cursor-pointer"
+                                className="w-12 h-12 p-1 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] cursor-pointer shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
                               />
-                              <span className="text-sm font-mono text-[#E0D7FF]">{value || '#000000'}</span>
+                              <span className="text-sm font-mono font-bold text-[#18181B] dark:text-white">{value || '#000000'}</span>
                             </div>
                           ) : field.type === 'textarea' ? (
                             <textarea 
                               value={value}
                               rows={4}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm resize-y focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm resize-y focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
                             />
                           ) : field.type === 'select' ? (
                             <select
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors appearance-none cursor-pointer"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all appearance-none cursor-pointer shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
                             >
-                              {field.options.map(opt => <option key={opt} value={opt} className="bg-[#0c0620]">{opt}</option>)}
+                              {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                             </select>
                           ) : null}
                         </div>
