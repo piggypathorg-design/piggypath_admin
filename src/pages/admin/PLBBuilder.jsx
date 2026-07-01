@@ -81,15 +81,13 @@ function SortableBlock({ id, block, isSelected, onClick, onDelete, isPreviewMode
   const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
 
   if (isPreviewMode) {
-    // In Preview Mode, we just show a static placeholder for the block
-    // A real implementation would render the actual lesson component here based on block data
     return (
-      <div className="mb-4 bg-gray-50 border-2 border-gray-200 rounded-xl p-6 flex flex-col gap-2 relative group overflow-hidden">
+      <div className="mb-4 bg-[#12123A] border-2 border-[#29366F] rounded-xl p-6 flex flex-col gap-2 relative group overflow-hidden">
         <div className="absolute top-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
-          <Icon size={24} className="text-gray-400" />
+          <Icon size={24} className="text-[#E0D7FF]" />
         </div>
-        <div className="text-lg font-bold text-gray-700">{block.type}</div>
-        <div className="text-sm text-gray-500 line-clamp-3">
+        <div className="text-lg font-bold text-white">{block.type}</div>
+        <div className="text-sm text-[#A1A1AA] line-clamp-3">
           {Object.entries(block.teen).map(([k, v]) => `${k}: ${v}`).join(' | ')}
         </div>
       </div>
@@ -97,17 +95,17 @@ function SortableBlock({ id, block, isSelected, onClick, onDelete, isPreviewMode
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`relative mb-3 bg-white dark:bg-[#27272A] border-[3px] ${isSelected ? 'border-[#8B5CF6] shadow-[4px_4px_0_#8B5CF6]' : 'border-gray-200 shadow-sm'} rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-colors`} onClick={onClick}>
-      <div {...attributes} {...listeners} className="cursor-grab hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg touch-none">
-        <GripVertical size={20} className="text-gray-400" />
+    <div ref={setNodeRef} style={style} className={`relative mb-3 bg-[#12123A] border-[3px] ${isSelected ? 'border-[#00E599] shadow-[4px_4px_0_#00E599]' : 'border-[#29366F] shadow-[4px_4px_0_#09091A]'} rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-colors hover:border-[#8B5CF6]`} onClick={onClick}>
+      <div {...attributes} {...listeners} className="cursor-grab hover:bg-[#1a1a45] p-2 rounded-lg touch-none">
+        <GripVertical size={20} className="text-[#A1A1AA]" />
       </div>
-      <div className="w-10 h-10 bg-gray-50 dark:bg-[#18181B] border-[2px] border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center">
-        <Icon size={20} className="text-gray-600 dark:text-gray-300" />
+      <div className="w-10 h-10 bg-[#0c0620] border-[2px] border-[#29366F] rounded-lg flex items-center justify-center">
+        <Icon size={20} className="text-white" />
       </div>
-      <div className="flex-1 font-bold text-gray-700 dark:text-gray-200">
+      <div className="flex-1 font-bold text-white">
         {block.type}
       </div>
-      <button onClick={(e) => { e.stopPropagation(); onDelete(id); }} className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 rounded-lg transition-colors">
+      <button onClick={(e) => { e.stopPropagation(); onDelete(id); }} className="p-2 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors">
         <Trash2 size={18} />
       </button>
     </div>
@@ -221,38 +219,38 @@ const PLBBuilder = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col font-sans bg-gray-100 text-gray-900 overflow-hidden">
+    <div className="h-screen flex flex-col font-sans bg-[#0c0620] text-white overflow-hidden relative">
       {/* Top Header / Toolbar */}
-      <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
+      <header className="h-16 bg-[#12123A] border-b-2 border-[#29366F] px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
         
         {/* Left Side: Back & Meta */}
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#8B5CF6] font-bold transition-colors"
+            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#00E599] font-bold transition-colors"
           >
             <ChevronLeft size={20} /> Dashboard
           </button>
           
-          <div className="h-8 w-px bg-gray-200"></div>
+          <div className="h-8 w-px bg-[#29366F]"></div>
           
           <div>
-            <h1 className="font-black text-lg text-gray-800 leading-tight">{lesson.title}</h1>
-            <p className="text-xs font-bold text-gray-400">{lesson.course} &bull; {lesson.status}</p>
+            <h1 className="font-black text-lg text-white leading-tight">{lesson.title}</h1>
+            <p className="text-xs font-bold text-[#A1A1AA]">{lesson.course} &bull; <span className="text-[#00E599]">{lesson.status}</span></p>
           </div>
         </div>
         
         {/* Center: View Controls */}
-        <div className="flex items-center gap-4 bg-gray-100 p-1.5 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-4 bg-[#0c0620] p-1.5 rounded-xl border border-[#29366F]">
           <button 
             onClick={() => setIsPreviewMode(false)}
-            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${!isPreviewMode ? 'bg-white text-[#8B5CF6] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${!isPreviewMode ? 'bg-[#29366F] text-white' : 'text-[#A1A1AA] hover:text-white'}`}
           >
             <Edit3 size={16} className="inline mr-2" /> Editor
           </button>
           <button 
             onClick={() => setIsPreviewMode(true)}
-            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${isPreviewMode ? 'bg-white text-[#00E599] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${isPreviewMode ? 'bg-[#29366F] text-[#00E599]' : 'text-[#A1A1AA] hover:text-[#00E599]'}`}
           >
             <Play size={16} className="inline mr-2" /> Preview
           </button>
@@ -260,16 +258,16 @@ const PLBBuilder = () => {
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
+          <div className="flex bg-[#0c0620] rounded-lg p-1 border border-[#29366F]">
             <button 
               onClick={() => setVersion('teen')}
-              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'teen' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'teen' ? 'bg-[#8B5CF6] text-white' : 'text-[#A1A1AA] hover:text-white'}`}
             >
               Teen
             </button>
             <button 
               onClick={() => setVersion('adult')}
-              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'adult' ? 'bg-[#FF4444] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 font-bold text-xs rounded-md transition-colors ${version === 'adult' ? 'bg-orange-500 text-white' : 'text-[#A1A1AA] hover:text-white'}`}
             >
               Adult
             </button>
@@ -282,9 +280,9 @@ const PLBBuilder = () => {
         
         {/* Left Sidebar (Components Library) - Hidden in Preview Mode */}
         {!isPreviewMode && (
-          <aside className="w-72 bg-white border-r border-gray-200 overflow-y-auto shrink-0 shadow-[4px_0_12px_rgba(0,0,0,0.02)] z-10 flex flex-col">
-            <div className="p-5 border-b border-gray-100 bg-gray-50">
-              <h2 className="font-black text-xs text-gray-500 uppercase tracking-wider">Component Library</h2>
+          <aside className="w-72 bg-[#12123A] border-r-2 border-[#29366F] overflow-y-auto shrink-0 z-10 flex flex-col">
+            <div className="p-5 border-b-2 border-[#29366F] bg-[#0c0620]">
+              <h2 className="font-black text-xs text-[#E0D7FF] uppercase tracking-wider">Component Library</h2>
             </div>
             <div className="p-4 flex flex-col gap-2">
               {Object.keys(plbSchema).map(type => {
@@ -293,14 +291,14 @@ const PLBBuilder = () => {
                   <button 
                     key={type}
                     onClick={() => addBlock(type)}
-                    className="flex items-center gap-3 p-3 bg-white border-[2px] border-gray-100 rounded-xl hover:border-[#8B5CF6] hover:shadow-[2px_2px_0_#8B5CF6] hover:-translate-y-0.5 transition-all text-left group"
+                    className="flex items-center gap-3 p-3 bg-[#0c0620] border-[2px] border-[#29366F] rounded-xl hover:border-[#8B5CF6] hover:-translate-y-0.5 transition-all text-left group"
                   >
-                    <div className="w-8 h-8 bg-gray-50 border-[2px] border-gray-200 rounded-md flex items-center justify-center group-hover:bg-[#8B5CF6] group-hover:border-[#8B5CF6] transition-colors">
-                      <Icon size={16} className="text-gray-600 group-hover:text-white" />
+                    <div className="w-8 h-8 bg-[#12123A] border-[2px] border-[#29366F] rounded-md flex items-center justify-center group-hover:bg-[#8B5CF6] group-hover:border-[#8B5CF6] transition-colors">
+                      <Icon size={16} className="text-[#A1A1AA] group-hover:text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-sm text-gray-800">{type}</div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{plbSchema[type].category}</div>
+                      <div className="font-bold text-sm text-white">{type}</div>
+                      <div className="text-[10px] text-[#A1A1AA] font-bold uppercase tracking-wide">{plbSchema[type].category}</div>
                     </div>
                   </button>
                 )
@@ -310,25 +308,25 @@ const PLBBuilder = () => {
         )}
 
         {/* Center Canvas (Canva Style White Page) */}
-        <main className={`flex-1 overflow-y-auto relative bg-[#f0f2f5] p-8 flex flex-col ${isPreviewMode ? 'items-center' : 'items-center'}`}>
+        <main className={`flex-1 overflow-y-auto relative bg-transparent p-8 flex flex-col ${isPreviewMode ? 'items-center' : 'items-center'}`}>
           
           {/* Device Toggles overlay in Preview Mode */}
           {isPreviewMode && (
-            <div className="sticky top-0 mb-6 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200 shadow-sm flex items-center gap-2 z-30">
-              <button onClick={() => setPreviewDevice('desktop')} className={`p-2 rounded-full ${previewDevice==='desktop' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>
+            <div className="sticky top-0 mb-6 bg-[#12123A]/90 backdrop-blur-md px-4 py-2 rounded-full border-2 border-[#29366F] shadow-lg flex items-center gap-2 z-30">
+              <button onClick={() => setPreviewDevice('desktop')} className={`p-2 rounded-full transition-colors ${previewDevice==='desktop' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
                 <Monitor size={18} />
               </button>
-              <button onClick={() => setPreviewDevice('tablet')} className={`p-2 rounded-full ${previewDevice==='tablet' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>
+              <button onClick={() => setPreviewDevice('tablet')} className={`p-2 rounded-full transition-colors ${previewDevice==='tablet' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
                 <Tablet size={18} />
               </button>
-              <button onClick={() => setPreviewDevice('mobile')} className={`p-2 rounded-full ${previewDevice==='mobile' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>
+              <button onClick={() => setPreviewDevice('mobile')} className={`p-2 rounded-full transition-colors ${previewDevice==='mobile' ? 'bg-[#00E599] text-[#12123A]' : 'text-[#E0D7FF] hover:bg-[#29366F]'}`}>
                 <Smartphone size={18} />
               </button>
             </div>
           )}
 
           {/* The White Canvas */}
-          <div className={`w-full ${canvasWidth} min-h-[850px] bg-white rounded-lg shadow-xl border border-gray-200 p-8 md:p-12 transition-all duration-300 relative`}>
+          <div className={`w-full ${canvasWidth} min-h-[850px] bg-white text-gray-900 rounded-lg shadow-[0_0_40px_rgba(139,92,246,0.15)] border-4 border-[#29366F] p-8 md:p-12 transition-all duration-300 relative`}>
             
             {blocks.length === 0 ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
@@ -369,26 +367,26 @@ const PLBBuilder = () => {
 
         {/* Right Sidebar (Properties Panel) - Hidden in Preview Mode */}
         {!isPreviewMode && (
-          <aside className="w-80 bg-white border-l border-gray-200 overflow-y-auto shrink-0 shadow-[-4px_0_12px_rgba(0,0,0,0.02)] z-10 flex flex-col">
-            <div className="p-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-              <h2 className="font-black text-xs text-gray-500 uppercase tracking-wider">Properties ({version})</h2>
+          <aside className="w-80 bg-[#12123A] border-l-2 border-[#29366F] overflow-y-auto shrink-0 z-10 flex flex-col">
+            <div className="p-5 border-b-2 border-[#29366F] bg-[#0c0620] flex items-center justify-between">
+              <h2 className="font-black text-xs text-[#E0D7FF] uppercase tracking-wider">Properties ({version})</h2>
             </div>
             
             <div className="p-6">
               {!selectedBlock ? (
-                <div className="text-sm font-bold text-gray-400 text-center mt-10 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <div className="text-sm font-bold text-[#A1A1AA] text-center mt-10 p-6 bg-[#0c0620] rounded-xl border-2 border-dashed border-[#29366F]">
                   Select a block on the canvas to configure its settings.
                 </div>
               ) : (
                 <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-                  <div className="pb-4 border-b border-gray-100">
+                  <div className="pb-4 border-b-2 border-[#29366F]">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-6 h-6 bg-[#8B5CF6] rounded text-white flex items-center justify-center">
                         <SettingsIcon type={selectedBlock.type} />
                       </div>
-                      <h3 className="font-black text-xl text-gray-800">{selectedBlock.type}</h3>
+                      <h3 className="font-black text-xl text-white">{selectedBlock.type}</h3>
                     </div>
-                    <p className="text-[10px] text-gray-400 font-bold font-mono bg-gray-100 px-2 py-1 rounded inline-block mt-2">{selectedBlock.id}</p>
+                    <p className="text-[10px] text-[#A1A1AA] font-bold font-mono bg-[#0c0620] px-2 py-1 rounded inline-block mt-2">{selectedBlock.id}</p>
                   </div>
                   
                   <div className="flex flex-col gap-4">
@@ -396,9 +394,9 @@ const PLBBuilder = () => {
                       const value = selectedBlock[version][field.name] || '';
                       return (
                         <div key={field.name} className="flex flex-col gap-1.5 group">
-                          <label className="text-xs font-bold text-gray-700 flex justify-between">
+                          <label className="text-xs font-bold text-[#E0D7FF] flex justify-between">
                             {field.label} {field.required && <span className="text-red-500">*</span>}
-                            <span className="text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{field.type}</span>
+                            <span className="text-[10px] text-[#A1A1AA] opacity-0 group-hover:opacity-100 transition-opacity">{field.type}</span>
                           </label>
                           
                           {field.type === 'text' || field.type === 'number' ? (
@@ -406,7 +404,7 @@ const PLBBuilder = () => {
                               type={field.type}
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors"
                             />
                           ) : field.type === 'color' ? (
                             <div className="flex items-center gap-2">
@@ -414,24 +412,24 @@ const PLBBuilder = () => {
                                 type="color"
                                 value={value}
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-10 h-10 p-1 rounded-lg border-2 border-gray-200 bg-white cursor-pointer"
+                                className="w-10 h-10 p-1 rounded-lg border-2 border-[#29366F] bg-[#0c0620] cursor-pointer"
                               />
-                              <span className="text-sm font-mono text-gray-500">{value || '#000000'}</span>
+                              <span className="text-sm font-mono text-[#E0D7FF]">{value || '#000000'}</span>
                             </div>
                           ) : field.type === 'textarea' ? (
                             <textarea 
                               value={value}
                               rows={4}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-sm resize-y focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm resize-y focus:border-[#8B5CF6] focus:outline-none transition-colors"
                             />
                           ) : field.type === 'select' ? (
                             <select
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors appearance-none cursor-pointer"
+                              className="w-full px-3 py-2 rounded-lg border-2 border-[#29366F] bg-[#0c0620] text-white font-medium text-sm focus:border-[#8B5CF6] focus:outline-none transition-colors appearance-none cursor-pointer"
                             >
-                              {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {field.options.map(opt => <option key={opt} value={opt} className="bg-[#0c0620]">{opt}</option>)}
                             </select>
                           ) : null}
                         </div>
