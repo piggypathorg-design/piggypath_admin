@@ -24,7 +24,7 @@ import {
   PieChart, BarChart2, TrendingUp, Table as TableIcon, 
   Star, Coins, Award, Trophy, Percent, 
   ArrowRight, ArrowLeft, FastForward,
-  Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft
+  Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { getLesson, updateLesson } from '../../utils/mockDatabase';
