@@ -1,12 +1,50 @@
 import React from 'react';
-import PLBAuthGuard from './pages/admin/PLBAuthGuard';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import PLBLogin from './pages/admin/PLBLogin';
+import PLBDashboard from './pages/admin/PLBDashboard';
 import PLBBuilder from './pages/admin/PLBBuilder';
+
+// A simple wrapper to protect routes
+const RequireAuth = ({ children }) => {
+  const user = localStorage.getItem('plb_current_user');
+  const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
-    <PLBAuthGuard>
-      <PLBBuilder />
-    </PLBAuthGuard>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<PLBLogin />} />
+        
+        {/* Protected Routes */}
+        <Route 
+          path="/" 
+          element={
+            <RequireAuth>
+              <PLBDashboard />
+            </RequireAuth>
+          } 
+        />
+        
+        <Route 
+          path="/builder/:id" 
+          element={
+            <RequireAuth>
+              <PLBBuilder />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
