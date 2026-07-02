@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User } from 'lucide-react';
+import { Lock, User, Sparkles } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { loginUser } from '../../utils/mockDatabase';
 
@@ -32,27 +32,33 @@ const PLBLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] dark:bg-[#18181B] flex items-center justify-center p-6 font-sans relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-[#8B5CF6] blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#00E599] blur-[100px]"></div>
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      {/* Animated Ambient Background Gradients */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-gradient-to-br from-indigo-600/30 to-purple-600/30 blur-[120px] animate-pulse"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-gradient-to-tr from-teal-500/20 to-emerald-500/20 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      <div className="max-w-md w-full bg-white dark:bg-[#27272A] rounded-2xl border-[4px] border-[#18181B] dark:border-white shadow-[8px_8px_0_#18181B] dark:shadow-[#FFFFFF] p-8 text-center relative z-10">
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-[#8B5CF6] rounded-2xl border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B]">
-            <Lock size={32} className="text-white" strokeWidth={3} />
+      {/* Glassmorphic Login Card */}
+      <div className="max-w-md w-full bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-10 text-center relative z-10 transition-all duration-300 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)] hover:border-white/20">
+        
+        <div className="flex justify-center mb-8">
+          <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30 relative">
+            <Lock size={32} className="text-white relative z-10" strokeWidth={2.5} />
+            <div className="absolute inset-0 bg-white/20 rounded-2xl blur-md"></div>
           </div>
         </div>
-        <Logo className="text-3xl mb-2 justify-center" />
-        <h1 className="text-2xl font-black text-[#18181B] dark:text-white mb-2">Developer Login</h1>
-        <p className="text-[#71717A] dark:text-[#A1A1AA] font-bold mb-8">Access the PiggyPath Lesson Builder</p>
         
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <User size={20} className="text-[#A1A1AA]" />
+        <div className="flex justify-center mb-2">
+           <Logo className="text-3xl text-white drop-shadow-md" />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
+        <p className="text-zinc-400 font-medium mb-8 text-sm">Sign in to access the PiggyPath Builder</p>
+        
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-300 group-focus-within:text-indigo-400 text-zinc-500">
+              <User size={20} />
             </div>
             <input 
               type="text" 
@@ -60,13 +66,13 @@ const PLBLogin = () => {
               onChange={(e) => { setUsername(e.target.value); setError(''); }}
               placeholder="Username"
               required
-              className="w-full pl-12 pr-4 py-3 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-[#F4F4F5] dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold focus:outline-none focus:ring-4 focus:ring-[#00E599] transition-all"
+              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-white/10 bg-white/5 text-white placeholder-zinc-500 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/10 transition-all duration-300"
             />
           </div>
           
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Lock size={20} className="text-[#A1A1AA]" />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors duration-300 group-focus-within:text-indigo-400 text-zinc-500">
+              <Lock size={20} />
             </div>
             <input 
               type="password" 
@@ -74,22 +80,24 @@ const PLBLogin = () => {
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               placeholder="Password"
               required
-              className="w-full pl-12 pr-4 py-3 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-[#F4F4F5] dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold focus:outline-none focus:ring-4 focus:ring-[#00E599] transition-all"
+              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-white/10 bg-white/5 text-white placeholder-zinc-500 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/10 transition-all duration-300"
             />
           </div>
           
-          {error && <p className="text-red-500 font-bold text-sm text-center">{error}</p>}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 font-medium text-sm py-2 rounded-xl text-center">
+              {error}
+            </div>
+          )}
           
-          <button type="submit" className="w-full mt-2 py-3 bg-[#00E599] text-[#18181B] font-black rounded-xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] transition-all flex justify-center items-center gap-2">
-            Sign In
+          <button type="submit" className="w-full mt-2 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex justify-center items-center gap-2">
+            Sign In <Sparkles size={18} />
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t-2 border-dashed border-[#E4E4E7] dark:border-[#3F3F46]">
-          <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-semibold">
-            Test Accounts:<br/>
-            dev1 / password<br/>
-            dev2 / password
+        <div className="mt-8 pt-6 border-t border-white/10">
+          <p className="text-xs text-zinc-500 font-medium">
+            Test Accounts: <span className="text-zinc-400">dev1 / password</span> or <span className="text-zinc-400">dev2 / password</span>
           </p>
         </div>
       </div>
