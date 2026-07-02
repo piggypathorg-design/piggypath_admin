@@ -10,7 +10,8 @@ import {
   PieChart, BarChart2, TrendingUp, Table as TableIcon, 
   Star, Coins, Award, Trophy, Percent, 
   ArrowRight, ArrowLeft, FastForward,
-  Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus
+  Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus,
+  Layers, ArrowUp, ArrowDown, Upload
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { getLesson, updateLesson } from '../../utils/mockDatabase';
@@ -101,6 +102,26 @@ const PLBBuilder = () => {
     saveLesson(newBlocks);
   };
 
+  const bringForward = (blockId) => {
+    const index = blocks.findIndex(b => b.id === blockId);
+    if (index < blocks.length - 1) {
+      const newBlocks = [...blocks];
+      [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
+      setBlocks(newBlocks);
+      saveLesson(newBlocks);
+    }
+  };
+  
+  const sendBackward = (blockId) => {
+    const index = blocks.findIndex(b => b.id === blockId);
+    if (index > 0) {
+      const newBlocks = [...blocks];
+      [newBlocks[index], newBlocks[index - 1]] = [newBlocks[index - 1], newBlocks[index]];
+      setBlocks(newBlocks);
+      saveLesson(newBlocks);
+    }
+  };
+
   const updateBlockSpatial = (blockId, spatialUpdates) => {
     const newBlocks = blocks.map(block => {
       if (block.id === blockId) {
@@ -129,6 +150,35 @@ const PLBBuilder = () => {
     saveLesson(newBlocks);
   };
 
+  const handleFileUpload = (blockId, fieldName, file) => {
+    if (!file) return;
+    
+    // Basic validation to prevent massively oversized JSON exports (optional)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Please keep images under 2MB to ensure smooth exporting.");
+      // We still process it, just a friendly warning
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      updateBlockData(blockId, fieldName, e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const exportLesson = () => {
+    const exportData = {
+      ...lesson,
+      components: blocks // Ensure we have the latest blocks state
+    };
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", `${lesson.title.replace(/\s+/g, '_')}_export.json`);
+    dlAnchorElem.click();
+  };
+
   if (!lesson) return null;
 
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
@@ -146,7 +196,7 @@ const PLBBuilder = () => {
   return (
     <div className="h-screen flex flex-col font-sans bg-[#F4F4F5] dark:bg-[#18181B] text-[#18181B] dark:text-[#F4F4F5] overflow-hidden transition-colors selection:bg-[#00E599] selection:text-[#18181B]">
       {/* Top Header / Toolbar */}
-      <header className="h-20 bg-[#F4F4F5] dark:bg-[#18181B] border-b-[3px] border-[#18181B] dark:border-white px-6 flex items-center justify-between shrink-0 z-20">
+      <header className="h-20 bg-[#F4F4F5] dark:bg-[#18181B] border-b-[3px] border-[#18181B] dark:border-white px-6 flex items-center justify-between shrink-0 z-30">
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate('/')}
@@ -177,6 +227,12 @@ const PLBBuilder = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <button 
+            onClick={exportLesson}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-black text-sm rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-1 transition-transform"
+          >
+            <Download size={16} strokeWidth={3} /> Export Lesson JSON
+          </button>
           <div className="flex bg-white dark:bg-[#27272A] rounded-xl p-1 border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
             <button 
               onClick={() => setVersion('teen')}
@@ -258,7 +314,7 @@ const PLBBuilder = () => {
                 <p className="text-sm font-bold text-[#71717A]">Click components from the left sidebar to start building.</p>
               </div>
             ) : (
-              blocks.map((block) => (
+              blocks.map((block, index) => (
                 <Rnd
                   key={block.id}
                   bounds="parent"
@@ -278,7 +334,8 @@ const PLBBuilder = () => {
                     e.stopPropagation();
                     if (!isPreviewMode) setSelectedBlockId(block.id);
                   }}
-                  className={`group absolute ${selectedBlockId === block.id && !isPreviewMode ? 'ring-4 ring-[#00E599] ring-offset-2 z-20' : 'hover:ring-2 hover:ring-[#8B5CF6] z-10'} ${isPreviewMode ? '!ring-0' : ''}`}
+                  style={{ zIndex: index }} // Layering based on array order
+                  className={`group absolute ${selectedBlockId === block.id && !isPreviewMode ? 'ring-4 ring-[#00E599] ring-offset-2' : 'hover:ring-2 hover:ring-[#8B5CF6]'} ${isPreviewMode ? '!ring-0' : ''}`}
                 >
                   {!isPreviewMode && selectedBlockId === block.id && (
                     <button 
@@ -310,8 +367,8 @@ const PLBBuilder = () => {
 
         {/* Right Sidebar (Properties Panel) */}
         {!isPreviewMode && (
-          <aside className="w-80 bg-[#F4F4F5] dark:bg-[#18181B] border-l-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-10 flex flex-col">
-            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] flex items-center justify-between">
+          <aside className="w-80 bg-[#F4F4F5] dark:bg-[#18181B] border-l-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-20 flex flex-col relative">
+            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] flex items-center justify-between sticky top-0 z-10">
               <h2 className="font-black text-xs text-[#18181B] dark:text-white uppercase tracking-wider">Properties ({version})</h2>
             </div>
             
@@ -332,6 +389,29 @@ const PLBBuilder = () => {
                   </div>
                   
                   <div className="flex flex-col gap-4">
+                    {/* Layer Controls */}
+                    <div className="flex flex-col gap-2 p-3 bg-[#E4E4E7] dark:bg-[#3F3F46] border-[3px] border-[#18181B] dark:border-white rounded-xl shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
+                      <div className="flex items-center gap-2 text-[#18181B] dark:text-white font-black text-xs uppercase mb-1">
+                        <Layers size={14} /> Layer Management
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => bringForward(selectedBlock.id)}
+                          disabled={blocks.findIndex(b => b.id === selectedBlock.id) === blocks.length - 1}
+                          className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-[#27272A] border-[2px] border-[#18181B] dark:border-white py-1.5 rounded-lg text-[#18181B] dark:text-white font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#18181B]"
+                        >
+                          <ArrowUp size={14} strokeWidth={3} /> Bring Forward
+                        </button>
+                        <button 
+                          onClick={() => sendBackward(selectedBlock.id)}
+                          disabled={blocks.findIndex(b => b.id === selectedBlock.id) === 0}
+                          className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-[#27272A] border-[2px] border-[#18181B] dark:border-white py-1.5 rounded-lg text-[#18181B] dark:text-white font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#18181B]"
+                        >
+                          <ArrowDown size={14} strokeWidth={3} /> Send Backward
+                        </button>
+                      </div>
+                    </div>
+
                     {/* Spatial properties read-only */}
                     <div className="grid grid-cols-2 gap-2 mb-2 p-2 bg-[#F4F4F5] dark:bg-[#18181B] border-[2px] border-[#E4E4E7] dark:border-[#3F3F46] rounded-xl">
                       <div className="text-[10px] font-black text-[#71717A] dark:text-[#A1A1AA] uppercase">X: {selectedBlock.x}px</div>
@@ -342,6 +422,36 @@ const PLBBuilder = () => {
 
                     {selectedSchema.fields.map(field => {
                       const value = selectedBlock[version][field.name] || '';
+                      
+                      // Special handler for Image Uploads
+                      if (field.name === 'source' && ['Image', 'Video', 'Animation', 'Mascot Emotion'].includes(selectedBlock.type)) {
+                        return (
+                          <div key={field.name} className="flex flex-col gap-1.5 group">
+                            <label className="text-xs font-black text-[#18181B] dark:text-white flex justify-between">
+                              {field.label} (URL or Upload Base64) {field.required && <span className="text-red-500">*</span>}
+                            </label>
+                            <div className="flex gap-2">
+                              <input 
+                                type="text"
+                                value={value}
+                                placeholder="https://..."
+                                onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
+                                className="flex-1 w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                              />
+                              <label className="bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white cursor-pointer text-sm font-black flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-0.5 transition-transform">
+                                <Upload size={16} />
+                                <input 
+                                  type="file" 
+                                  className="hidden" 
+                                  accept={selectedBlock.type === 'Video' ? 'video/*' : 'image/*'} 
+                                  onChange={(e) => handleFileUpload(selectedBlock.id, field.name, e.target.files[0])} 
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <div key={field.name} className="flex flex-col gap-1.5 group">
                           <label className="text-xs font-black text-[#18181B] dark:text-white flex justify-between">
