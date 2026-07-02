@@ -6,6 +6,6 @@ export default defineConfig({
   base: '/piggypath_admin/',
   plugins: [react()],
   build: {
-    outDir: 'docs'
+    outDir: 'dist'
   }
 })
