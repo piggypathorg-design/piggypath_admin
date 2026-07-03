@@ -186,3 +186,33 @@ export const deleteLesson = async (id, user = 'Someone') => {
   await addActivity(user, `deleted the lesson: ${lesson.title}`);
   return true;
 };
+
+export const getUsers = async () => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .order('created_at', { ascending: false });
+    
+  if (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+  return data;
+};
+
+export const updateUser = async (id, name) => {
+  const { data, error } = await supabase
+    .from('users')
+    .update({ name })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error updating user:', error);
+    return null;
+  }
+  
+  await addActivity(data.name || data.username, 'updated their profile settings');
+  return data;
+};
