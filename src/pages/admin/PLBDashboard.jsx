@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, LogOut, FileText, LayoutDashboard, Search, Clock, 
   CheckCircle, Sparkles, ChevronRight, X, Settings, 
-  Users, FolderOpen, Trash2, AlertTriangle, Activity
+  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLessons, createLesson, deleteLesson, getActivities } from '../../utils/mockDatabase';
+import { getLessons, createLesson, deleteLesson, getActivities } from '../../utils/api';
 
 const PLBDashboard = () => {
   const [lessons, setLessons] = useState([]);
@@ -21,6 +21,10 @@ const PLBDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All'); // All, Published, Draft
   
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('plb_current_user') || '{}');
 
@@ -28,9 +32,15 @@ const PLBDashboard = () => {
     refreshData();
   }, []);
 
-  const refreshData = () => {
-    setLessons(getLessons());
-    setActivities(getActivities());
+  const refreshData = async () => {
+    setIsLoading(true);
+    const [fetchedLessons, fetchedActivities] = await Promise.all([
+      getLessons(),
+      getActivities()
+    ]);
+    setLessons(fetchedLessons || []);
+    setActivities(fetchedActivities || []);
+    setIsLoading(false);
   };
 
   const handleLogout = () => {
@@ -38,14 +48,20 @@ const PLBDashboard = () => {
     navigate('/login');
   };
 
-  const handleCreateLesson = (e) => {
+  const handleCreateLesson = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newCourse.trim()) return;
 
-    const newLesson = createLesson(newTitle, newCourse, user.name || user.username);
-    refreshData();
+    setIsCreating(true);
+    const newLesson = await createLesson(newTitle, newCourse, user.name || user.username);
+    await refreshData();
     setShowCreateModal(false);
-    navigate(`/builder/${newLesson.id}`);
+    setNewTitle('');
+    setNewCourse('');
+    setIsCreating(false);
+    if (newLesson) {
+      navigate(`/builder/${newLesson.id}`);
+    }
   };
 
   const confirmDelete = (lesson) => {
@@ -53,12 +69,14 @@ const PLBDashboard = () => {
     setShowDeleteModal(true);
   };
 
-  const handleDeleteLesson = () => {
+  const handleDeleteLesson = async () => {
     if (lessonToDelete) {
-      deleteLesson(lessonToDelete.id, user.name || user.username);
-      refreshData();
+      setIsDeleting(true);
+      await deleteLesson(lessonToDelete.id, user.name || user.username);
+      await refreshData();
       setShowDeleteModal(false);
       setLessonToDelete(null);
+      setIsDeleting(false);
     }
   };
 
@@ -137,8 +155,8 @@ const PLBDashboard = () => {
         {/* Top Header */}
         <header className="h-20 flex items-center justify-between px-8 bg-white/[0.01] border-b border-white/5 backdrop-blur-md sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2 text-xs font-semibold bg-indigo-500/10 text-indigo-300 px-3 py-1.5 border border-indigo-500/20 rounded-full">
-              <Sparkles size={12} /> Live Environment
+            <span className="flex items-center gap-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 px-3 py-1.5 border border-emerald-500/20 rounded-full">
+              <Sparkles size={12} /> Supabase Cloud Connected
             </span>
           </div>
           
@@ -165,22 +183,22 @@ const PLBDashboard = () => {
               <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><LayoutDashboard size={48} /></div>
                 <p className="text-zinc-400 text-sm font-medium mb-1">Total Lessons</p>
-                <p className="text-3xl font-bold text-white">{totalLessons}</p>
+                <p className="text-3xl font-bold text-white">{isLoading ? '...' : totalLessons}</p>
               </div>
               <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-emerald-500 group-hover:opacity-20 transition-opacity"><CheckCircle size={48} /></div>
                 <p className="text-zinc-400 text-sm font-medium mb-1">Published</p>
-                <p className="text-3xl font-bold text-emerald-400">{publishedLessons}</p>
+                <p className="text-3xl font-bold text-emerald-400">{isLoading ? '...' : publishedLessons}</p>
               </div>
               <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-500 group-hover:opacity-20 transition-opacity"><Clock size={48} /></div>
                 <p className="text-zinc-400 text-sm font-medium mb-1">Drafts</p>
-                <p className="text-3xl font-bold text-amber-400">{draftLessons}</p>
+                <p className="text-3xl font-bold text-amber-400">{isLoading ? '...' : draftLessons}</p>
               </div>
               <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-500 group-hover:opacity-20 transition-opacity"><Users size={48} /></div>
                 <p className="text-zinc-400 text-sm font-medium mb-1">Authors</p>
-                <p className="text-3xl font-bold text-indigo-400">{totalAuthors}</p>
+                <p className="text-3xl font-bold text-indigo-400">{isLoading ? '...' : totalAuthors}</p>
               </div>
             </div>
 
@@ -214,7 +232,7 @@ const PLBDashboard = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto relative z-10">
+              <div className="overflow-x-auto relative z-10 min-h-[300px]">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/5 bg-black/10">
@@ -226,7 +244,14 @@ const PLBDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredLessons.length === 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan="5" className="p-16 text-center text-zinc-500">
+                          <Loader2 className="animate-spin mx-auto text-indigo-500 mb-4" size={32} />
+                          <p>Syncing with Supabase...</p>
+                        </td>
+                      </tr>
+                    ) : filteredLessons.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="p-12 text-center text-zinc-500 font-medium relative">
                           <div className="flex flex-col items-center justify-center gap-4">
@@ -303,7 +328,9 @@ const PLBDashboard = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto pr-2 relative z-10 space-y-5 custom-scrollbar">
-                {activities.length === 0 ? (
+                {isLoading ? (
+                  <div className="flex justify-center py-10"><Loader2 className="animate-spin text-zinc-600" /></div>
+                ) : activities.length === 0 ? (
                   <p className="text-sm text-zinc-500">No recent activity to show.</p>
                 ) : (
                   activities.map((activity, index) => (
@@ -336,11 +363,11 @@ const PLBDashboard = () => {
       {/* Glassmorphic Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowCreateModal(false)}></div>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => !isCreating && setShowCreateModal(false)}></div>
           
           <div className="bg-[#12121A]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-3xl max-w-md w-full p-8 relative z-10 animate-in zoom-in-95 duration-200">
             <button 
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => !isCreating && setShowCreateModal(false)}
               className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full"
             >
               <X size={20} />
@@ -363,6 +390,7 @@ const PLBDashboard = () => {
                   placeholder="e.g. Introduction to Physics"
                   className="w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-2xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/5 transition-all duration-300 placeholder-zinc-600 shadow-inner"
                   required
+                  disabled={isCreating}
                 />
               </div>
               
@@ -375,6 +403,7 @@ const PLBDashboard = () => {
                   placeholder="e.g. PHY101"
                   className="w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-2xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/5 transition-all duration-300 placeholder-zinc-600 shadow-inner"
                   required
+                  disabled={isCreating}
                 />
               </div>
 
@@ -382,15 +411,17 @@ const PLBDashboard = () => {
                 <button 
                   type="button" 
                   onClick={() => setShowCreateModal(false)}
-                  className="py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-2xl transition-all duration-200"
+                  disabled={isCreating}
+                  className="py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-2xl transition-all duration-200 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2"
+                  disabled={isCreating}
+                  className="py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  Create Module
+                  {isCreating ? <Loader2 size={18} className="animate-spin" /> : 'Create Module'}
                 </button>
               </div>
             </form>
@@ -401,7 +432,7 @@ const PLBDashboard = () => {
       {/* Glassmorphic Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)}></div>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => !isDeleting && setShowDeleteModal(false)}></div>
           
           <div className="bg-[#12121A]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-3xl max-w-sm w-full p-8 relative z-10 animate-in zoom-in-95 duration-200 text-center">
             
@@ -417,15 +448,17 @@ const PLBDashboard = () => {
             <div className="grid grid-cols-2 gap-4">
               <button 
                 onClick={() => setShowDeleteModal(false)}
-                className="py-3 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-xl transition-all duration-200"
+                disabled={isDeleting}
+                className="py-3 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-xl transition-all duration-200 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDeleteLesson}
-                className="py-3 bg-red-500/90 hover:bg-red-500 text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all duration-200"
+                disabled={isDeleting}
+                className="py-3 bg-red-500/90 hover:bg-red-500 text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Delete
+                {isDeleting ? <Loader2 size={18} className="animate-spin" /> : 'Delete'}
               </button>
             </div>
           </div>

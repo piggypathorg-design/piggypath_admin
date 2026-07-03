@@ -14,7 +14,7 @@ import {
   Layers, ArrowUp, ArrowDown, Upload
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLesson, updateLesson } from '../../utils/mockDatabase';
+import { getLesson, updateLesson } from '../../utils/api';
 
 const iconMap = {
   'Type': Type, 'AlignLeft': AlignLeft, 'FileText': FileText, 'Minus': Minus, 'Maximize2': Maximize2, 'Square': Square, 
@@ -32,27 +32,33 @@ const PLBBuilder = () => {
   const [lesson, setLesson] = useState(null);
   const [blocks, setBlocks] = useState([]);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   const [version, setVersion] = useState('teen');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [previewDevice, setPreviewDevice] = useState('desktop');
 
   useEffect(() => {
-    const l = getLesson(id);
-    if (!l) {
-      navigate('/');
-      return;
-    }
-    setLesson(l);
-    setBlocks(l.components || []);
+    const fetchLesson = async () => {
+      const l = await getLesson(id);
+      if (!l) {
+        navigate('/');
+        return;
+      }
+      setLesson(l);
+      setBlocks(l.components || []);
+    };
+    fetchLesson();
   }, [id, navigate]);
 
-  const saveLesson = (currentBlocks) => {
-    const newLessonData = updateLesson(id, { 
+  const saveLesson = async (currentBlocks) => {
+    setIsSaving(true);
+    const newLessonData = await updateLesson(id, { 
       components: currentBlocks,
       pagesCount: Math.max(1, currentBlocks.length)
     });
-    setLesson(newLessonData);
+    if (newLessonData) setLesson(newLessonData);
+    setIsSaving(false);
   };
 
   const addBlock = (type) => {

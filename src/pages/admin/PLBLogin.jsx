@@ -1,33 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User, Sparkles } from 'lucide-react';
+import { ArrowRight, Lock, User, Loader2 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { loginUser } from '../../utils/mockDatabase';
+import { loginUser } from '../../utils/api';
 
 const PLBLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // If already logged in, redirect to dashboard
-  useEffect(() => {
-    const user = localStorage.getItem('plb_current_user');
-    if (user) {
-      navigate('/', { replace: true });
-    }
-  }, [navigate]);
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const user = loginUser(username, password);
+    setIsLoading(true);
+    setError('');
     
-    if (user) {
-      localStorage.setItem('plb_current_user', JSON.stringify(user));
-      setError('');
-      navigate('/');
-    } else {
-      setError('Invalid username or password');
+    try {
+      const user = await loginUser(username, password);
+      if (user) {
+        localStorage.setItem('plb_current_user', JSON.stringify(user));
+        setError('');
+        navigate('/dashboard');
+      } else {
+        setError('Invalid username or password');
+      }
+    } catch (err) {
+      setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,8 +91,9 @@ const PLBLogin = () => {
             </div>
           )}
           
-          <button type="submit" className="w-full mt-2 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex justify-center items-center gap-2">
-            Sign In <Sparkles size={18} />
+          <button disabled={isLoading} type="submit" className="w-full mt-2 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex justify-center items-center gap-2">
+            {isLoading ? 'Signing In...' : 'Sign In'} 
+            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
           </button>
         </form>
 
