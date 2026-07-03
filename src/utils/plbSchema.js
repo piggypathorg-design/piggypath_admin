@@ -334,7 +334,7 @@ export const plbSchema = {
   'Achievement Card': {
     category: 'Feedback', icon: 'Trophy',
     fields: [
-      { name: 'title', label: 'Title', type: 'text', required: true, default: 'Lesson Complete! 🎉' },
+      { name: 'title', label: 'Title', type: 'text', required: true, default: 'Lesson Complete!' },
       { name: 'body', label: 'Body Text', type: 'textarea', default: '' }
     ]
   },

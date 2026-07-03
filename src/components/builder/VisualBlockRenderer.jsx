@@ -3,6 +3,7 @@ import {
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
   PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare
 } from 'lucide-react';
+import mascotImg from '../../assets/mascot.png';
 
 const VisualBlockRenderer = ({ block, version }) => {
   const data = block[version] || {};
@@ -126,11 +127,11 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Mascot Emotion':
       return (
         <div className={`w-full h-full flex ${alignClass} items-end`}>
-          <div className="w-24 h-24 bg-[#FFB8D0] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] overflow-hidden">
+          <div className="w-24 h-24 bg-[#F4F4F5] dark:bg-[#27272A] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] overflow-hidden">
             {data.source ? (
               <img src={data.source} alt="Mascot" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-4xl">🐷</span>
+              <img src={mascotImg} alt="Mascot Placeholder" className="w-full h-full object-cover" />
             )}
           </div>
         </div>
@@ -258,8 +259,8 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Mascot Feedback':
       return (
         <div className="w-full h-full flex items-center gap-4 bg-white dark:bg-[#27272A] p-4 rounded-2xl border-[3px] border-[#18181B] shadow-[6px_6px_0_#18181B]">
-          <div className="w-16 h-16 bg-[#FFB8D0] rounded-full border-[3px] border-[#18181B] shrink-0 flex items-center justify-center text-3xl">
-            🐷
+          <div className="w-16 h-16 bg-[#F4F4F5] dark:bg-[#27272A] rounded-full border-[3px] border-[#18181B] shrink-0 flex items-center justify-center overflow-hidden">
+            <img src={mascotImg} alt="Mascot" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1">
             <div className="font-bold text-[#8B5CF6] text-xs uppercase mb-1">{data.tone || 'Happy'}</div>
