@@ -1,21 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, FileText, LayoutDashboard, Search, Clock, CheckCircle, Sparkles, ChevronRight, X } from 'lucide-react';
+import { 
+  Plus, LogOut, FileText, LayoutDashboard, Search, Clock, 
+  CheckCircle, Sparkles, ChevronRight, X, Settings, 
+  Users, FolderOpen, Trash2, AlertTriangle, Activity
+} from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLessons, createLesson } from '../../utils/mockDatabase';
+import { getLessons, createLesson, deleteLesson, getActivities } from '../../utils/mockDatabase';
 
 const PLBDashboard = () => {
   const [lessons, setLessons] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [lessonToDelete, setLessonToDelete] = useState(null);
+  
   const [newTitle, setNewTitle] = useState('');
   const [newCourse, setNewCourse] = useState('');
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('All'); // All, Published, Draft
   
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('plb_current_user') || '{}');
 
   useEffect(() => {
-    setLessons(getLessons());
+    refreshData();
   }, []);
+
+  const refreshData = () => {
+    setLessons(getLessons());
+    setActivities(getActivities());
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('plb_current_user');
@@ -27,156 +43,304 @@ const PLBDashboard = () => {
     if (!newTitle.trim() || !newCourse.trim()) return;
 
     const newLesson = createLesson(newTitle, newCourse, user.name || user.username);
-    setLessons(getLessons());
-    setShowModal(false);
+    refreshData();
+    setShowCreateModal(false);
     navigate(`/builder/${newLesson.id}`);
+  };
+
+  const confirmDelete = (lesson) => {
+    setLessonToDelete(lesson);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteLesson = () => {
+    if (lessonToDelete) {
+      deleteLesson(lessonToDelete.id, user.name || user.username);
+      refreshData();
+      setShowDeleteModal(false);
+      setLessonToDelete(null);
+    }
   };
 
   const openBuilder = (id) => {
     navigate(`/builder/${id}`);
   };
 
+  // Metrics calculation
+  const totalLessons = lessons.length;
+  const publishedLessons = lessons.filter(l => l.status === 'Published').length;
+  const draftLessons = lessons.filter(l => l.status === 'Draft').length;
+  const totalAuthors = new Set(lessons.map(l => l.draftedBy)).size;
+
+  // Filtering lessons
+  const filteredLessons = useMemo(() => {
+    return lessons.filter(lesson => {
+      const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            lesson.course.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTab = activeTab === 'All' ? true : lesson.status === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [lessons, searchQuery, activeTab]);
+
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans relative overflow-hidden selection:bg-indigo-500/30 selection:text-white">
+    <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans relative overflow-hidden selection:bg-indigo-500/30 selection:text-white flex">
       {/* Ambient Glows */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-indigo-900/20 via-purple-900/10 to-transparent blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute top-0 left-0 w-[800px] h-[500px] bg-gradient-to-br from-indigo-900/10 via-purple-900/5 to-transparent blur-3xl pointer-events-none -z-10"></div>
       <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-gradient-to-tl from-teal-900/10 via-transparent to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-      {/* Glass Top Navigation */}
-      <nav className="h-20 bg-white/5 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-40 transition-colors">
-        <div className="flex items-center gap-5">
-          <Logo className="text-2xl text-white drop-shadow-md" />
-          <div className="h-6 w-px bg-white/10"></div>
-          <span className="flex items-center gap-2 text-xs font-semibold bg-indigo-500/10 text-indigo-300 px-3 py-1.5 border border-indigo-500/20 rounded-full">
-            <Sparkles size={12} /> Workspace Admin
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-6">
-          <div className="text-sm font-medium text-zinc-400">
-            <span className="text-zinc-500 mr-2">Developer:</span>
-            <span className="text-zinc-200">{user.name}</span>
+      {/* Sidebar Navigation */}
+      <aside className="w-64 bg-white/[0.02] border-r border-white/5 backdrop-blur-3xl flex flex-col justify-between sticky top-0 h-screen overflow-y-auto">
+        <div>
+          <div className="h-20 flex items-center px-6 border-b border-white/5 mb-6">
+            <Logo className="text-xl text-white drop-shadow-md" />
           </div>
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-sm font-semibold rounded-xl border border-white/10 transition-all duration-200"
-          >
-            <LogOut size={16} /> Sign out
-          </button>
+          
+          <nav className="px-4 flex flex-col gap-2">
+            <div className="text-xs font-bold text-zinc-600 uppercase tracking-wider mb-2 px-2">Menu</div>
+            <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-500/10 text-indigo-300 font-medium transition-all duration-200">
+              <LayoutDashboard size={18} /> Dashboard
+            </button>
+            <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-white/5 font-medium transition-all duration-200">
+              <FolderOpen size={18} /> All Lessons
+            </button>
+            <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-white/5 font-medium transition-all duration-200">
+              <Users size={18} /> Team Members
+            </button>
+            <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-white/5 font-medium transition-all duration-200">
+              <Settings size={18} /> Settings
+            </button>
+          </nav>
         </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-10 pt-12 relative z-10">
-        <div className="flex justify-between items-end mb-10">
-          <div>
-            <h2 className="text-4xl font-bold mb-3 flex items-center gap-4 text-white tracking-tight">
-              <div className="p-3 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 rounded-2xl text-indigo-400 shadow-lg shadow-indigo-500/10">
-                <LayoutDashboard size={28} />
+        <div className="p-4 border-t border-white/5">
+          <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-inner">
+              {user.name ? user.name.charAt(0) : 'U'}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-semibold text-zinc-200 truncate">{user.name}</p>
+              <p className="text-xs text-zinc-500 truncate">Workspace Admin</p>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+              title="Logout"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col max-h-screen overflow-hidden">
+        {/* Top Header */}
+        <header className="h-20 flex items-center justify-between px-8 bg-white/[0.01] border-b border-white/5 backdrop-blur-md sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-2 text-xs font-semibold bg-indigo-500/10 text-indigo-300 px-3 py-1.5 border border-indigo-500/20 rounded-full">
+              <Sparkles size={12} /> Live Environment
+            </span>
+          </div>
+          
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 border border-white/10 transition-all duration-200"
+          >
+            <Plus size={16} strokeWidth={2.5} /> Create Lesson
+          </button>
+        </header>
+
+        {/* Dashboard Content */}
+        <div className="flex-1 overflow-y-auto p-8 flex gap-8">
+          
+          {/* Left Column (Metrics & Table) */}
+          <div className="flex-1 flex flex-col gap-8">
+            <div>
+              <h2 className="text-3xl font-bold mb-1 text-white tracking-tight">Overview</h2>
+              <p className="text-zinc-400 text-sm">Welcome back, here is what's happening with your modules today.</p>
+            </div>
+
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><LayoutDashboard size={48} /></div>
+                <p className="text-zinc-400 text-sm font-medium mb-1">Total Lessons</p>
+                <p className="text-3xl font-bold text-white">{totalLessons}</p>
               </div>
-              All Lessons
-            </h2>
-            <p className="text-zinc-400 font-medium text-lg ml-[68px]">Manage and edit interactive learning modules</p>
-          </div>
-          
-          <button 
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 border border-white/10 transition-all duration-200"
-          >
-            <Plus size={20} strokeWidth={2.5} /> Create Lesson
-          </button>
-        </div>
+              <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-emerald-500 group-hover:opacity-20 transition-opacity"><CheckCircle size={48} /></div>
+                <p className="text-zinc-400 text-sm font-medium mb-1">Published</p>
+                <p className="text-3xl font-bold text-emerald-400">{publishedLessons}</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-500 group-hover:opacity-20 transition-opacity"><Clock size={48} /></div>
+                <p className="text-zinc-400 text-sm font-medium mb-1">Drafts</p>
+                <p className="text-3xl font-bold text-amber-400">{draftLessons}</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-5 rounded-3xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-500 group-hover:opacity-20 transition-opacity"><Users size={48} /></div>
+                <p className="text-zinc-400 text-sm font-medium mb-1">Authors</p>
+                <p className="text-3xl font-bold text-indigo-400">{totalAuthors}</p>
+              </div>
+            </div>
 
-        {/* Dashboard Grid - Modern SaaS Table */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/10 bg-black/20">
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase">Title</th>
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase">Course</th>
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase">Author</th>
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase">Status</th>
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase">Pages</th>
-                  <th className="p-6 font-semibold text-zinc-400 text-sm tracking-wide uppercase text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lessons.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="p-16 text-center text-zinc-500 font-medium relative">
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none"></div>
-                      <div className="flex flex-col items-center justify-center gap-5 relative z-10">
-                        <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-600">
-                          <FileText size={40} strokeWidth={1.5} />
-                        </div>
-                        <div>
-                          <p className="text-xl text-zinc-300 mb-2 font-semibold">No lessons found</p>
-                          <p className="text-sm">Get started by creating your first interactive module.</p>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  lessons.map((lesson, index) => (
-                    <tr key={lesson.id} className={`group ${index !== lessons.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/[0.03] transition-colors duration-200`}>
-                      <td className="p-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                            <FileText size={18} />
-                          </div>
-                          <span className="font-semibold text-zinc-100 group-hover:text-indigo-300 transition-colors duration-200">{lesson.title}</span>
-                        </div>
-                      </td>
-                      <td className="p-6 font-medium text-zinc-400">{lesson.course}</td>
-                      <td className="p-6 font-medium text-zinc-400 flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-[10px] text-white font-bold border border-white/20 shadow-sm">
-                          {lesson.draftedBy.charAt(0).toUpperCase()}
-                        </div>
-                        {lesson.draftedBy}
-                      </td>
-                      <td className="p-6">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${
-                          lesson.status === 'Draft' 
-                            ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' 
-                            : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                        }`}>
-                          {lesson.status === 'Draft' ? <Clock size={12} strokeWidth={2.5} /> : <CheckCircle size={12} strokeWidth={2.5} />}
-                          {lesson.status}
-                        </span>
-                      </td>
-                      <td className="p-6 font-semibold text-zinc-300">
-                        <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg inline-block shadow-inner">
-                          {lesson.pagesCount || 1}
-                        </div>
-                      </td>
-                      <td className="p-6 text-right">
-                        <button 
-                          onClick={() => openBuilder(lesson.id)}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl border border-white/10 hover:border-white/20 shadow-sm hover:shadow-md transition-all duration-200 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/30 group-hover:text-indigo-300"
-                        >
-                          Edit <ChevronRight size={16} />
-                        </button>
-                      </td>
+            {/* Enhanced Dashboard Grid */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col">
+              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
+              
+              {/* Table Header Controls */}
+              <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20 relative z-10">
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                  {['All', 'Published', 'Draft'].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${activeTab === tab ? 'bg-white/10 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'}`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="relative">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Search lessons..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 pr-4 py-2 bg-black/30 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 w-64 placeholder-zinc-600 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="overflow-x-auto relative z-10">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-black/10">
+                      <th className="p-5 font-semibold text-zinc-500 text-xs tracking-wide uppercase">Lesson Title</th>
+                      <th className="p-5 font-semibold text-zinc-500 text-xs tracking-wide uppercase">Course</th>
+                      <th className="p-5 font-semibold text-zinc-500 text-xs tracking-wide uppercase">Author</th>
+                      <th className="p-5 font-semibold text-zinc-500 text-xs tracking-wide uppercase">Status</th>
+                      <th className="p-5 font-semibold text-zinc-500 text-xs tracking-wide uppercase text-right">Actions</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLessons.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="p-12 text-center text-zinc-500 font-medium relative">
+                          <div className="flex flex-col items-center justify-center gap-4">
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-600">
+                              <Search size={24} />
+                            </div>
+                            <div>
+                              <p className="text-zinc-300 font-semibold mb-1">No lessons found</p>
+                              <p className="text-sm">Try adjusting your filters or search query.</p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredLessons.map((lesson, index) => (
+                        <tr key={lesson.id} className={`group ${index !== filteredLessons.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/[0.02] transition-colors duration-200`}>
+                          <td className="p-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                <FileText size={16} />
+                              </div>
+                              <span className="font-semibold text-zinc-200 group-hover:text-white transition-colors duration-200">{lesson.title}</span>
+                            </div>
+                          </td>
+                          <td className="p-5 text-sm font-medium text-zinc-400">{lesson.course}</td>
+                          <td className="p-5 text-sm font-medium text-zinc-400 flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-[10px] text-white font-bold border border-white/20">
+                              {lesson.draftedBy.charAt(0).toUpperCase()}
+                            </div>
+                            {lesson.draftedBy}
+                          </td>
+                          <td className="p-5">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold shadow-sm ${
+                              lesson.status === 'Draft' 
+                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' 
+                                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                            }`}>
+                              {lesson.status === 'Draft' ? <Clock size={12} strokeWidth={2.5} /> : <CheckCircle size={12} strokeWidth={2.5} />}
+                              {lesson.status}
+                            </span>
+                          </td>
+                          <td className="p-5 text-right flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => openBuilder(lesson.id)}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/5 hover:bg-indigo-500/20 text-zinc-300 hover:text-indigo-300 text-sm font-semibold rounded-lg border border-white/10 hover:border-indigo-500/30 transition-all duration-200"
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => confirmDelete(lesson)}
+                              className="p-2 bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-lg border border-transparent hover:border-red-500/30 transition-all duration-200"
+                              title="Delete Lesson"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column (Activity Feed) */}
+          <div className="w-80 flex flex-col gap-6 hidden xl:flex">
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 relative overflow-hidden flex-1 max-h-[800px] flex flex-col">
+              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
+              
+              <div className="flex items-center gap-2 mb-6 relative z-10">
+                <Activity size={18} className="text-indigo-400" />
+                <h3 className="font-bold text-white tracking-wide">Recent Activity</h3>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto pr-2 relative z-10 space-y-5 custom-scrollbar">
+                {activities.length === 0 ? (
+                  <p className="text-sm text-zinc-500">No recent activity to show.</p>
+                ) : (
+                  activities.map((activity, index) => (
+                    <div key={activity.id} className="relative pl-6">
+                      {/* Timeline line */}
+                      {index !== activities.length - 1 && (
+                        <div className="absolute left-[11px] top-6 bottom-[-20px] w-px bg-white/10"></div>
+                      )}
+                      {/* Timeline dot */}
+                      <div className="absolute left-[8px] top-1.5 w-2 h-2 rounded-full bg-indigo-500/50 border border-indigo-400"></div>
+                      
+                      <p className="text-sm text-zinc-300 leading-tight">
+                        <span className="font-semibold text-white">{activity.user}</span> {activity.action}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        {new Date(activity.timestamp).toLocaleString(undefined, {
+                          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   ))
                 )}
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
+          
         </div>
       </main>
 
       {/* Glassmorphic Create Modal */}
-      {showModal && (
+      {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowModal(false)}></div>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowCreateModal(false)}></div>
           
           <div className="bg-[#12121A]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-3xl max-w-md w-full p-8 relative z-10 animate-in zoom-in-95 duration-200">
             <button 
-              onClick={() => setShowModal(false)}
+              onClick={() => setShowCreateModal(false)}
               className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full"
             >
               <X size={20} />
@@ -217,7 +381,7 @@ const PLBDashboard = () => {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <button 
                   type="button" 
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowCreateModal(false)}
                   className="py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-2xl transition-all duration-200"
                 >
                   Cancel
@@ -233,6 +397,57 @@ const PLBDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Glassmorphic Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowDeleteModal(false)}></div>
+          
+          <div className="bg-[#12121A]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-3xl max-w-sm w-full p-8 relative z-10 animate-in zoom-in-95 duration-200 text-center">
+            
+            <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mx-auto mb-5 shadow-inner">
+               <AlertTriangle size={32} />
+            </div>
+
+            <h3 className="text-xl font-bold mb-2 text-white">Delete Lesson?</h3>
+            <p className="text-zinc-400 font-medium mb-8 text-sm">
+              Are you sure you want to delete <span className="text-white font-semibold">"{lessonToDelete?.title}"</span>? This action cannot be undone.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => setShowDeleteModal(false)}
+                className="py-3 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-xl transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteLesson}
+                className="py-3 bg-red-500/90 hover:bg-red-500 text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all duration-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Custom Scrollbar Styles for the Activity Feed */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}} />
     </div>
   );
 };

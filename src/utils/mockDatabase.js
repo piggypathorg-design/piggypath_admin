@@ -3,6 +3,7 @@
 
 const USERS_KEY = 'plb_users';
 const LESSONS_KEY = 'plb_lessons';
+const ACTIVITIES_KEY = 'plb_activities';
 
 // Initialize with default developer accounts if none exist
 const initDB = () => {
@@ -17,6 +18,29 @@ const initDB = () => {
   if (!localStorage.getItem(LESSONS_KEY)) {
     localStorage.setItem(LESSONS_KEY, JSON.stringify([]));
   }
+
+  if (!localStorage.getItem(ACTIVITIES_KEY)) {
+    localStorage.setItem(ACTIVITIES_KEY, JSON.stringify([
+      { id: 'a1', user: 'System', action: 'initialized the workspace', timestamp: new Date(Date.now() - 86400000).toISOString() }
+    ]));
+  }
+};
+
+const addActivity = (user, action) => {
+  const activities = JSON.parse(localStorage.getItem(ACTIVITIES_KEY) || '[]');
+  activities.unshift({
+    id: `act_${Date.now()}`,
+    user,
+    action,
+    timestamp: new Date().toISOString()
+  });
+  // Keep only last 20 activities
+  localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities.slice(0, 20)));
+};
+
+export const getActivities = () => {
+  initDB();
+  return JSON.parse(localStorage.getItem(ACTIVITIES_KEY) || '[]');
 };
 
 export const loginUser = (username, password) => {
@@ -27,6 +51,7 @@ export const loginUser = (username, password) => {
   if (user) {
     // Don't return password
     const { password: _, ...safeUser } = user;
+    addActivity(safeUser.name, 'logged in');
     return safeUser;
   }
   return null;
@@ -60,10 +85,11 @@ export const createLesson = (title, course, draftedBy) => {
   
   lessons.push(newLesson);
   localStorage.setItem(LESSONS_KEY, JSON.stringify(lessons));
+  addActivity(draftedBy, `created a new lesson: ${title}`);
   return newLesson;
 };
 
-export const updateLesson = (id, updates) => {
+export const updateLesson = (id, updates, user = 'Someone') => {
   initDB();
   const lessons = JSON.parse(localStorage.getItem(LESSONS_KEY));
   const index = lessons.findIndex(l => l.id === id);
@@ -71,7 +97,30 @@ export const updateLesson = (id, updates) => {
   if (index !== -1) {
     lessons[index] = { ...lessons[index], ...updates };
     localStorage.setItem(LESSONS_KEY, JSON.stringify(lessons));
+    
+    // Check if status changed to log specific activity
+    if (updates.status) {
+      addActivity(user, `changed status of ${lessons[index].title} to ${updates.status}`);
+    } else {
+      addActivity(user, `updated the lesson: ${lessons[index].title}`);
+    }
+    
     return lessons[index];
   }
   return null;
+};
+
+export const deleteLesson = (id, user = 'Someone') => {
+  initDB();
+  const lessons = JSON.parse(localStorage.getItem(LESSONS_KEY));
+  const index = lessons.findIndex(l => l.id === id);
+  
+  if (index !== -1) {
+    const title = lessons[index].title;
+    lessons.splice(index, 1);
+    localStorage.setItem(LESSONS_KEY, JSON.stringify(lessons));
+    addActivity(user, `deleted the lesson: ${title}`);
+    return true;
+  }
+  return false;
 };
