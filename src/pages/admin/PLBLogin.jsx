@@ -97,11 +97,6 @@ const PLBLogin = () => {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-white/10">
-          <p className="text-xs text-zinc-500 font-medium">
-            Test Accounts: <span className="text-zinc-400">dev1 / password</span> or <span className="text-zinc-400">dev2 / password</span>
-          </p>
-        </div>
       </div>
     </div>
   );
