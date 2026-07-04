@@ -13,6 +13,7 @@ import {
   Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search
 } from 'lucide-react';
 import { getLesson, updateLesson } from '../../utils/api';
+import mascotGridImg from '../../assets/mascot_grid.png';
 
 const iconMap = {
   'Type': Type, 'AlignLeft': AlignLeft, 'FileText': FileText, 'Minus': Minus, 'Maximize2': Maximize2, 'Square': Square, 
@@ -464,7 +465,7 @@ const PLBBuilder = () => {
                                   <div 
                                     className="w-[48px] h-[48px]"
                                     style={{
-                                      backgroundImage: 'url(/assets/mascot_grid.png)',
+                                      backgroundImage: `url(${mascotGridImg})`,
                                       backgroundSize: '400% 300%', // 4 cols, 3 rows
                                       backgroundPosition: getMascotBackgroundPosition(opt),
                                       transform: 'scale(0.8)'

@@ -3,6 +3,7 @@ import {
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
   PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare
 } from 'lucide-react';
+import mascotGridImg from '../../assets/mascot_grid.png';
 
 const getMascotBackgroundPosition = (opt) => {
   const map = {
@@ -24,12 +25,17 @@ const getMascotBackgroundPosition = (opt) => {
 
 const getMascotAnimation = (opt) => {
   const map = {
-    'Happy': 'animate-bounce',
-    'Laughing': 'animate-bounce',
-    'Thinking': 'animate-pulse',
-    'Love': 'animate-pulse',
-    'Sad': 'animate-pulse',
-    'Sleeping': 'opacity-80'
+    'Happy': 'animate-mascot-bounce',
+    'Laughing': 'animate-mascot-bounce',
+    'Thinking': 'animate-mascot-float',
+    'Love': 'animate-mascot-float',
+    'Sad': 'animate-mascot-float',
+    'Surprised': 'animate-mascot-wiggle',
+    'Angry': 'animate-mascot-shake',
+    'Confused': 'animate-mascot-wiggle',
+    'Smart': 'animate-mascot-bounce',
+    'Cool': 'animate-mascot-float',
+    'Sleeping': 'animate-mascot-pulse opacity-80'
   };
   return map[opt] || '';
 };
@@ -150,7 +156,7 @@ const VisualBlockRenderer = ({ block, version }) => {
                <div 
                   className="w-[100px] h-[100px]"
                   style={{
-                    backgroundImage: 'url(/assets/mascot_grid.png)',
+                    backgroundImage: `url(${mascotGridImg})`,
                     backgroundSize: '400% 300%', 
                     backgroundPosition: getMascotBackgroundPosition(mascotType),
                     transform: 'scale(0.85) translateY(5px)'
@@ -296,7 +302,7 @@ const VisualBlockRenderer = ({ block, version }) => {
             <div 
                 className="w-[120px] h-[120px]"
                 style={{
-                  backgroundImage: 'url(/assets/mascot_grid.png)',
+                  backgroundImage: `url(${mascotGridImg})`,
                   backgroundSize: '400% 300%', 
                   backgroundPosition: getMascotBackgroundPosition(mascotTypeEmotion),
                   transform: 'scale(1.2)'

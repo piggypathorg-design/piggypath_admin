@@ -80,10 +80,19 @@ export default {
       animation: {
         'pixel-blink': 'blink 1s steps(1) infinite',
         'pixel-float': 'float 2s steps(4) infinite',
+        'mascot-bounce': 'mascot-bounce 1s ease-in-out infinite',
+        'mascot-float': 'mascot-float 3s ease-in-out infinite',
+        'mascot-wiggle': 'mascot-wiggle 2s ease-in-out infinite',
+        'mascot-shake': 'mascot-shake 0.5s ease-in-out infinite',
+        'mascot-pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },
         float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } },
+        'mascot-bounce': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15%)' } },
+        'mascot-float': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5%)' } },
+        'mascot-wiggle': { '0%, 100%': { transform: 'rotate(-3deg)' }, '50%': { transform: 'rotate(3deg)' } },
+        'mascot-shake': { '0%, 100%': { transform: 'translateX(0)' }, '25%': { transform: 'translateX(-5%)' }, '75%': { transform: 'translateX(5%)' } },
       }
     },
   },
