@@ -187,7 +187,7 @@ const PLBBuilder = () => {
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  const categories = ['ALL', 'CONTENT', 'MEDIA', 'CHARACTER', 'ACTIVITY', 'VISUALIZATION', 'FEEDBACK', 'NAVIGATION', 'LAYOUT'];
+  const categories = ['ALL', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'NAVIGATION'];
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
