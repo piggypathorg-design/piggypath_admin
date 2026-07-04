@@ -347,8 +347,9 @@ export const plbSchema = {
   'Mascot Feedback': {
     category: 'Feedback', icon: 'MessageCircle',
     fields: [
-      { name: 'tone', label: 'Tone', type: 'select', options: ['Happy', 'Sad', 'Disappointed', 'Surprised', 'Thinking', 'Neutral', 'Celebrating'], required: true, default: 'Happy' },
-      { name: 'message', label: 'Message', type: 'textarea', required: true, default: '' }
+      { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' },
+      { name: 'message', label: 'Message', type: 'textarea', required: true, default: 'Great job!' },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
     ]
   },
 
