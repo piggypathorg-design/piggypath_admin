@@ -108,8 +108,7 @@ export const plbSchema = {
   'Mascot Emotion': {
     category: 'Mascot', icon: 'Smile',
     fields: [
-      { name: 'source', label: 'Image URL', type: 'text', required: true, default: '' },
-      { name: 'emotion', label: 'Emotion', type: 'text', default: '' },
+      { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' },
       { name: 'size', label: 'Size', type: 'select', options: ['Small', 'Medium', 'Large'], default: 'Medium' },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
     ]

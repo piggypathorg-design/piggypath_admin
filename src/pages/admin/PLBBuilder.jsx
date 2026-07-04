@@ -446,7 +446,7 @@ const PLBBuilder = () => {
                       const value = selectedBlock[version][field.name] ?? field.default;
                       
                       // Special handling for the Mascot grid selector
-                      if (selectedBlock.type === 'Mascot Feedback' && field.name === 'mascot_type') {
+                      if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion') && field.name === 'mascot_type') {
                         return (
                           <div key={field.name} className="flex flex-col gap-2">
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -477,7 +477,7 @@ const PLBBuilder = () => {
                         );
                       }
 
-                      if (field.name === 'source' && ['Image', 'Video', 'Animation', 'Mascot Emotion'].includes(selectedBlock.type)) {
+                      if (field.name === 'source' && ['Image', 'Video', 'Animation'].includes(selectedBlock.type)) {
                         return (
                           <div key={field.name} className="flex flex-col gap-2">
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">

@@ -288,6 +288,24 @@ const VisualBlockRenderer = ({ block, version }) => {
         </div>
       );
 
+    case 'Mascot Emotion':
+      const mascotTypeEmotion = data.mascot_type || 'Happy';
+      return (
+        <div className={`w-full flex ${alignClass} py-4 px-6`}>
+          <div className={`w-32 h-32 flex items-center justify-center ${getMascotAnimation(mascotTypeEmotion)}`}>
+            <div 
+                className="w-[120px] h-[120px]"
+                style={{
+                  backgroundImage: 'url(/assets/mascot_grid.png)',
+                  backgroundSize: '400% 300%', 
+                  backgroundPosition: getMascotBackgroundPosition(mascotTypeEmotion),
+                  transform: 'scale(1.2)'
+                }}
+            />
+          </div>
+        </div>
+      );
+
     case 'Progress Bar':
       return (
         <div className="w-full px-6 py-4">
