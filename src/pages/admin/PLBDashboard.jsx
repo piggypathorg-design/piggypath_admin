@@ -28,7 +28,7 @@ const PLBDashboard = () => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   const navigate = useNavigate();
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_current_user') || '{}'));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
 
   useEffect(() => {
     if(user && user.name) setProfileName(user.name);
@@ -49,7 +49,7 @@ const PLBDashboard = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('plb_current_user');
+    localStorage.removeItem('plb_user_v2');
     navigate('/login');
   };
 
@@ -75,7 +75,7 @@ const PLBDashboard = () => {
     setIsSavingSettings(true);
     const updatedUser = await updateUser(user.id, profileName);
     if(updatedUser) {
-      localStorage.setItem('plb_current_user', JSON.stringify(updatedUser));
+      localStorage.setItem('plb_user_v2', JSON.stringify(updatedUser));
       setUser(updatedUser);
       await refreshData();
     }

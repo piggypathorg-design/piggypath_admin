@@ -7,7 +7,7 @@ import PLBCreateLesson from './pages/admin/PLBCreateLesson';
 
 // A simple wrapper to protect routes
 const RequireAuth = ({ children }) => {
-  const user = localStorage.getItem('plb_current_user');
+  const user = localStorage.getItem('plb_user_v2');
   const location = useLocation();
 
   if (!user) {

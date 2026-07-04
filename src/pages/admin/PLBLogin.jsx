@@ -19,7 +19,7 @@ const PLBLogin = () => {
     try {
       const user = await loginUser(username, password);
       if (user) {
-        localStorage.setItem('plb_current_user', JSON.stringify(user));
+        localStorage.setItem('plb_user_v2', JSON.stringify(user));
         setError('');
         navigate('/dashboard');
       } else {

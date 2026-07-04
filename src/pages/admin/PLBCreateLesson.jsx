@@ -11,7 +11,7 @@ const PLBCreateLesson = () => {
   const [newLevel, setNewLevel] = useState('Beginner');
   const [isCreating, setIsCreating] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_current_user') || '{}'));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
   
   const navigate = useNavigate();
 
