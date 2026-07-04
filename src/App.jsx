@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'reac
 import PLBLogin from './pages/admin/PLBLogin';
 import PLBDashboard from './pages/admin/PLBDashboard';
 import PLBBuilder from './pages/admin/PLBBuilder';
+import PLBCreateLesson from './pages/admin/PLBCreateLesson';
 
 // A simple wrapper to protect routes
 const RequireAuth = ({ children }) => {
@@ -28,6 +29,15 @@ function App() {
           element={
             <RequireAuth>
               <PLBDashboard />
+            </RequireAuth>
+          } 
+        />
+        
+        <Route 
+          path="/create-lesson" 
+          element={
+            <RequireAuth>
+              <PLBCreateLesson />
             </RequireAuth>
           } 
         />

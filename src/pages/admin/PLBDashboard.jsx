@@ -15,20 +15,13 @@ const PLBDashboard = () => {
   const [activities, setActivities] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [lessonToDelete, setLessonToDelete] = useState(null);
-  
-  const [newTitle, setNewTitle] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newCourse, setNewCourse] = useState('');
-  const [newLevel, setNewLevel] = useState('Beginner');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All'); 
   
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
   const [profileName, setProfileName] = useState('');
@@ -58,24 +51,6 @@ const PLBDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('plb_current_user');
     navigate('/login');
-  };
-
-  const handleCreateLesson = async (e) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newCourse.trim()) return;
-
-    setIsCreating(true);
-    const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, user.name || user.username);
-    await refreshData();
-    setShowCreateModal(false);
-    setNewTitle('');
-    setNewDescription('');
-    setNewCourse('');
-    setNewLevel('Beginner');
-    setIsCreating(false);
-    if (newLesson) {
-      navigate(`/builder/${newLesson.id}`);
-    }
   };
 
   const confirmDelete = (lesson) => {
@@ -202,7 +177,7 @@ const PLBDashboard = () => {
           </div>
           
           <button 
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => navigate('/create-lesson')}
             className="flex items-center gap-2 px-6 py-2.5 bg-[#8B5CF6] hover:bg-purple-500 text-white text-sm font-black rounded-xl shadow-[4px_4px_0_0_#000] hover:shadow-[2px_2px_0_0_#000] hover:translate-y-[2px] border-[3px] border-black transition-all duration-200"
           >
             <Plus size={18} strokeWidth={4} /> Create Lesson
@@ -531,92 +506,6 @@ const PLBDashboard = () => {
           
         </div>
       </main>
-
-      {/* Neo-Brutalist Create Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isCreating && setShowCreateModal(false)}></div>
-          
-          <div className="bg-white border-[4px] border-black shadow-[12px_12px_0_0_rgba(0,0,0,1)] rounded-3xl max-w-lg w-full p-8 relative z-10 animate-in zoom-in-95 duration-200">
-            <h3 className="text-3xl font-black mb-2 text-black tracking-tight">Create new lesson</h3>
-            <p className="text-gray-500 font-bold mb-8 text-sm">Give it a name and pick a course/level.</p>
-            
-            <form onSubmit={handleCreateLesson} className="flex flex-col gap-5">
-              <div>
-                <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Lesson name *</label>
-                <input 
-                  type="text" 
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Compound interest 101"
-                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:-translate-y-1 transition-all duration-200 placeholder-gray-400"
-                  required
-                  disabled={isCreating}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Description</label>
-                <textarea 
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Optional"
-                  rows={3}
-                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:-translate-y-1 transition-all duration-200 placeholder-gray-400 resize-none"
-                  disabled={isCreating}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Course</label>
-                  <input 
-                    type="text" 
-                    value={newCourse}
-                    onChange={(e) => setNewCourse(e.target.value)}
-                    placeholder="Personal Finance"
-                    className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:-translate-y-1 transition-all duration-200 placeholder-gray-400"
-                    required
-                    disabled={isCreating}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Level</label>
-                  <select 
-                    value={newLevel}
-                    onChange={(e) => setNewLevel(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:-translate-y-1 transition-all duration-200 appearance-none cursor-pointer"
-                    required
-                    disabled={isCreating}
-                  >
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <button 
-                  type="button" 
-                  onClick={() => setShowCreateModal(false)}
-                  disabled={isCreating}
-                  className="py-4 bg-white hover:bg-gray-100 text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-[2px] transition-all duration-200 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isCreating}
-                  className="py-4 bg-[#00E599] hover:bg-[#00D68F] text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-[2px] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isCreating ? <Loader2 size={20} className="animate-spin" /> : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Neo-Brutalist Delete Confirmation Modal */}
       {showDeleteModal && (
