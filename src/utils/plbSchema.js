@@ -4,30 +4,33 @@ export const plbSchema = {
     category: 'Content', icon: 'Type',
     fields: [
       { name: 'title_text', label: 'Title Text', type: 'text', required: true, default: '' },
-      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
       { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 32 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
-      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' }
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
+      { name: 'block_colour', label: 'Background Fill Colour', type: 'color', default: '#FFFFFF' }
     ]
   },
   Paragraph: {
     category: 'Content', icon: 'AlignLeft',
     fields: [
       { name: 'text', label: 'Body Text', type: 'textarea', required: true, default: '' },
-      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
       { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 16 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Left' },
-      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' }
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
+      { name: 'block_colour', label: 'Background Fill Colour', type: 'color', default: '#FFFFFF' }
     ]
   },
   'Rich Text': {
     category: 'Content', icon: 'FileText',
     fields: [
       { name: 'text', label: 'Body copy', type: 'textarea', required: true, default: '' },
-      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
       { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 16 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Left' },
       { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
+      { name: 'block_colour', label: 'Background Fill Colour', type: 'color', default: '#FFFFFF' },
       { name: 'bold', label: 'Apply bold', type: 'select', options: ['On', 'Off'], default: 'Off' },
       { name: 'italic', label: 'Apply italic', type: 'select', options: ['On', 'Off'], default: 'Off' }
     ]
@@ -35,13 +38,16 @@ export const plbSchema = {
   Divider: {
     category: 'Content', icon: 'Minus',
     fields: [
-      { name: 'style', label: 'Style', type: 'select', options: ['Solid', 'Dashed', 'Dotted'], default: 'Solid' }
+      { name: 'style', label: 'Style', type: 'select', options: ['Solid', 'Dashed', 'Dotted'], default: 'Solid' },
+      { name: 'line_colour', label: 'Line Colour', type: 'color', default: '#E2E8F0' },
+      { name: 'thickness', label: 'Thickness (px)', type: 'number', default: 3 }
     ]
   },
   Spacer: {
     category: 'Content', icon: 'Maximize2',
     fields: [
-      { name: 'height', label: 'Height (px)', type: 'number', required: true, default: 16 }
+      { name: 'height', label: 'Height (px)', type: 'number', required: true, default: 16 },
+      { name: 'block_colour', label: 'Background Fill Colour', type: 'color', default: '#FFFFFF' }
     ]
   },
   Card: {
@@ -122,7 +128,7 @@ export const plbSchema = {
     fields: [
       { name: 'bubble_type', label: 'Bubble Type', type: 'select', options: ['Dialogue', 'Speech', 'Thought'], required: true, default: 'Dialogue' },
       { name: 'text', label: 'Text', type: 'textarea', required: true, default: '' },
-      { name: 'font', label: 'Font', type: 'select', options: ['Arial', 'Inter', 'Outfit', 'Comic Sans MS'], default: 'Arial' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
       { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 15 },
       { name: 'font_style', label: 'Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Normal' },
       { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#1E293B' },
@@ -165,10 +171,33 @@ export const plbSchema = {
     category: 'Activity', icon: 'Link',
     fields: [
       { name: 'question', label: 'Instruction text', type: 'text', required: true, default: '' },
-      { name: 'column_a', label: 'Column A (comma-sep)', type: 'textarea', required: true, default: '' },
-      { name: 'column_b', label: 'Column B (comma-sep)', type: 'textarea', required: true, default: '' },
-      { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
-      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'number_of_pairs', label: 'Number of Pairs', type: 'select', options: ['1', '2', '3', '4', '5'], default: '3' },
+      
+      { name: 'pair_1_a', label: 'Pair 1 (Left)', type: 'text', default: '' },
+      { name: 'pair_1_b', label: 'Pair 1 (Right)', type: 'text', default: '' },
+      { name: 'pair_1_why_correct', label: 'Pair 1: Why Correct', type: 'textarea', default: '' },
+      { name: 'pair_1_why_incorrect', label: 'Pair 1: Why Incorrect', type: 'textarea', default: '' },
+
+      { name: 'pair_2_a', label: 'Pair 2 (Left)', type: 'text', default: '' },
+      { name: 'pair_2_b', label: 'Pair 2 (Right)', type: 'text', default: '' },
+      { name: 'pair_2_why_correct', label: 'Pair 2: Why Correct', type: 'textarea', default: '' },
+      { name: 'pair_2_why_incorrect', label: 'Pair 2: Why Incorrect', type: 'textarea', default: '' },
+
+      { name: 'pair_3_a', label: 'Pair 3 (Left)', type: 'text', default: '' },
+      { name: 'pair_3_b', label: 'Pair 3 (Right)', type: 'text', default: '' },
+      { name: 'pair_3_why_correct', label: 'Pair 3: Why Correct', type: 'textarea', default: '' },
+      { name: 'pair_3_why_incorrect', label: 'Pair 3: Why Incorrect', type: 'textarea', default: '' },
+
+      { name: 'pair_4_a', label: 'Pair 4 (Left)', type: 'text', default: '' },
+      { name: 'pair_4_b', label: 'Pair 4 (Right)', type: 'text', default: '' },
+      { name: 'pair_4_why_correct', label: 'Pair 4: Why Correct', type: 'textarea', default: '' },
+      { name: 'pair_4_why_incorrect', label: 'Pair 4: Why Incorrect', type: 'textarea', default: '' },
+
+      { name: 'pair_5_a', label: 'Pair 5 (Left)', type: 'text', default: '' },
+      { name: 'pair_5_b', label: 'Pair 5 (Right)', type: 'text', default: '' },
+      { name: 'pair_5_why_correct', label: 'Pair 5: Why Correct', type: 'textarea', default: '' },
+      { name: 'pair_5_why_incorrect', label: 'Pair 5: Why Incorrect', type: 'textarea', default: '' },
+      
       { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 15 }
     ]
   },

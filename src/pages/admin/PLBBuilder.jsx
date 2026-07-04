@@ -446,6 +446,13 @@ const PLBBuilder = () => {
                     {selectedSchema.fields.map(field => {
                       const value = selectedBlock[version][field.name] ?? field.default;
                       
+                      // Dynamic Match Pairs Logic
+                      if (selectedBlock.type === 'Match Pairs' && field.name.startsWith('pair_')) {
+                        const pairIndex = parseInt(field.name.split('_')[1], 10);
+                        const numPairs = parseInt(selectedBlock[version]['number_of_pairs'] || '3', 10);
+                        if (pairIndex > numPairs) return null;
+                      }
+                      
                       // Special handling for the Mascot grid selector
                       if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion') && field.name === 'mascot_type') {
                         return (

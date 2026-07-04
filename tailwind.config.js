@@ -90,6 +90,7 @@ export default {
         'mascot-surprise': 'mascot-surprise 3s ease-in-out infinite', // Quick intake of breath
         'mascot-droop': 'mascot-droop 4s ease-in-out infinite', // Slow sigh
         'mascot-sleep': 'mascot-sleep 5s ease-in-out infinite', // Deep slow breathing
+        'spin-slow': 'spin 8s linear infinite',
       },
       keyframes: {
         blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },

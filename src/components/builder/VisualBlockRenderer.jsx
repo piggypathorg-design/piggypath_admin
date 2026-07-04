@@ -57,7 +57,7 @@ const VisualBlockRenderer = ({ block, version }) => {
   switch (block.type) {
     case 'Title':
       return (
-        <div className={`w-full flex ${alignClass} py-4 px-6`}>
+        <div className={`w-full flex ${alignClass} py-4 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
           <h1 
             className="break-words leading-tight"
             style={{ color, fontFamily: font, fontSize: `${data.font_size || 32}px`, fontWeight: '900' }}
@@ -70,7 +70,7 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Paragraph':
     case 'Rich Text':
       return (
-        <div className={`w-full flex ${alignClass} py-2 px-6`}>
+        <div className={`w-full flex ${alignClass} py-2 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
           <p 
             className="break-words leading-relaxed"
             style={{ 
@@ -91,7 +91,7 @@ const VisualBlockRenderer = ({ block, version }) => {
         <div className="w-full flex items-center justify-center py-6 px-6">
           <div 
             className="w-full" 
-            style={{ borderBottom: `3px ${data.style?.toLowerCase() || 'solid'} #E2E8F0` }}
+            style={{ borderBottom: `${data.thickness || 3}px ${data.style?.toLowerCase() || 'solid'} ${data.line_colour || '#E2E8F0'}` }}
           ></div>
         </div>
       );
@@ -99,8 +99,8 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Spacer':
       return (
         <div 
-           className="w-full bg-transparent"
-           style={{ height: `${data.height || 16}px` }}
+           className="w-full"
+           style={{ height: `${data.height || 16}px`, backgroundColor: data.block_colour || 'transparent' }}
         ></div>
       );
 
@@ -243,7 +243,6 @@ const VisualBlockRenderer = ({ block, version }) => {
       );
 
     case 'Drag & Drop':
-    case 'Match Pairs':
     case 'Arrange':
     case 'Slider':
     case 'Fill in the Blank':
@@ -254,7 +253,6 @@ const VisualBlockRenderer = ({ block, version }) => {
         'Slider': Sliders, 'Fill in the Blank': Edit3, 'Hotspot': MousePointer2, 'Reflection': MessageSquare
       }[block.type] || HelpCircle;
 
-      return (
         <div className="w-full px-6 py-4">
           <div className="w-full flex flex-col items-center justify-center gap-4 bg-[#8B5CF6]/10 border-[4px] border-dashed border-[#8B5CF6] rounded-[32px] p-8">
             <div className="w-16 h-16 bg-[#8B5CF6] rounded-2xl border-[4px] border-[#18181B] flex items-center justify-center shadow-[6px_6px_0_#18181B] transform -rotate-6">
@@ -262,6 +260,34 @@ const VisualBlockRenderer = ({ block, version }) => {
             </div>
             <p className="font-black text-center text-xl text-[#18181B]">{data.question || `${block.type} Activity`}</p>
             <div className="text-[10px] font-black text-[#8B5CF6] px-3 py-1.5 bg-white rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] uppercase tracking-widest">Interactive Area</div>
+          </div>
+        </div>
+      );
+
+    case 'Match Pairs':
+      const numPairs = parseInt(data.number_of_pairs || '3', 10);
+      return (
+        <div className="w-full px-6 py-4">
+          <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
+            <div className="flex items-start gap-3 mb-2">
+              <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
+                <Link className="text-[#18181B]" size={20} strokeWidth={3} />
+              </div>
+              <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Match the pairs!'}</p>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: numPairs }).map((_, i) => (
+                <div key={i} className="flex gap-4 w-full">
+                  <div className="flex-1 bg-[#F4F4F5] border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] text-center flex items-center justify-center break-words">
+                    {data[`pair_${i+1}_a`] || `Pair ${i+1} A`}
+                  </div>
+                  <div className="flex-1 bg-[#F4F4F5] border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] text-center flex items-center justify-center border-dashed border-[#8B5CF6]/50">
+                    Drop matching item here
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -287,10 +313,15 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'XP Reward':
       return (
         <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-[80%] flex flex-col items-center justify-center gap-2 bg-[#FFD100] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-            <Star className="text-white fill-white drop-shadow-[0_4px_0_#18181B]" size={64} strokeWidth={2} />
-            <h2 className="text-4xl font-black text-[#18181B]">+{data.xp_amount || 10} XP</h2>
-            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1 rounded-full border-[3px] border-[#18181B]">{data.label || 'You Earned!'}</p>
+          <div className="w-[80%] relative flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#FFD100] to-[#F97316] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform hover:scale-105 transition-transform cursor-pointer">
+            <div className="absolute top-0 right-0 w-16 h-16 opacity-20 pointer-events-none">
+               <Star className="text-white fill-white absolute -top-4 -right-4" size={48} />
+            </div>
+            <div className="w-20 h-20 bg-white rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-bounce z-10">
+              <Star className="text-[#FFD100] fill-[#FFD100]" size={40} strokeWidth={2} />
+            </div>
+            <h2 className="text-4xl font-black text-white drop-shadow-[0_4px_0_#18181B] z-10">+{data.xp_amount || data.xp_reward || 15} XP</h2>
+            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 mt-2">{data.label || 'Awesome!'}</p>
           </div>
         </div>
       );
@@ -298,10 +329,12 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Coin Reward':
       return (
         <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-[80%] flex flex-col items-center justify-center gap-2 bg-[#00E599] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-            <Coins className="text-white drop-shadow-[0_4px_0_#18181B]" size={64} strokeWidth={3} />
-            <h2 className="text-4xl font-black text-[#18181B]">+{data.coins_amount || 5}</h2>
-            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1 rounded-full border-[3px] border-[#18181B]">{data.label || 'Coins Earned!'}</p>
+          <div className="w-[80%] flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#00E599] to-[#00A36C] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform hover:scale-105 transition-transform cursor-pointer">
+            <div className="w-20 h-20 bg-white rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-bounce z-10">
+              <Coins className="text-[#00E599]" size={40} strokeWidth={3} />
+            </div>
+            <h2 className="text-4xl font-black text-white drop-shadow-[0_4px_0_#18181B] z-10">+{data.coins_amount || 5}</h2>
+            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 mt-2">{data.label || 'Coins Earned!'}</p>
           </div>
         </div>
       );
@@ -310,13 +343,14 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Achievement Card':
       const FBIcon = block.type === 'Badge' ? Award : Trophy;
       return (
-        <div className="w-full px-6 py-6">
-          <div className="w-full flex flex-col items-center justify-center gap-4 bg-[#8B5CF6] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 text-white text-center">
-            <div className="w-20 h-20 bg-white rounded-2xl border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] transform rotate-6 mb-2">
-              <FBIcon size={40} strokeWidth={3} className="text-[#8B5CF6]" />
+        <div className="w-full px-6 py-6 flex justify-center">
+          <div className="w-full flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 text-white text-center transform hover:scale-105 transition-all">
+            <div className="w-24 h-24 bg-[#FFD100] rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-wiggle mb-2 relative">
+              <div className="absolute w-full h-full border-[4px] border-dashed border-[#F97316] rounded-full animate-spin-slow opacity-50"></div>
+              <FBIcon size={48} strokeWidth={3} className="text-[#18181B] z-10" />
             </div>
-            <h2 className="text-2xl font-black">{data.title || data.badge_name || 'Achievement!'}</h2>
-            {(data.body || data.label) && <p className="text-sm font-bold opacity-90">{data.body || data.label}</p>}
+            <h2 className="text-3xl font-black drop-shadow-[0_3px_0_#18181B]">{data.title || data.badge_name || 'Achievement!'}</h2>
+            {(data.body || data.label) && <p className="text-sm font-bold opacity-100 bg-[#18181B]/20 px-4 py-2 rounded-xl mt-1 border-[2px] border-white/10">{data.body || data.label}</p>}
           </div>
         </div>
       );
