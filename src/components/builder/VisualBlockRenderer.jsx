@@ -26,16 +26,17 @@ const getMascotBackgroundPosition = (opt) => {
 const getMascotAnimation = (opt) => {
   const map = {
     'Happy': 'animate-mascot-bounce',
-    'Laughing': 'animate-mascot-bounce',
-    'Thinking': 'animate-mascot-float',
-    'Love': 'animate-mascot-float',
-    'Sad': 'animate-mascot-float',
-    'Surprised': 'animate-mascot-wiggle',
-    'Angry': 'animate-mascot-shake',
+    'Winking': 'animate-mascot-pop',
+    'Laughing': 'animate-mascot-fast-bounce',
+    'Surprised': 'animate-mascot-surprise',
     'Confused': 'animate-mascot-wiggle',
-    'Smart': 'animate-mascot-bounce',
+    'Thinking': 'animate-mascot-float',
+    'Angry': 'animate-mascot-shake',
+    'Sad': 'animate-mascot-droop',
+    'Smart': 'animate-mascot-pop',
+    'Love': 'animate-mascot-pulse',
     'Cool': 'animate-mascot-float',
-    'Sleeping': 'animate-mascot-pulse opacity-80'
+    'Sleeping': 'animate-mascot-sleep'
   };
   return map[opt] || '';
 };
