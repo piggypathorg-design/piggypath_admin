@@ -48,10 +48,14 @@ export const plbSchema = {
     category: 'Content', icon: 'Square',
     fields: [
       { name: 'title_text', label: 'Card heading', type: 'text', default: '' },
+      { name: 'heading_font_size', label: 'Heading Font Size (px)', type: 'number', default: 24 },
+      { name: 'heading_font_style', label: 'Heading Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Bold' },
       { name: 'body_text', label: 'Card body copy', type: 'textarea', default: '' },
+      { name: 'body_font_size', label: 'Body Font Size (px)', type: 'number', default: 16 },
+      { name: 'body_font_style', label: 'Body Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Normal' },
       { name: 'block_colour', label: 'Background fill colour', type: 'color', default: '#F1F5F9' },
       { name: 'text_colour', label: 'Text colour', type: 'color', default: '#1E293B' },
-      { name: 'border', label: 'Border', type: 'select', options: ['Solid', 'Dashed', 'Dotted'], default: 'Solid' },
+      { name: 'border', label: 'Border', type: 'select', options: ['Solid', 'Dashed', 'Dotted', 'None'], default: 'Solid' },
       { name: 'border_colour', label: 'Border colour', type: 'color', default: '#E2E8F0' },
       { name: 'border_radius', label: 'Corner roundness (px)', type: 'number', default: 8 }
     ]

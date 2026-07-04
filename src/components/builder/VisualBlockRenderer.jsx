@@ -110,13 +110,35 @@ const VisualBlockRenderer = ({ block, version }) => {
             className="w-full p-6 flex flex-col gap-3 shadow-[8px_8px_0_#18181B]"
             style={{
               backgroundColor: data.block_colour || '#FFFFFF',
-              border: `4px ${data.border?.toLowerCase() || 'solid'} ${data.border_colour || '#18181B'}`,
-              borderRadius: `${data.border_radius || 24}px`,
+              border: data.border === 'None' ? 'none' : `4px ${data.border?.toLowerCase() || 'solid'} ${data.border_colour || '#18181B'}`,
+              borderRadius: `${data.border_radius !== undefined ? data.border_radius : 24}px`,
               color: data.text_colour || '#18181B'
             }}
           >
-            {data.title_text && <h3 className="font-black text-xl">{data.title_text}</h3>}
-            {data.body_text && <p className="text-sm font-bold opacity-90 leading-relaxed">{data.body_text}</p>}
+            {data.title_text && (
+              <h3 
+                className="leading-tight"
+                style={{
+                  fontSize: `${data.heading_font_size || 24}px`,
+                  fontWeight: data.heading_font_style === 'Normal' ? 'normal' : data.heading_font_style === 'Italic' ? 'normal' : '900',
+                  fontStyle: data.heading_font_style === 'Italic' ? 'italic' : 'normal'
+                }}
+              >
+                {data.title_text}
+              </h3>
+            )}
+            {data.body_text && (
+              <p 
+                className="opacity-90 leading-relaxed"
+                style={{
+                  fontSize: `${data.body_font_size || 16}px`,
+                  fontWeight: data.body_font_style === 'Bold' ? 'bold' : 'normal',
+                  fontStyle: data.body_font_style === 'Italic' ? 'italic' : 'normal'
+                }}
+              >
+                {data.body_text}
+              </p>
+            )}
           </div>
         </div>
       );
@@ -137,7 +159,15 @@ const VisualBlockRenderer = ({ block, version }) => {
               block.type === 'Image' ? (
                 <img src={data.source} alt={data.alt_text} className="w-full h-full object-cover" />
               ) : (
-                <div className="text-[#18181B] font-black text-xl">{block.type}</div>
+                <video 
+                  src={data.source} 
+                  className="w-full h-full object-cover" 
+                  autoPlay={data.autoplay === 'On'} 
+                  loop={data.loop === 'On'}
+                  controls={block.type === 'Video'} 
+                  muted={data.autoplay === 'On'}
+                  playsInline
+                />
               )
             ) : (
               <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Media</span>

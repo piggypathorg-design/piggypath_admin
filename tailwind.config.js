@@ -44,7 +44,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Nunito"', 'sans-serif'],
+        sans: ['"Montserrat"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
         pixel: ['"Press Start 2P"', 'monospace'],
       },
