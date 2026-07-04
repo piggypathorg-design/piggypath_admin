@@ -9,19 +9,20 @@ const PLBCreateLesson = () => {
   const [newDescription, setNewDescription] = useState('');
   const [newCourse, setNewCourse] = useState('');
   const [newLevel, setNewLevel] = useState('Beginner');
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
+  const [newAuthor, setNewAuthor] = useState(user.name || user.username || '');
   const [isCreating, setIsCreating] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
   
   const navigate = useNavigate();
 
   const handleCreateLesson = async (e) => {
     e.preventDefault();
-    if (!newTitle.trim() || !newCourse.trim()) return;
+    if (!newTitle.trim() || !newCourse.trim() || !newAuthor.trim()) return;
 
     setIsCreating(true);
     setErrorMsg(null);
-    const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, user.name || user.username);
+    const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, newAuthor);
     
     setIsCreating(false);
     if (newLesson && !newLesson.error) {
@@ -113,6 +114,19 @@ const PLBCreateLesson = () => {
                   <option value="Advanced">Advanced</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Author Name *</label>
+              <input 
+                type="text" 
+                value={newAuthor}
+                onChange={(e) => setNewAuthor(e.target.value)}
+                placeholder="e.g. John Doe"
+                className="w-full px-5 py-4 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:-translate-y-1 transition-all duration-200 placeholder-gray-400"
+                required
+                disabled={isCreating}
+              />
             </div>
 
             <div className="mt-8">

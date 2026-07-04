@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, LogOut, FileText, LayoutDashboard, Search, Clock, 
   CheckCircle, Sparkles, ChevronRight, X, Settings, 
-  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3
+  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser } from '../../utils/api';
+import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities } from '../../utils/api';
 
 const PLBDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -26,6 +26,7 @@ const PLBDashboard = () => {
   
   const [profileName, setProfileName] = useState('');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isClearingActivity, setIsClearingActivity] = useState(false);
 
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
@@ -80,6 +81,13 @@ const PLBDashboard = () => {
       await refreshData();
     }
     setIsSavingSettings(false);
+  };
+
+  const handleClearActivity = async () => {
+    setIsClearingActivity(true);
+    await clearActivities(user.name || user.username);
+    await refreshData();
+    setIsClearingActivity(false);
   };
 
   const openBuilder = (id) => {
@@ -366,11 +374,22 @@ const PLBDashboard = () => {
                 <div className="w-80 flex flex-col gap-6 hidden xl:flex">
                   <div className="bg-white border-[3px] border-black rounded-3xl p-6 relative overflow-hidden flex-1 max-h-[800px] flex flex-col shadow-[8px_8px_0_0_#000]">
                     
-                    <div className="flex items-center gap-3 mb-6 relative z-10 border-b-[3px] border-black pb-4">
-                      <div className="w-10 h-10 bg-[#FFD100] rounded-xl border-[3px] border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
-                        <Activity size={20} strokeWidth={3} className="text-black" />
+                    <div className="flex items-center justify-between mb-6 relative z-10 border-b-[3px] border-black pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#FFD100] rounded-xl border-[3px] border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
+                          <Activity size={20} strokeWidth={3} className="text-black" />
+                        </div>
+                        <h3 className="font-black text-xl text-black tracking-wide">Activity</h3>
                       </div>
-                      <h3 className="font-black text-xl text-black tracking-wide">Activity</h3>
+                      <button 
+                        onClick={handleClearActivity}
+                        disabled={isClearingActivity || activities.length === 0}
+                        className="p-2 text-xs font-black bg-white border-[2px] border-black rounded-lg shadow-[2px_2px_0_0_#000] hover:bg-red-50 hover:text-red-500 hover:border-red-500 transition-all disabled:opacity-50 flex items-center gap-2"
+                        title="Clear Activity Feed"
+                      >
+                        {isClearingActivity ? <Loader2 size={14} className="animate-spin" /> : <Trash size={14} strokeWidth={3} />}
+                        Clear
+                      </button>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto pr-4 relative z-10 space-y-6 custom-scrollbar">

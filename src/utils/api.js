@@ -48,6 +48,21 @@ const addActivity = async (user, action) => {
   if (error) console.error('Error adding activity:', error);
 };
 
+export const clearActivities = async (user = 'Someone') => {
+  const { error } = await supabase
+    .from('activities')
+    .delete()
+    .not('id', 'is', null);
+    
+  if (error) {
+    console.error('Error clearing activities:', error);
+    return false;
+  }
+  
+  await addActivity(user, 'cleared the activity feed');
+  return true;
+};
+
 export const getLessons = async () => {
   const { data, error } = await supabase
     .from('lessons')
