@@ -461,15 +461,10 @@ const PLBBuilder = () => {
                                   onClick={() => updateBlockData(selectedBlock.id, field.name, opt)}
                                   className={`aspect-square rounded-xl border-2 transition-all flex items-center justify-center overflow-hidden bg-white ${value === opt ? 'border-[#00E599] ring-2 ring-[#00E599]/30' : 'border-transparent hover:border-gray-300'}`}
                                 >
-                                  <div 
-                                    className="w-[48px] h-[48px] shrink-0"
-                                    style={{
-                                      backgroundImage: `url(${mascotGridImg})`,
-                                      backgroundSize: '400% 300%', // 4 cols, 3 rows
-                                      backgroundPosition: getMascotBackgroundPosition(opt),
-                                      transform: 'scale(1.4)', // Zoom in to crop blue borders
-                                      mixBlendMode: 'multiply' // Remove white background
-                                    }}
+                                  <img 
+                                    src={`/piggypath_admin/assets/mascots/${opt}.png`} 
+                                    alt={opt}
+                                    className="w-[36px] h-[36px] object-contain"
                                   />
                                 </button>
                               ))}

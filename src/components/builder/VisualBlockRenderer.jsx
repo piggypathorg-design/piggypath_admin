@@ -183,15 +183,10 @@ const VisualBlockRenderer = ({ block, version }) => {
         <div className={`w-full flex ${alignClass} py-6 px-6`}>
           <div className="w-full max-w-[320px] bg-white p-5 rounded-[32px] border-[4px] border-[#18181B] shadow-[8px_8px_0_#18181B] flex items-center gap-4 relative">
             <div className={`w-20 h-20 shrink-0 bg-[#F4F4F5] rounded-full border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[4px_4px_0_#18181B] ${getMascotAnimation(mascotType)}`}>
-               <div 
-                  className="w-[100px] h-[100px]"
-                  style={{
-                    backgroundImage: `url(${mascotGridImg})`,
-                    backgroundSize: '400% 300%', 
-                    backgroundPosition: getMascotBackgroundPosition(mascotType),
-                    transform: 'scale(1.4)', // Zoom in to crop blue borders
-                    mixBlendMode: 'multiply' // Remove white background
-                  }}
+               <img 
+                  src={`/piggypath_admin/assets/mascots/${mascotType}.png`}
+                  alt={mascotType}
+                  className="w-[60px] h-[60px] object-contain mix-blend-multiply"
                 />
             </div>
             <div className="flex-1">
@@ -326,21 +321,15 @@ const VisualBlockRenderer = ({ block, version }) => {
       );
 
     case 'Mascot Emotion':
-      const mascotTypeEmotion = data.mascot_type || 'Happy';
       return (
         <div className={`w-full flex ${alignClass} py-4 px-6`}>
-          <div className={`w-32 h-32 flex items-center justify-center ${getMascotAnimation(mascotTypeEmotion)}`}>
-            <div 
-                className="w-[120px] h-[120px]"
-                style={{
-                  backgroundImage: `url(${mascotGridImg})`,
-                  backgroundSize: '400% 300%', 
-                  backgroundPosition: getMascotBackgroundPosition(mascotTypeEmotion),
-                  transform: 'scale(1.5)', // Zoom in to crop blue borders
-                  mixBlendMode: 'multiply' // Remove white background
-                }}
-            />
-          </div>
+           <div className={`w-32 h-32 flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
+             <img 
+               src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png`}
+               alt={data.mascot_type || 'Happy'}
+               className="w-full h-full object-contain mix-blend-multiply drop-shadow-md"
+             />
+           </div>
         </div>
       );
 
