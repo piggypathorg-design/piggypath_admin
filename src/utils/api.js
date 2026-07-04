@@ -131,7 +131,7 @@ export const createLesson = async (title, description, course, level, draftedBy)
 
   if (error) {
     console.error('Error creating lesson:', error);
-    return null;
+    return { error: `DB Error: ${error.message || error.details || JSON.stringify(error)}` };
   }
   
   await addActivity(author, `created a new lesson: ${title}`);

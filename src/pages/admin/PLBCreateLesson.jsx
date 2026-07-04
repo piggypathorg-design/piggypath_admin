@@ -24,10 +24,10 @@ const PLBCreateLesson = () => {
     const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, user.name || user.username);
     
     setIsCreating(false);
-    if (newLesson) {
+    if (newLesson && !newLesson.error) {
       navigate(`/builder/${newLesson.id}`);
     } else {
-      setErrorMsg("Failed to create lesson. Please try again or check console.");
+      setErrorMsg(newLesson?.error || "Failed to create lesson. Please try again or check console.");
     }
   };
 
