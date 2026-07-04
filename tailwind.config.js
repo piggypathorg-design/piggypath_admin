@@ -80,29 +80,30 @@ export default {
       animation: {
         'pixel-blink': 'blink 1s steps(1) infinite',
         'pixel-float': 'float 2s steps(4) infinite',
-        'mascot-bounce': 'mascot-bounce 1.5s ease-in-out infinite',
-        'mascot-fast-bounce': 'mascot-bounce 0.8s ease-in-out infinite',
-        'mascot-float': 'mascot-float 3s ease-in-out infinite',
-        'mascot-wiggle': 'mascot-wiggle 2s ease-in-out infinite',
-        'mascot-shake': 'mascot-shake 0.5s ease-in-out infinite',
-        'mascot-pulse': 'mascot-pulse 1.5s ease-in-out infinite',
-        'mascot-pop': 'mascot-pop 2s ease-in-out infinite',
-        'mascot-surprise': 'mascot-surprise 2s ease-in-out infinite',
-        'mascot-droop': 'mascot-droop 3s ease-in-out infinite',
-        'mascot-sleep': 'mascot-sleep 4s ease-in-out infinite',
+        'mascot-bounce': 'mascot-bounce 2.5s ease-in-out infinite', // Gentle breathing
+        'mascot-fast-bounce': 'mascot-fast-bounce 0.8s ease-in-out infinite', // Subtle giggle
+        'mascot-float': 'mascot-float 4s ease-in-out infinite', // Very slow hover
+        'mascot-wiggle': 'mascot-wiggle 3s ease-in-out infinite', // Soft head tilt
+        'mascot-shake': 'mascot-shake 0.4s ease-in-out infinite', // Micro vibration
+        'mascot-pulse': 'mascot-pulse 2s ease-in-out infinite', // Heartbeat
+        'mascot-pop': 'mascot-pop 2.5s ease-in-out infinite', // Slight alert
+        'mascot-surprise': 'mascot-surprise 3s ease-in-out infinite', // Quick intake of breath
+        'mascot-droop': 'mascot-droop 4s ease-in-out infinite', // Slow sigh
+        'mascot-sleep': 'mascot-sleep 5s ease-in-out infinite', // Deep slow breathing
       },
       keyframes: {
         blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },
         float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } },
-        'mascot-bounce': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15%)' } },
-        'mascot-float': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5%)' } },
-        'mascot-wiggle': { '0%, 100%': { transform: 'rotate(-5deg)' }, '50%': { transform: 'rotate(5deg)' } },
-        'mascot-shake': { '0%, 100%': { transform: 'translateX(0)' }, '25%': { transform: 'translateX(-5%)' }, '75%': { transform: 'translateX(5%)' } },
-        'mascot-pulse': { '0%, 100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.1)' } },
-        'mascot-pop': { '0%, 100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.1) translateY(-5%)' } },
-        'mascot-surprise': { '0%, 100%': { transform: 'translateY(0)' }, '20%': { transform: 'translateY(-15%) scale(1.05)' }, '40%': { transform: 'translateY(0)' } },
-        'mascot-droop': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(8%)' } },
-        'mascot-sleep': { '0%, 100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.05)' } },
+        'mascot-bounce': { '0%, 100%': { transform: 'scaleY(1)' }, '50%': { transform: 'scaleY(1.03) translateY(-1%)' } },
+        'mascot-fast-bounce': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-2%)' } },
+        'mascot-float': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-3%)' } },
+        'mascot-wiggle': { '0%, 100%': { transform: 'rotate(0deg)' }, '25%': { transform: 'rotate(-2deg)' }, '75%': { transform: 'rotate(2deg)' } },
+        'mascot-shake': { '0%, 100%': { transform: 'translateX(0)' }, '25%': { transform: 'translateX(-2%)' }, '75%': { transform: 'translateX(2%)' } },
+        'mascot-pulse': { '0%, 100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.04)' } },
+        'mascot-pop': { '0%, 100%': { transform: 'scale(1)' }, '20%': { transform: 'scale(1.05)' }, '40%': { transform: 'scale(1)' } },
+        'mascot-surprise': { '0%, 100%': { transform: 'translateY(0)' }, '15%': { transform: 'translateY(-4%) scale(1.02)' }, '30%': { transform: 'translateY(0)' } },
+        'mascot-droop': { '0%, 100%': { transform: 'translateY(0) scaleY(1)' }, '50%': { transform: 'translateY(3%) scaleY(0.97)' } },
+        'mascot-sleep': { '0%, 100%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.03) scaleX(1.01)' } },
       }
     },
   },
