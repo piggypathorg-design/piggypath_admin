@@ -53,7 +53,13 @@ const PLBBuilder = () => {
         return;
       }
       setLesson(l);
-      setBlocks(l.components || []);
+      let parsedBlocks = [];
+      if (Array.isArray(l.components)) {
+        parsedBlocks = l.components;
+      } else if (typeof l.components === 'string') {
+        try { parsedBlocks = JSON.parse(l.components); } catch (e) { parsedBlocks = []; }
+      }
+      setBlocks(Array.isArray(parsedBlocks) ? parsedBlocks : []);
       setIsLoading(false);
     };
     fetchLesson();

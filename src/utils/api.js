@@ -113,8 +113,8 @@ export const createLesson = async (title, description, course, level, draftedBy)
 
   let { data, error } = await supabase.from('lessons').insert([insertPayload]).select().single();
     
-  if (error && error.code === 'PGRST204') {
-    console.warn('Columns description/level missing. Falling back to original schema.');
+  if (error) {
+    console.warn('Initial insert failed, possibly due to missing description/level columns. Falling back to original schema.', error);
     // Fallback if the user hasn't run the SQL script yet
     insertPayload = {
       title,
