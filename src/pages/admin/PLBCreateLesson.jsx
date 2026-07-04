@@ -10,6 +10,7 @@ const PLBCreateLesson = () => {
   const [newCourse, setNewCourse] = useState('');
   const [newLevel, setNewLevel] = useState('Beginner');
   const [isCreating, setIsCreating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_current_user') || '{}'));
   
   const navigate = useNavigate();
@@ -19,15 +20,14 @@ const PLBCreateLesson = () => {
     if (!newTitle.trim() || !newCourse.trim()) return;
 
     setIsCreating(true);
+    setErrorMsg(null);
     const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, user.name || user.username);
     
     setIsCreating(false);
     if (newLesson) {
       navigate(`/builder/${newLesson.id}`);
     } else {
-      // If it fails for some reason and doesn't redirect, we could show an error,
-      // but api.js handles fallbacks well.
-      navigate('/');
+      setErrorMsg("Failed to create lesson. Please try again or check console.");
     }
   };
 
@@ -54,6 +54,12 @@ const PLBCreateLesson = () => {
           <h3 className="text-4xl font-black mb-2 text-black tracking-tight">Create new lesson</h3>
           <p className="text-gray-500 font-bold mb-8 text-sm">Give it a name and pick a course/level.</p>
           
+          {errorMsg && (
+            <div className="mb-6 p-4 bg-red-100 border-[3px] border-red-500 text-red-700 font-black rounded-xl">
+              {errorMsg}
+            </div>
+          )}
+
           <form onSubmit={handleCreateLesson} className="flex flex-col gap-6">
             <div>
               <label className="block text-sm font-black mb-2 text-black uppercase tracking-widest">Lesson name *</label>

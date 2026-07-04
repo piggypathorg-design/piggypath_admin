@@ -35,6 +35,8 @@ const PLBBuilder = () => {
   
   const [version, setVersion] = useState('teen');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
   
   // New features state
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,16 +44,20 @@ const PLBBuilder = () => {
 
   useEffect(() => {
     const fetchLesson = async () => {
+      setIsLoading(true);
+      setErrorMsg(null);
       const l = await getLesson(id);
       if (!l) {
-        navigate('/');
+        setErrorMsg("Lesson not found or failed to load. Please return to dashboard.");
+        setIsLoading(false);
         return;
       }
       setLesson(l);
       setBlocks(l.components || []);
+      setIsLoading(false);
     };
     fetchLesson();
-  }, [id, navigate]);
+  }, [id]);
 
   const saveLesson = async (currentBlocks) => {
     setIsSaving(true);
@@ -182,7 +188,31 @@ const PLBBuilder = () => {
     reader.readAsDataURL(file);
   };
 
-  if (!lesson) return null;
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen bg-[#E4E4E7] flex flex-col items-center justify-center font-sans">
+        <div className="w-16 h-16 border-4 border-black border-t-[#00E599] rounded-full animate-spin mb-4"></div>
+        <h2 className="text-2xl font-black text-black">Loading Canvas...</h2>
+      </div>
+    );
+  }
+
+  if (errorMsg || !lesson) {
+    return (
+      <div className="h-screen w-screen bg-[#E4E4E7] flex flex-col items-center justify-center font-sans p-4 text-center">
+        <div className="bg-white border-[4px] border-black rounded-3xl p-8 max-w-md w-full shadow-[12px_12px_0_0_#000]">
+          <h2 className="text-3xl font-black text-red-500 mb-4">Oops!</h2>
+          <p className="text-black font-bold mb-6">{errorMsg || "Lesson not found."}</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="w-full py-4 bg-black text-white font-black rounded-xl border-[3px] border-black hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#8B5CF6] transition-all"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
