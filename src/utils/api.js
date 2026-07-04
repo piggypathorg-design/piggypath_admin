@@ -99,21 +99,35 @@ export const getLesson = async (id) => {
 };
 
 export const createLesson = async (title, description, course, level, draftedBy) => {
-  const { data, error } = await supabase
-    .from('lessons')
-    .insert([{
+  let insertPayload = {
+    title,
+    description,
+    course,
+    level,
+    drafted_by: draftedBy,
+    status: 'Draft',
+    pages_count: 0,
+    components: []
+  };
+
+  let { data, error } = await supabase.from('lessons').insert([insertPayload]).select().single();
+    
+  if (error && error.code === 'PGRST204') {
+    console.warn('Columns description/level missing. Falling back to original schema.');
+    // Fallback if the user hasn't run the SQL script yet
+    insertPayload = {
       title,
-      description,
       course,
-      level,
       drafted_by: draftedBy,
       status: 'Draft',
       pages_count: 0,
       components: []
-    }])
-    .select()
-    .single();
-    
+    };
+    const retry = await supabase.from('lessons').insert([insertPayload]).select().single();
+    data = retry.data;
+    error = retry.error;
+  }
+
   if (error) {
     console.error('Error creating lesson:', error);
     return null;
@@ -124,9 +138,9 @@ export const createLesson = async (title, description, course, level, draftedBy)
   return {
     id: data.id,
     title: data.title,
-    description: data.description,
+    description: data.description || description,
     course: data.course,
-    level: data.level,
+    level: data.level || level,
     draftedBy: data.drafted_by,
     status: data.status,
     pagesCount: data.pages_count,
