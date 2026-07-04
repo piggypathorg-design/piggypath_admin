@@ -58,11 +58,12 @@ export const getLessons = async () => {
     console.error('Error fetching lessons:', error);
     return [];
   }
-  
   return data.map(l => ({
     id: l.id,
     title: l.title,
+    description: l.description,
     course: l.course,
+    level: l.level,
     draftedBy: l.drafted_by,
     status: l.status,
     pagesCount: l.pages_count,
@@ -86,7 +87,9 @@ export const getLesson = async (id) => {
   return {
     id: data.id,
     title: data.title,
+    description: data.description,
     course: data.course,
+    level: data.level,
     draftedBy: data.drafted_by,
     status: data.status,
     pagesCount: data.pages_count,
@@ -95,12 +98,14 @@ export const getLesson = async (id) => {
   };
 };
 
-export const createLesson = async (title, course, draftedBy) => {
+export const createLesson = async (title, description, course, level, draftedBy) => {
   const { data, error } = await supabase
     .from('lessons')
     .insert([{
       title,
+      description,
       course,
+      level,
       drafted_by: draftedBy,
       status: 'Draft',
       pages_count: 0,
@@ -119,7 +124,9 @@ export const createLesson = async (title, course, draftedBy) => {
   return {
     id: data.id,
     title: data.title,
+    description: data.description,
     course: data.course,
+    level: data.level,
     draftedBy: data.drafted_by,
     status: data.status,
     pagesCount: data.pages_count,

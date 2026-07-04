@@ -20,7 +20,9 @@ const PLBDashboard = () => {
   const [lessonToDelete, setLessonToDelete] = useState(null);
   
   const [newTitle, setNewTitle] = useState('');
+  const [newDescription, setNewDescription] = useState('');
   const [newCourse, setNewCourse] = useState('');
+  const [newLevel, setNewLevel] = useState('Beginner');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All'); 
@@ -63,11 +65,13 @@ const PLBDashboard = () => {
     if (!newTitle.trim() || !newCourse.trim()) return;
 
     setIsCreating(true);
-    const newLesson = await createLesson(newTitle, newCourse, user.name || user.username);
+    const newLesson = await createLesson(newTitle, newDescription, newCourse, newLevel, user.name || user.username);
     await refreshData();
     setShowCreateModal(false);
     setNewTitle('');
+    setNewDescription('');
     setNewCourse('');
+    setNewLevel('Beginner');
     setIsCreating(false);
     if (newLesson) {
       navigate(`/builder/${newLesson.id}`);
@@ -513,68 +517,85 @@ const PLBDashboard = () => {
         </div>
       </main>
 
-      {/* Glassmorphic Create Modal */}
+      {/* Neo-Brutalist Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => !isCreating && setShowCreateModal(false)}></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !isCreating && setShowCreateModal(false)}></div>
           
-          <div className="bg-[#12121A]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.5)] rounded-3xl max-w-md w-full p-8 relative z-10 animate-in zoom-in-95 duration-200">
-            <button 
-              onClick={() => !isCreating && setShowCreateModal(false)}
-              className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full"
-            >
-              <X size={20} />
-            </button>
+          <div className="bg-white border-[3px] border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] rounded-3xl max-w-lg w-full p-8 relative z-10 animate-in zoom-in-95 duration-200">
+            <h3 className="text-3xl font-black mb-2 text-black tracking-tight">Create new lesson</h3>
+            <p className="text-zinc-600 font-bold mb-8 text-sm">Give it a name and pick a course/level.</p>
             
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6 shadow-inner">
-               <Plus size={24} />
-            </div>
-
-            <h3 className="text-2xl font-bold mb-2 text-white tracking-tight">Create New Lesson</h3>
-            <p className="text-zinc-400 font-medium mb-8 text-sm">Configure the basic details for your new module.</p>
-            
-            <form onSubmit={handleCreateLesson} className="flex flex-col gap-6">
+            <form onSubmit={handleCreateLesson} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-semibold mb-2 text-zinc-300">Lesson Title</label>
+                <label className="block text-sm font-bold mb-2 text-black">Lesson name *</label>
                 <input 
                   type="text" 
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Introduction to Physics"
-                  className="w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-2xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/5 transition-all duration-300 placeholder-zinc-600 shadow-inner"
+                  placeholder="e.g. Compound interest 101"
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:shadow-[2px_2px_0_0_rgba(0,0,0,1)] focus:translate-y-[2px] transition-all duration-200 placeholder-zinc-400"
                   required
                   disabled={isCreating}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-semibold mb-2 text-zinc-300">Course Name</label>
-                <input 
-                  type="text" 
-                  value={newCourse}
-                  onChange={(e) => setNewCourse(e.target.value)}
-                  placeholder="e.g. PHY101"
-                  className="w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-2xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 focus:bg-white/5 transition-all duration-300 placeholder-zinc-600 shadow-inner"
-                  required
+                <label className="block text-sm font-bold mb-2 text-black">Description</label>
+                <textarea 
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Optional"
+                  rows={3}
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:shadow-[2px_2px_0_0_rgba(0,0,0,1)] focus:translate-y-[2px] transition-all duration-200 placeholder-zinc-400 resize-none"
                   disabled={isCreating}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-black">Course</label>
+                  <input 
+                    type="text" 
+                    value={newCourse}
+                    onChange={(e) => setNewCourse(e.target.value)}
+                    placeholder="Personal Finance"
+                    className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:shadow-[2px_2px_0_0_rgba(0,0,0,1)] focus:translate-y-[2px] transition-all duration-200 placeholder-zinc-400"
+                    required
+                    disabled={isCreating}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-black">Level</label>
+                  <select 
+                    value={newLevel}
+                    onChange={(e) => setNewLevel(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] focus:shadow-[2px_2px_0_0_rgba(0,0,0,1)] focus:translate-y-[2px] transition-all duration-200 appearance-none cursor-pointer"
+                    required
+                    disabled={isCreating}
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-6">
                 <button 
                   type="button" 
                   onClick={() => setShowCreateModal(false)}
                   disabled={isCreating}
-                  className="py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-2xl transition-all duration-200 disabled:opacity-50"
+                  className="py-3 bg-white hover:bg-zinc-50 text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-[2px] transition-all duration-200 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   disabled={isCreating}
-                  className="py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="py-3 bg-[#00E599] hover:bg-[#00D68F] text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-y-[2px] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {isCreating ? <Loader2 size={18} className="animate-spin" /> : 'Create Module'}
+                  {isCreating ? <Loader2 size={18} className="animate-spin" /> : 'Create'}
                 </button>
               </div>
             </form>
