@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, LogOut, FileText, LayoutDashboard, Search, Clock, 
   CheckCircle, Sparkles, ChevronRight, X, Settings, 
-  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash
+  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash, UserPlus
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities } from '../../utils/api';
+import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities, createUser } from '../../utils/api';
 
 const PLBDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -27,6 +27,14 @@ const PLBDashboard = () => {
   const [profileName, setProfileName] = useState('');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isClearingActivity, setIsClearingActivity] = useState(false);
+
+  // New User State
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserUsername, setNewUserUsername] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [addUserError, setAddUserError] = useState(null);
 
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
@@ -88,6 +96,27 @@ const PLBDashboard = () => {
     await clearActivities(user.name || user.username);
     await refreshData();
     setIsClearingActivity(false);
+  };
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    if (!newUserUsername.trim() || !newUserName.trim() || !newUserPassword.trim()) return;
+    
+    setIsAddingUser(true);
+    setAddUserError(null);
+    
+    const newUser = await createUser(newUserUsername, newUserName, newUserPassword, user.name || user.username);
+    
+    setIsAddingUser(false);
+    if (newUser && !newUser.error) {
+      setShowAddUserModal(false);
+      setNewUserName('');
+      setNewUserUsername('');
+      setNewUserPassword('');
+      await refreshData();
+    } else {
+      setAddUserError(newUser?.error || 'Failed to create user. Username might already exist.');
+    }
   };
 
   const openBuilder = (id) => {
@@ -442,6 +471,12 @@ const PLBDashboard = () => {
                      </div>
                      All Registered Users
                    </h3>
+                   <button 
+                     onClick={() => setShowAddUserModal(true)}
+                     className="flex items-center gap-2 px-4 py-2 bg-[#8B5CF6] hover:bg-purple-500 text-white text-xs font-black rounded-xl shadow-[2px_2px_0_0_#000] hover:translate-y-[2px] hover:shadow-none border-[3px] border-black transition-all duration-200"
+                   >
+                     <UserPlus size={16} strokeWidth={3} /> Add User
+                   </button>
                 </div>
 
                 <div className="overflow-x-auto relative z-10 p-8 min-h-[300px] bg-white">
@@ -558,6 +593,83 @@ const PLBDashboard = () => {
                 {isDeleting ? <Loader2 size={18} className="animate-spin" /> : 'Delete'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isAddingUser && setShowAddUserModal(false)}></div>
+          
+          <div className="bg-white border-[4px] border-black shadow-[12px_12px_0_0_#000] rounded-3xl max-w-sm w-full p-8 relative z-10 animate-in zoom-in-95 duration-200 text-left">
+            <h3 className="text-3xl font-black mb-2 text-black">Add User</h3>
+            <p className="text-gray-500 font-bold mb-6 text-sm">Create a new account for your team.</p>
+            
+            {addUserError && (
+              <div className="mb-4 p-3 bg-red-100 border-[3px] border-red-500 text-red-700 text-xs font-black rounded-xl">
+                {addUserError}
+              </div>
+            )}
+            
+            <form onSubmit={handleAddUser} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-xs font-black mb-1 text-black uppercase tracking-widest">Display Name</label>
+                <input 
+                  type="text" 
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  placeholder="e.g. Alice"
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 focus:-translate-y-1 transition-all placeholder-gray-400"
+                  required
+                  disabled={isAddingUser}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-black mb-1 text-black uppercase tracking-widest">Username</label>
+                <input 
+                  type="text" 
+                  value={newUserUsername}
+                  onChange={(e) => setNewUserUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+                  placeholder="e.g. alice_writer"
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 focus:-translate-y-1 transition-all placeholder-gray-400"
+                  required
+                  disabled={isAddingUser}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-black mb-1 text-black uppercase tracking-widest">Password</label>
+                <input 
+                  type="password" 
+                  value={newUserPassword}
+                  onChange={(e) => setNewUserPassword(e.target.value)}
+                  placeholder="Secret password"
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 focus:-translate-y-1 transition-all placeholder-gray-400"
+                  required
+                  disabled={isAddingUser}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  disabled={isAddingUser}
+                  className="py-3 bg-gray-100 text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000] hover:-translate-y-1 transition-all duration-200 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isAddingUser}
+                  className="py-3 bg-[#00E599] text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000] hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isAddingUser ? <Loader2 size={16} className="animate-spin" /> : 'Create'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

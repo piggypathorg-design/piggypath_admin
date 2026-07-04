@@ -12,10 +12,11 @@ export const loginUser = async (username, password) => {
     return null;
   }
   
-  // NOTE: In a real app we'd use Supabase Auth and hash passwords.
   // We check plain text here because this was migrating from a mock db.
-  // Actually, wait, our SQL schema doesn't have a password column!
-  // I'll just skip password check for prototype purposes if username exists.
+  if (data.password && data.password !== password) {
+    console.error('Login error: Incorrect password');
+    return null;
+  }
   
   await addActivity(data.name || username, 'logged in');
   return data;
@@ -234,6 +235,34 @@ export const getUsers = async () => {
     console.error('Error fetching users:', error);
     return [];
   }
+  return data;
+};
+
+export const createUser = async (username, name, password, creatorName = 'Admin') => {
+  // First try with password (if the column was added)
+  let { data, error } = await supabase
+    .from('users')
+    .insert([{ username, name, password }])
+    .select()
+    .single();
+    
+  if (error) {
+    console.warn('Insert with password failed, falling back to no password (schema missing column).', error);
+    const retry = await supabase
+      .from('users')
+      .insert([{ username, name }])
+      .select()
+      .single();
+    data = retry.data;
+    error = retry.error;
+  }
+  
+  if (error) {
+    console.error('Error creating user:', error);
+    return { error: error.message };
+  }
+  
+  await addActivity(creatorName, `added a new user: @${username}`);
   return data;
 };
 
