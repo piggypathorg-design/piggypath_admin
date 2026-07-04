@@ -37,8 +37,10 @@ const PLBBuilder = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
   
+  // New features state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
+  const [previewDevice, setPreviewDevice] = useState('mobile'); // mobile | tablet | laptop
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -342,24 +344,37 @@ const PLBBuilder = () => {
           onClick={() => setSelectedBlockId(null)}
         >
           {/* Canvas Header */}
-          <div className="w-full max-w-[400px] flex justify-between items-center mb-6">
+          <div className={`w-full ${previewDevice === 'laptop' ? 'max-w-[1024px]' : previewDevice === 'tablet' ? 'max-w-[768px]' : 'max-w-[400px]'} flex justify-between items-center mb-6 transition-all duration-300`}>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-[10px] font-black text-gray-500 uppercase tracking-widest"><Smartphone size={12}/> LIVE CANVAS</span>
+              <span className="flex items-center gap-1 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                 {previewDevice === 'mobile' && <Smartphone size={12}/>}
+                 {previewDevice === 'tablet' && <Tablet size={12}/>}
+                 {previewDevice === 'laptop' && <Monitor size={12}/>}
+                 LIVE CANVAS
+              </span>
               <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-white tracking-widest uppercase">PAGE 1</span>
             </div>
+            
+            {/* Device Toggles */}
+            <div className="flex bg-[#27272A] border border-[#3F3F46] rounded-lg p-1">
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Smartphone size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Tablet size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Monitor size={16} /></button>
+            </div>
+
             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{blocks.length} BLOCKS</span>
           </div>
 
-          {/* Mobile Phone Frame */}
+          {/* Dynamic Device Frame */}
           <div 
-            className="w-[375px] min-h-[812px] bg-white rounded-[45px] shadow-2xl border-[14px] border-[#18181B] overflow-hidden flex flex-col relative transition-all"
+            className={`${previewDevice === 'laptop' ? 'w-[1024px] min-h-[768px] rounded-2xl' : previewDevice === 'tablet' ? 'w-[768px] min-h-[1024px] rounded-[30px]' : 'w-[375px] min-h-[812px] rounded-[45px]'} bg-white shadow-2xl border-[14px] border-[#18181B] overflow-hidden flex flex-col relative transition-all duration-300 ease-in-out`}
             onClick={(e) => { e.stopPropagation(); setSelectedBlockId(null); }}
           >
-            {/* Phone Notch/Dynamic Island */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-[#18181B] rounded-b-2xl z-50"></div>
+            {/* Phone Notch/Dynamic Island (Only on Mobile/Tablet) */}
+            {previewDevice !== 'laptop' && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-[#18181B] rounded-b-2xl z-50"></div>}
             
             {/* Content Area */}
-            <div className="flex-1 w-full bg-[#F8FAFC] overflow-y-auto custom-scrollbar pt-10 pb-8 flex flex-col">
+            <div className={`flex-1 w-full bg-[#F8FAFC] overflow-y-auto custom-scrollbar ${previewDevice === 'laptop' ? 'pt-4' : 'pt-10'} pb-8 flex flex-col`}>
               {blocks.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8 text-center">
                   <div className="w-16 h-16 mb-4 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-300">
