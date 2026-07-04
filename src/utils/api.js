@@ -99,12 +99,13 @@ export const getLesson = async (id) => {
 };
 
 export const createLesson = async (title, description, course, level, draftedBy) => {
+  const author = draftedBy || 'Admin'; // Fallback if user session is incomplete
   let insertPayload = {
     title,
     description,
     course,
     level,
-    drafted_by: draftedBy,
+    drafted_by: author,
     status: 'Draft',
     pages_count: 0,
     components: []
@@ -118,7 +119,7 @@ export const createLesson = async (title, description, course, level, draftedBy)
     insertPayload = {
       title,
       course,
-      drafted_by: draftedBy,
+      drafted_by: author,
       status: 'Draft',
       pages_count: 0,
       components: []
@@ -133,7 +134,7 @@ export const createLesson = async (title, description, course, level, draftedBy)
     return null;
   }
   
-  await addActivity(draftedBy, `created a new lesson: ${title}`);
+  await addActivity(author, `created a new lesson: ${title}`);
   
   return {
     id: data.id,
