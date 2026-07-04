@@ -159,7 +159,8 @@ const VisualBlockRenderer = ({ block, version }) => {
                     backgroundImage: `url(${mascotGridImg})`,
                     backgroundSize: '400% 300%', 
                     backgroundPosition: getMascotBackgroundPosition(mascotType),
-                    transform: 'scale(0.85) translateY(5px)'
+                    transform: 'scale(1.4)', // Zoom in to crop blue borders
+                    mixBlendMode: 'multiply' // Remove white background
                   }}
                 />
             </div>
@@ -305,7 +306,8 @@ const VisualBlockRenderer = ({ block, version }) => {
                   backgroundImage: `url(${mascotGridImg})`,
                   backgroundSize: '400% 300%', 
                   backgroundPosition: getMascotBackgroundPosition(mascotTypeEmotion),
-                  transform: 'scale(1.2)'
+                  transform: 'scale(1.5)', // Zoom in to crop blue borders
+                  mixBlendMode: 'multiply' // Remove white background
                 }}
             />
           </div>
