@@ -11,9 +11,8 @@ import {
   Star, Coins, Award, Trophy, Percent, 
   ArrowRight, ArrowLeft, FastForward,
   Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus,
-  Layers, ArrowUp, ArrowDown, Upload
+  Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search
 } from 'lucide-react';
-import Logo from '../../components/common/Logo';
 import { getLesson, updateLesson } from '../../utils/api';
 
 const iconMap = {
@@ -36,7 +35,10 @@ const PLBBuilder = () => {
   
   const [version, setVersion] = useState('teen');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [previewDevice, setPreviewDevice] = useState('desktop');
+  
+  // New features state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('ALL');
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -58,7 +60,9 @@ const PLBBuilder = () => {
       pagesCount: Math.max(1, currentBlocks.length)
     });
     if (newLessonData) setLesson(newLessonData);
-    setIsSaving(false);
+    
+    // Artificial delay to show saving state smoothly
+    setTimeout(() => setIsSaving(false), 500);
   };
 
   const addBlock = (type) => {
@@ -159,30 +163,23 @@ const PLBBuilder = () => {
   const handleFileUpload = (blockId, fieldName, file) => {
     if (!file) return;
     
-    // Basic validation to prevent massively oversized JSON exports (optional)
+    // SECURITY: Strict file size limit to prevent huge JSON blobs and DOS
     if (file.size > 2 * 1024 * 1024) {
-      alert("Please keep images under 2MB to ensure smooth exporting.");
-      // We still process it, just a friendly warning
+      alert("Security/Performance limit: Please keep images under 2MB.");
+      return; 
+    }
+    // SECURITY: Check mime type
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+       alert("Security limit: Only image and video files are allowed.");
+       return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
+      // FileReader result is a base64 string, safe to store as text
       updateBlockData(blockId, fieldName, e.target.result);
     };
     reader.readAsDataURL(file);
-  };
-
-  const exportLesson = () => {
-    const exportData = {
-      ...lesson,
-      components: blocks // Ensure we have the latest blocks state
-    };
-    
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-    const dlAnchorElem = document.createElement('a');
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `${lesson.title.replace(/\s+/g, '_')}_export.json`);
-    dlAnchorElem.click();
   };
 
   if (!lesson) return null;
@@ -190,251 +187,275 @@ const PLBBuilder = () => {
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  // Determine canvas width based on preview device
-  let canvasWidth = 'max-w-4xl';
-  let canvasHeight = 'min-h-[850px]';
-  if (isPreviewMode) {
-    if (previewDevice === 'mobile') { canvasWidth = 'max-w-[375px]'; canvasHeight = 'min-h-[812px]'; }
-    if (previewDevice === 'tablet') { canvasWidth = 'max-w-[768px]'; canvasHeight = 'min-h-[1024px]'; }
-    if (previewDevice === 'desktop') { canvasWidth = 'max-w-5xl'; canvasHeight = 'min-h-[850px]'; }
-  }
+  // Filter components for sidebar
+  const categories = ['ALL', 'CONTENT', 'MEDIA', 'CHARACTER', 'ACTIVITY', 'VISUALIZATION', 'FEEDBACK', 'NAVIGATION', 'LAYOUT'];
+  const filteredTypes = Object.keys(plbSchema).filter(type => {
+    const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="h-screen flex flex-col font-sans bg-[#F4F4F5] dark:bg-[#18181B] text-[#18181B] dark:text-[#F4F4F5] overflow-hidden transition-colors selection:bg-[#00E599] selection:text-[#18181B]">
-      {/* Top Header / Toolbar */}
-      <header className="h-20 bg-[#F4F4F5] dark:bg-[#18181B] border-b-[3px] border-[#18181B] dark:border-white px-6 flex items-center justify-between shrink-0 z-30">
-        <div className="flex items-center gap-6">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-[#18181B] dark:text-white hover:text-[#8B5CF6] dark:hover:text-[#8B5CF6] font-black transition-colors"
-          >
-            <ChevronLeft size={20} strokeWidth={3} /> Dashboard
-          </button>
-          <div className="h-8 w-[3px] bg-[#18181B] dark:bg-white"></div>
-          <div>
-            <h1 className="font-black text-lg text-[#18181B] dark:text-white leading-tight">{lesson.title}</h1>
-            <p className="text-xs font-bold text-[#71717A] dark:text-[#A1A1AA]">{lesson.course} &bull; {lesson.status}</p>
-          </div>
-        </div>
+    <div className="h-screen w-screen p-4 bg-[#E4E4E7] font-sans overflow-hidden">
+      {/* Outer Wrapper for Neo-Brutalist "Window" effect */}
+      <div className="w-full h-full bg-white border-[3px] border-black rounded-3xl overflow-hidden shadow-[8px_8px_0_0_rgba(0,0,0,1)] flex flex-col">
         
-        <div className="flex items-center gap-4 bg-white dark:bg-[#27272A] p-1.5 rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
-          <button 
-            onClick={() => { setIsPreviewMode(false); setSelectedBlockId(null); }}
-            className={`px-4 py-1.5 rounded-lg font-black text-sm transition-all border-[3px] ${!isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white hover:text-[#18181B] dark:hover:text-white'}`}
-          >
-            <Edit3 size={16} className="inline mr-2" strokeWidth={3} /> Editor
-          </button>
-          <button 
-            onClick={() => { setIsPreviewMode(true); setSelectedBlockId(null); }}
-            className={`px-4 py-1.5 rounded-lg font-black text-sm transition-all border-[3px] ${isPreviewMode ? 'bg-[#8B5CF6] text-white border-[#18181B] dark:border-white' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white hover:text-[#18181B] dark:hover:text-white'}`}
-          >
-            <Play size={16} className="inline mr-2" strokeWidth={3} /> Preview
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={exportLesson}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-black text-sm rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-1 transition-transform"
-          >
-            <Download size={16} strokeWidth={3} /> Export Lesson JSON
-          </button>
-          <div className="flex bg-white dark:bg-[#27272A] rounded-xl p-1 border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
+        {/* Header */}
+        <header className="h-20 bg-white border-b-[3px] border-black px-6 flex items-center justify-between shrink-0 z-30">
+          <div className="flex items-center gap-4">
             <button 
-              onClick={() => setVersion('teen')}
-              className={`px-3 py-1 font-black text-xs rounded-lg transition-colors border-[2px] ${version === 'teen' ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white' : 'bg-transparent border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'}`}
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 px-4 py-2 bg-white border-[3px] border-black rounded-full font-black hover:-translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] transition-all"
             >
-              Teen
+              <ArrowLeft size={18} strokeWidth={3} /> Back
             </button>
-            <button 
-              onClick={() => setVersion('adult')}
-              className={`px-3 py-1 font-black text-xs rounded-lg transition-colors border-[2px] ${version === 'adult' ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white' : 'bg-transparent border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'}`}
-            >
-              Adult
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Builder Area */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* Left Sidebar (Components Library) */}
-        {!isPreviewMode && (
-          <aside className="w-72 bg-[#F4F4F5] dark:bg-[#18181B] border-r-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-10 flex flex-col">
-            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A]">
-              <h2 className="font-black text-xs text-[#18181B] dark:text-white uppercase tracking-wider">Component Library</h2>
-            </div>
-            <div className="p-4 flex flex-col gap-3">
-              {Object.keys(plbSchema).map(type => {
-                const Icon = iconMap[plbSchema[type].icon] || Type;
-                return (
-                  <button 
-                    key={type}
-                    onClick={() => addBlock(type)}
-                    className="flex items-center gap-3 p-3 bg-white dark:bg-[#27272A] border-[3px] border-[#18181B] dark:border-white rounded-xl hover:border-[#8B5CF6] dark:hover:border-[#00E599] shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-1 transition-all text-left group"
-                  >
-                    <div className="w-8 h-8 bg-[#F4F4F5] dark:bg-[#18181B] border-[3px] border-[#18181B] dark:border-white rounded-lg flex items-center justify-center group-hover:bg-[#8B5CF6] dark:group-hover:bg-[#00E599] transition-colors">
-                      <Icon size={16} className="text-[#18181B] dark:text-white" strokeWidth={3} />
-                    </div>
-                    <div>
-                      <div className="font-black text-sm text-[#18181B] dark:text-white">{type}</div>
-                      <div className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-bold uppercase tracking-wide">{plbSchema[type].category}</div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </aside>
-        )}
-
-        {/* Center Canvas */}
-        <main 
-          className={`flex-1 overflow-y-auto relative bg-[#E4E4E7] dark:bg-[#000000] p-8 flex flex-col ${isPreviewMode ? 'items-center' : 'items-center'}`}
-          onClick={() => setSelectedBlockId(null)}
-        >
-          {isPreviewMode && (
-            <div className="sticky top-0 mb-6 bg-white dark:bg-[#27272A] px-4 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF] flex items-center gap-2 z-30">
-              <button onClick={() => setPreviewDevice('desktop')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='desktop' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
-                <Monitor size={18} strokeWidth={3} />
-              </button>
-              <button onClick={() => setPreviewDevice('tablet')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='tablet' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
-                <Tablet size={18} strokeWidth={3} />
-              </button>
-              <button onClick={() => setPreviewDevice('mobile')} className={`p-2 rounded-lg border-[3px] transition-colors ${previewDevice==='mobile' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-transparent text-[#71717A] dark:text-[#A1A1AA] border-transparent hover:border-[#18181B] dark:hover:border-white'}`}>
-                <Smartphone size={18} strokeWidth={3} />
-              </button>
-            </div>
-          )}
-
-          <div 
-            className={`w-full ${canvasWidth} ${canvasHeight} bg-white dark:bg-[#27272A] rounded-2xl shadow-[12px_12px_0_#18181B] dark:shadow-[#FFFFFF] border-[4px] border-[#18181B] dark:border-white transition-all duration-300 relative overflow-hidden`}
-            onClick={(e) => { e.stopPropagation(); setSelectedBlockId(null); }}
-          >
-            {blocks.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-[#A1A1AA]">
-                <div className="w-24 h-24 mb-6 rounded-2xl bg-[#F4F4F5] dark:bg-[#18181B] border-[3px] border-dashed border-[#A1A1AA] flex items-center justify-center">
-                  <Plus size={32} className="text-[#A1A1AA]" />
-                </div>
-                <h3 className="text-xl font-black text-[#18181B] dark:text-white mb-2">Blank Canvas</h3>
-                <p className="text-sm font-bold text-[#71717A]">Click components from the left sidebar to start building.</p>
-              </div>
-            ) : (
-              blocks.map((block, index) => (
-                <Rnd
-                  key={block.id}
-                  bounds="parent"
-                  size={{ width: block.width || 300, height: block.height || 100 }}
-                  position={{ x: block.x || 0, y: block.y || 0 }}
-                  onDragStop={(e, d) => updateBlockSpatial(block.id, { x: d.x, y: d.y })}
-                  onResizeStop={(e, direction, ref, delta, position) => {
-                    updateBlockSpatial(block.id, {
-                      width: parseInt(ref.style.width, 10),
-                      height: parseInt(ref.style.height, 10),
-                      ...position
-                    });
-                  }}
-                  disableDragging={isPreviewMode}
-                  enableResizing={!isPreviewMode ? undefined : false}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isPreviewMode) setSelectedBlockId(block.id);
-                  }}
-                  style={{ zIndex: index }} // Layering based on array order
-                  className={`group absolute ${selectedBlockId === block.id && !isPreviewMode ? 'ring-4 ring-[#00E599] ring-offset-2' : 'hover:ring-2 hover:ring-[#8B5CF6]'} ${isPreviewMode ? '!ring-0' : ''}`}
-                >
-                  {!isPreviewMode && selectedBlockId === block.id && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
-                      className="absolute -top-4 -right-4 bg-[#EF4444] text-white p-2 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-30 hover:-translate-y-0.5 transition-transform"
-                    >
-                      <Trash2 size={16} strokeWidth={3} />
-                    </button>
-                  )}
-                  
-                  {/* Invisible overlay to intercept clicks so internal elements (like buttons) don't capture drag events */}
-                  {!isPreviewMode && <div className="absolute inset-0 z-10 cursor-move"></div>}
-                  
-                  {/* The Visual Render */}
-                  <div className="w-full h-full relative z-0">
-                    <VisualBlockRenderer block={block} version={version} />
-                  </div>
-                </Rnd>
-              ))
-            )}
-            
-            {isPreviewMode && previewDevice === 'mobile' && (
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-100 rounded-b-xl border-x border-b border-gray-200 z-50 pointer-events-none"></div>
-            )}
+            <div className="h-8 w-[3px] bg-black"></div>
+            <h1 className="font-black text-xl text-black truncate max-w-xs">{lesson.title}</h1>
+            <span className="px-3 py-1 bg-[#FFD100] border-[3px] border-black rounded-full text-[10px] font-black tracking-widest uppercase">
+              {lesson.status}
+            </span>
           </div>
           
-          <div className="h-20 shrink-0"></div>
-        </main>
-
-        {/* Right Sidebar (Properties Panel) */}
-        {!isPreviewMode && (
-          <aside className="w-80 bg-[#F4F4F5] dark:bg-[#18181B] border-l-[3px] border-[#18181B] dark:border-white overflow-y-auto shrink-0 z-20 flex flex-col relative">
-            <div className="p-5 border-b-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] flex items-center justify-between sticky top-0 z-10">
-              <h2 className="font-black text-xs text-[#18181B] dark:text-white uppercase tracking-wider">Properties ({version})</h2>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm font-black text-gray-500 mr-4">
+              {isSaving ? <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-500 rounded-full animate-ping"></div> SAVING...</span> : <span className="flex items-center gap-2"><Check size={16} strokeWidth={3}/> SAVED</span>}
             </div>
             
-            <div className="p-6">
+            <button 
+              onClick={() => { setIsPreviewMode(!isPreviewMode); setSelectedBlockId(null); }}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black transition-all border-[3px] border-black shadow-[4px_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] ${isPreviewMode ? 'bg-[#00E599]' : 'bg-white'}`}
+            >
+              <Eye size={18} strokeWidth={3} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
+            </button>
+            
+            <button 
+              onClick={() => {/* Publish Logic */}}
+              className="flex items-center gap-2 px-6 py-2.5 bg-[#8B5CF6] text-white rounded-xl font-black transition-all border-[3px] border-black shadow-[4px_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000]"
+            >
+              <Rocket size={18} strokeWidth={3} /> Publish
+            </button>
+          </div>
+        </header>
+
+        {/* 4-Column Layout */}
+        <div className="flex-1 flex overflow-hidden">
+          
+          {/* Column 1: Components Library */}
+          {!isPreviewMode && (
+            <aside className="w-72 bg-white border-r-[3px] border-black overflow-y-auto shrink-0 z-10 flex flex-col p-5 gap-4">
+              <div className="flex justify-between items-baseline">
+                <h2 className="font-black text-lg text-black">Components</h2>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{blocks.length} BLOCKS</span>
+              </div>
+              
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full border-[3px] border-black rounded-xl pl-9 pr-3 py-2 text-sm font-bold focus:outline-none focus:shadow-[2px_2px_0_0_#000] transition-shadow placeholder-gray-400"
+                />
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mb-2">
+                {categories.map(cat => (
+                  <button 
+                    key={cat} 
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-3 py-1.5 rounded-full border-[2px] border-black text-[10px] font-black tracking-wider transition-colors ${activeCategory === cat ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-10">
+                {filteredTypes.map(type => {
+                  const Icon = iconMap[plbSchema[type].icon] || Type;
+                  return (
+                    <button 
+                      key={type}
+                      onClick={() => addBlock(type)}
+                      className="flex flex-col items-center justify-center gap-2 p-3 bg-white border-[3px] border-black rounded-2xl hover:bg-[#00E599]/10 shadow-[4px_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] transition-all aspect-square"
+                    >
+                      <div className="w-10 h-10 bg-[#00E599] rounded-full border-[3px] border-black flex items-center justify-center">
+                        <Icon size={18} className="text-black" strokeWidth={3} />
+                      </div>
+                      <div className="font-black text-xs text-black text-center leading-tight">{type}</div>
+                    </button>
+                  )
+                })}
+              </div>
+            </aside>
+          )}
+
+          {/* Column 2: Structure Panel */}
+          {!isPreviewMode && (
+            <aside className="w-64 bg-white border-r-[3px] border-black overflow-y-auto shrink-0 z-10 flex flex-col p-5 gap-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="font-black text-lg text-black">Structure</h2>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">1 PAGES</div>
+                </div>
+                <button className="w-8 h-8 rounded-full bg-[#00E599] border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0_0_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0_0_#000] transition-all">
+                  <Plus size={16} strokeWidth={4} className="text-black" />
+                </button>
+              </div>
+              
+              <div className="border-[3px] border-black rounded-xl overflow-hidden shadow-[4px_4px_0_0_#000]">
+                <div className="bg-[#00E599] p-3 border-b-[3px] border-black flex items-center gap-2 font-black text-sm">
+                  <ChevronDown size={16} strokeWidth={3} /> P1 Page 1
+                </div>
+                <div className="p-2 flex flex-col gap-1 bg-white min-h-[100px]">
+                  {blocks.length === 0 ? (
+                    <div className="text-xs font-bold text-gray-400 p-2 text-center">Empty Page</div>
+                  ) : (
+                    blocks.map(block => {
+                      const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
+                      return (
+                        <button 
+                          key={block.id}
+                          onClick={() => setSelectedBlockId(block.id)}
+                          className={`flex items-center gap-2 p-2 rounded-lg text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-gray-100 border-2 border-black' : 'hover:bg-gray-50 border-2 border-transparent'}`}
+                        >
+                          <Icon size={14} strokeWidth={3} className="text-gray-500 shrink-0" /> 
+                          <span className="truncate">{block.type}</span>
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            </aside>
+          )}
+
+          {/* Column 3: Main Canvas */}
+          <main 
+            className={`flex-1 overflow-y-auto relative bg-[#F4F4F5] flex flex-col items-center p-8`}
+            onClick={() => setSelectedBlockId(null)}
+          >
+            {/* Canvas Header */}
+            <div className="w-full max-w-[800px] flex justify-between items-center mb-6 px-4">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-[10px] font-black text-gray-500 uppercase tracking-widest"><Smartphone size={12}/> LIVE CANVAS</span>
+                <span className="px-3 py-1 bg-white border-[2px] border-black rounded-full text-[10px] font-black tracking-widest uppercase">PAGE 1</span>
+              </div>
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{blocks.length} BLOCKS</span>
+            </div>
+
+            <div 
+              className={`w-full max-w-[800px] min-h-[850px] bg-white rounded-[40px] shadow-[16px_16px_0_0_#000] border-[4px] border-black transition-all duration-300 relative overflow-hidden`}
+              onClick={(e) => { e.stopPropagation(); setSelectedBlockId(null); }}
+            >
+              {blocks.length === 0 ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                  <div className="w-24 h-24 mb-6 rounded-3xl bg-gray-100 border-[3px] border-dashed border-gray-300 flex items-center justify-center">
+                    <Plus size={32} className="text-gray-300" strokeWidth={3} />
+                  </div>
+                  <h3 className="text-xl font-black text-black mb-2">Blank Canvas</h3>
+                  <p className="text-sm font-bold text-gray-500">Drag components or click them to build.</p>
+                </div>
+              ) : (
+                blocks.map((block, index) => (
+                  <Rnd
+                    key={block.id}
+                    bounds="parent"
+                    size={{ width: block.width || 300, height: block.height || 100 }}
+                    position={{ x: block.x || 0, y: block.y || 0 }}
+                    onDragStop={(e, d) => updateBlockSpatial(block.id, { x: d.x, y: d.y })}
+                    onResizeStop={(e, direction, ref, delta, position) => {
+                      updateBlockSpatial(block.id, {
+                        width: parseInt(ref.style.width, 10),
+                        height: parseInt(ref.style.height, 10),
+                        ...position
+                      });
+                    }}
+                    disableDragging={isPreviewMode}
+                    enableResizing={!isPreviewMode ? undefined : false}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isPreviewMode) setSelectedBlockId(block.id);
+                    }}
+                    style={{ zIndex: index }}
+                    className={`group absolute ${selectedBlockId === block.id && !isPreviewMode ? 'ring-4 ring-[#8B5CF6] ring-offset-2 rounded-lg' : 'hover:ring-4 hover:ring-gray-200 hover:rounded-lg'} ${isPreviewMode ? '!ring-0' : ''}`}
+                  >
+                    {!isPreviewMode && selectedBlockId === block.id && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
+                        className="absolute -top-4 -right-4 bg-red-500 text-white p-2 rounded-full border-[3px] border-black shadow-[2px_2px_0_0_#000] z-30 hover:-translate-y-0.5 transition-transform"
+                      >
+                        <Trash2 size={16} strokeWidth={3} />
+                      </button>
+                    )}
+                    
+                    {!isPreviewMode && <div className="absolute inset-0 z-10 cursor-move"></div>}
+                    
+                    <div className="w-full h-full relative z-0">
+                      <VisualBlockRenderer block={block} version={version} />
+                    </div>
+                  </Rnd>
+                ))
+              )}
+            </div>
+            <div className="h-20 shrink-0"></div>
+          </main>
+
+          {/* Column 4: Properties Panel */}
+          {!isPreviewMode && (
+            <aside className="w-80 bg-white border-l-[3px] border-black overflow-y-auto shrink-0 z-20 flex flex-col relative p-5">
+              <h2 className="font-black text-xl text-black">Properties</h2>
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 mb-6">Select a block</div>
+              
               {!selectedBlock ? (
-                <div className="text-sm font-bold text-[#71717A] dark:text-[#A1A1AA] text-center mt-10 p-6 bg-white dark:bg-[#27272A] rounded-xl border-[3px] border-dashed border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
-                  Select an element on the canvas to configure its settings.
+                <div className="flex-1 flex items-center justify-center flex-col text-center opacity-50">
+                  <MousePointer2 size={32} strokeWidth={3} className="mb-4" />
+                  <p className="font-bold text-sm">Click a block on the canvas to edit its properties here.</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-                  <div className="pb-4 border-b-[3px] border-[#18181B] dark:border-white">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-8 h-8 bg-[#8B5CF6] rounded-lg border-[3px] border-[#18181B] dark:border-white text-white flex items-center justify-center shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]">
+                  <div className="pb-4 border-b-[3px] border-black">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#8B5CF6] rounded-xl border-[3px] border-black text-white flex items-center justify-center shadow-[2px_2px_0_0_#000]">
                         <SettingsIcon type={selectedBlock.type} />
                       </div>
-                      <h3 className="font-black text-xl text-[#18181B] dark:text-white">{selectedBlock.type}</h3>
+                      <h3 className="font-black text-lg text-black">{selectedBlock.type}</h3>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-5">
                     {/* Layer Controls */}
-                    <div className="flex flex-col gap-2 p-3 bg-[#E4E4E7] dark:bg-[#3F3F46] border-[3px] border-[#18181B] dark:border-white rounded-xl shadow-[4px_4px_0_#18181B] dark:shadow-[#FFFFFF]">
-                      <div className="flex items-center gap-2 text-[#18181B] dark:text-white font-black text-xs uppercase mb-1">
-                        <Layers size={14} /> Layer Management
+                    <div className="flex flex-col gap-2 p-3 bg-gray-50 border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000]">
+                      <div className="flex items-center gap-2 text-black font-black text-xs uppercase mb-1">
+                        <Layers size={14} strokeWidth={3} /> Layer Management
                       </div>
                       <div className="flex gap-2">
                         <button 
                           onClick={() => bringForward(selectedBlock.id)}
                           disabled={blocks.findIndex(b => b.id === selectedBlock.id) === blocks.length - 1}
-                          className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-[#27272A] border-[2px] border-[#18181B] dark:border-white py-1.5 rounded-lg text-[#18181B] dark:text-white font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#18181B]"
+                          className="flex-1 flex items-center justify-center gap-1 bg-white border-[2px] border-black py-1.5 rounded-lg text-black font-bold text-xs shadow-[2px_2px_0_0_#000] disabled:opacity-50 active:translate-y-[2px] active:shadow-none hover:bg-gray-100"
                         >
-                          <ArrowUp size={14} strokeWidth={3} /> Bring Forward
+                          <ArrowUp size={14} strokeWidth={3} /> Forward
                         </button>
                         <button 
                           onClick={() => sendBackward(selectedBlock.id)}
                           disabled={blocks.findIndex(b => b.id === selectedBlock.id) === 0}
-                          className="flex-1 flex items-center justify-center gap-1 bg-white dark:bg-[#27272A] border-[2px] border-[#18181B] dark:border-white py-1.5 rounded-lg text-[#18181B] dark:text-white font-bold text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F4F4F5] dark:hover:bg-[#18181B]"
+                          className="flex-1 flex items-center justify-center gap-1 bg-white border-[2px] border-black py-1.5 rounded-lg text-black font-bold text-xs shadow-[2px_2px_0_0_#000] disabled:opacity-50 active:translate-y-[2px] active:shadow-none hover:bg-gray-100"
                         >
-                          <ArrowDown size={14} strokeWidth={3} /> Send Backward
+                          <ArrowDown size={14} strokeWidth={3} /> Backward
                         </button>
                       </div>
-                    </div>
-
-                    {/* Spatial properties read-only */}
-                    <div className="grid grid-cols-2 gap-2 mb-2 p-2 bg-[#F4F4F5] dark:bg-[#18181B] border-[2px] border-[#E4E4E7] dark:border-[#3F3F46] rounded-xl">
-                      <div className="text-[10px] font-black text-[#71717A] dark:text-[#A1A1AA] uppercase">X: {selectedBlock.x}px</div>
-                      <div className="text-[10px] font-black text-[#71717A] dark:text-[#A1A1AA] uppercase">Y: {selectedBlock.y}px</div>
-                      <div className="text-[10px] font-black text-[#71717A] dark:text-[#A1A1AA] uppercase">W: {selectedBlock.width}px</div>
-                      <div className="text-[10px] font-black text-[#71717A] dark:text-[#A1A1AA] uppercase">H: {selectedBlock.height}px</div>
                     </div>
 
                     {selectedSchema.fields.map(field => {
                       const value = selectedBlock[version][field.name] || '';
                       
-                      // Special handler for Image Uploads
                       if (field.name === 'source' && ['Image', 'Video', 'Animation', 'Mascot Emotion'].includes(selectedBlock.type)) {
                         return (
-                          <div key={field.name} className="flex flex-col gap-1.5 group">
-                            <label className="text-xs font-black text-[#18181B] dark:text-white flex justify-between">
-                              {field.label} (URL or Upload Base64) {field.required && <span className="text-red-500">*</span>}
+                          <div key={field.name} className="flex flex-col gap-2">
+                            <label className="text-xs font-black text-black">
+                              {field.label} {field.required && <span className="text-red-500">*</span>}
                             </label>
                             <div className="flex gap-2">
                               <input 
@@ -442,10 +463,10 @@ const PLBBuilder = () => {
                                 value={value}
                                 placeholder="https://..."
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="flex-1 w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                                className="flex-1 w-full px-3 py-2 rounded-xl border-[3px] border-black bg-white text-black font-bold text-sm focus:outline-none shadow-[2px_2px_0_0_#000] focus:shadow-none focus:translate-y-[2px] transition-all"
                               />
-                              <label className="bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white cursor-pointer text-sm font-black flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF] hover:-translate-y-0.5 transition-transform">
-                                <Upload size={16} />
+                              <label className="bg-black text-white px-3 py-2 rounded-xl border-[3px] border-black cursor-pointer text-sm font-black flex items-center justify-center shrink-0 hover:-translate-y-[1px] shadow-[2px_2px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all">
+                                <Upload size={16} strokeWidth={3} />
                                 <input 
                                   type="file" 
                                   className="hidden" 
@@ -459,8 +480,8 @@ const PLBBuilder = () => {
                       }
 
                       return (
-                        <div key={field.name} className="flex flex-col gap-1.5 group">
-                          <label className="text-xs font-black text-[#18181B] dark:text-white flex justify-between">
+                        <div key={field.name} className="flex flex-col gap-2">
+                          <label className="text-xs font-black text-black">
                             {field.label} {field.required && <span className="text-red-500">*</span>}
                           </label>
                           
@@ -469,30 +490,30 @@ const PLBBuilder = () => {
                               type={field.type}
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-black bg-white text-black font-bold text-sm focus:outline-none shadow-[2px_2px_0_0_#000] focus:shadow-none focus:translate-y-[2px] transition-all"
                             />
                           ) : field.type === 'color' ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <input 
                                 type="color"
                                 value={value}
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-12 h-12 p-1 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] cursor-pointer shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                                className="w-10 h-10 p-0 rounded-lg border-[3px] border-black bg-white cursor-pointer shadow-[2px_2px_0_0_#000]"
                               />
-                              <span className="text-sm font-mono font-bold text-[#18181B] dark:text-white">{value || '#000000'}</span>
+                              <span className="text-sm font-black text-black uppercase">{value || '#000000'}</span>
                             </div>
                           ) : field.type === 'textarea' ? (
                             <textarea 
                               value={value}
                               rows={3}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm resize-y focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-black bg-white text-black font-bold text-sm resize-y focus:outline-none shadow-[2px_2px_0_0_#000] focus:shadow-none focus:translate-y-[2px] transition-all"
                             />
                           ) : field.type === 'select' ? (
                             <select
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-xl border-[3px] border-[#18181B] dark:border-white bg-white dark:bg-[#27272A] text-[#18181B] dark:text-white font-bold text-sm focus:border-[#00E599] focus:outline-none focus:ring-4 focus:ring-[#00E599]/20 transition-all appearance-none cursor-pointer shadow-[2px_2px_0_#18181B] dark:shadow-[#FFFFFF]"
+                              className="w-full px-3 py-2 rounded-xl border-[3px] border-black bg-white text-black font-bold text-sm focus:outline-none shadow-[2px_2px_0_0_#000] focus:shadow-none focus:translate-y-[2px] transition-all appearance-none cursor-pointer"
                             >
                               {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                             </select>
@@ -503,9 +524,9 @@ const PLBBuilder = () => {
                   </div>
                 </div>
               )}
-            </div>
-          </aside>
-        )}
+            </aside>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -513,7 +534,7 @@ const PLBBuilder = () => {
 
 const SettingsIcon = ({ type }) => {
   const Icon = iconMap[plbSchema[type]?.icon] || Type;
-  return <Icon size={14} />;
+  return <Icon size={16} strokeWidth={3} />;
 };
 
 export default PLBBuilder;
