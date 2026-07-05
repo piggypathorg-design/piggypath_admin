@@ -72,6 +72,10 @@ export const plbSchema = {
     category: 'Media', icon: 'ImageIcon',
     fields: [
       { name: 'source', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'object_fit', label: 'Image Fit', type: 'select', options: ['Fill (Cover)', 'Fit (Contain)', 'Original Size'], default: 'Fill (Cover)' },
+      { name: 'image_scale', label: 'Zoom Scale (%)', type: 'number', default: 100 },
+      { name: 'image_x', label: 'Pan X (%)', type: 'number', default: 50 },
+      { name: 'image_y', label: 'Pan Y (%)', type: 'number', default: 50 },
       { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
       { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },

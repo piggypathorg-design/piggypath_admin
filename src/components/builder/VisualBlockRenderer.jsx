@@ -151,7 +151,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       return (
         <div className={`w-full flex flex-col ${alignClass} py-4 px-6`}>
           <div 
-            className="bg-gray-200 border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[8px_8px_0_#18181B] w-full"
+            className="bg-gray-200 border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[8px_8px_0_#18181B] w-full relative"
             style={{
               borderRadius: data.frame_shape === 'Circle' ? '50%' : `${data.frame_roundness || 16}px`,
               aspectRatio: data.frame_shape === 'Square' || data.frame_shape === 'Circle' ? '1/1' : '16/9'
@@ -159,7 +159,16 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           >
             {data.source ? (
               block.type === 'Image' ? (
-                <img src={data.source} alt={data.alt_text} className="w-full h-full object-cover" />
+                <img 
+                  src={data.source} 
+                  alt={data.alt_text} 
+                  className="w-full h-full"
+                  style={{
+                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover',
+                    objectPosition: `${data.image_x ?? 50}% ${data.image_y ?? 50}%`,
+                    transform: `scale(${(data.image_scale ?? 100) / 100})`
+                  }}
+                />
               ) : (data.source.includes('youtube.com') || data.source.includes('youtu.be')) ? (
                 <iframe
                   src={data.source.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
@@ -170,13 +179,16 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
               ) : (
                 <video 
                   src={data.source} 
-                  className="w-full h-full object-cover z-10 relative" 
+                  className="w-full h-full object-cover z-10 relative pointer-events-auto" 
                   autoPlay={data.autoplay === 'On'} 
                   loop={data.loop === 'On'}
-                  controls={block.type === 'Video'} 
+                  controls={block.type === 'Video' || block.type === 'Animation'} 
                   muted={data.autoplay === 'On'}
                   playsInline
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    // Stop propagation so clicking the video doesn't select the block, allowing controls to work
+                    e.stopPropagation();
+                  }}
                 />
               )
             ) : (
