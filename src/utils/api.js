@@ -262,7 +262,7 @@ export const createUser = async (username, name, password, creatorName = 'Admin'
     return { error: error.message };
   }
   
-  await addActivity(creatorName, `added ---${username}---`);
+  await addActivity(creatorName, `added ${username}`);
   return data;
 };
 
