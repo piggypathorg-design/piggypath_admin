@@ -124,7 +124,6 @@ const PLBDashboard = () => {
       setNewUserPassword('');
       await refreshData();
     } else {
-    } else {
       setAddUserError(newUser?.error || 'Failed to create user. Username might already exist.');
     }
   };
