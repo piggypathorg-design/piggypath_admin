@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, LogOut, FileText, LayoutDashboard, Search, Clock, 
   CheckCircle, Sparkles, ChevronRight, X, Settings, 
-  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash, UserPlus
+  Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash, UserPlus, Lock
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
 import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities, createUser } from '../../utils/api';
@@ -36,8 +36,17 @@ const PLBDashboard = () => {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [addUserError, setAddUserError] = useState(null);
 
+  const [showEditPasswordModal, setShowEditPasswordModal] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [editPasswordValue, setEditPasswordValue] = useState('');
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+
+  const [myNewPassword, setMyNewPassword] = useState('');
+  const [isSavingMyPassword, setIsSavingMyPassword] = useState(false);
+
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
+  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath';
 
   useEffect(() => {
     if(user && user.name) setProfileName(user.name);
@@ -115,8 +124,38 @@ const PLBDashboard = () => {
       setNewUserPassword('');
       await refreshData();
     } else {
+    } else {
       setAddUserError(newUser?.error || 'Failed to create user. Username might already exist.');
     }
+  };
+
+  const handleEditUserPassword = async (e) => {
+    e.preventDefault();
+    if (!userToEdit || !editPasswordValue.trim()) return;
+    setIsEditingPassword(true);
+    const updated = await updateUser(userToEdit.id, { password: editPasswordValue }, user.name || user.username);
+    setIsEditingPassword(false);
+    if (updated) {
+      setShowEditPasswordModal(false);
+      setEditPasswordValue('');
+      await refreshData();
+    } else {
+      alert('Failed to update password');
+    }
+  };
+
+  const handleUpdateMyPassword = async (e) => {
+    e.preventDefault();
+    if (!myNewPassword.trim()) return;
+    setIsSavingMyPassword(true);
+    const updatedUser = await updateUser(user.id, { password: myNewPassword }, user.name || user.username);
+    if (updatedUser) {
+      localStorage.setItem('plb_user_v2', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setMyNewPassword('');
+      alert('Password updated successfully!');
+    }
+    setIsSavingMyPassword(false);
   };
 
   const openBuilder = (id) => {
@@ -471,12 +510,14 @@ const PLBDashboard = () => {
                      </div>
                      All Registered Users
                    </h3>
-                   <button 
-                     onClick={() => setShowAddUserModal(true)}
-                     className="flex items-center gap-2 px-4 py-2 bg-[#8B5CF6] hover:bg-purple-500 text-white text-xs font-black rounded-xl shadow-[2px_2px_0_0_#000] hover:translate-y-[2px] hover:shadow-none border-[3px] border-black transition-all duration-200"
-                   >
-                     <UserPlus size={16} strokeWidth={3} /> Add User
-                   </button>
+                   {isAdmin && (
+                     <button 
+                       onClick={() => setShowAddUserModal(true)}
+                       className="flex items-center gap-2 px-4 py-2 bg-[#8B5CF6] hover:bg-purple-500 text-white text-xs font-black rounded-xl shadow-[2px_2px_0_0_#000] hover:translate-y-[2px] hover:shadow-none border-[3px] border-black transition-all duration-200"
+                     >
+                       <UserPlus size={16} strokeWidth={3} /> Add User
+                     </button>
+                   )}
                 </div>
 
                 <div className="overflow-x-auto relative z-10 p-8 min-h-[300px] bg-white">
@@ -495,8 +536,19 @@ const PLBDashboard = () => {
                             <p className="text-black font-black text-lg">{member.name || 'No Name Provided'}</p>
                             <p className="text-gray-500 font-bold text-sm">@{member.username}</p>
                           </div>
-                          <div className="ml-auto">
-                            <span className="text-[10px] uppercase font-black tracking-widest px-3 py-1.5 bg-[#FFD100] text-black rounded-md border-[2px] border-black shadow-[2px_2px_0_0_#000]">Member</span>
+                          <div className="ml-auto flex items-center gap-3">
+                            {isAdmin && member.id !== user.id && (
+                              <button 
+                                onClick={() => { setUserToEdit(member); setEditPasswordValue(''); setShowEditPasswordModal(true); }}
+                                className="p-2 bg-white hover:bg-gray-100 text-black rounded-lg border-[2px] border-black shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-all"
+                                title="Change Password"
+                              >
+                                <Lock size={14} strokeWidth={3} />
+                              </button>
+                            )}
+                            <span className="text-[10px] uppercase font-black tracking-widest px-3 py-1.5 bg-[#FFD100] text-black rounded-md border-[2px] border-black shadow-[2px_2px_0_0_#000]">
+                              {member.username === 'admin' || member.username === 'shabnam' || member.username === 'piggypath' ? 'Admin' : 'Member'}
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -554,6 +606,33 @@ const PLBDashboard = () => {
                     </button>
                   </div>
                 </form>
+
+                <div className="mt-8 pt-8 border-t-[3px] border-black relative z-10">
+                  <h3 className="text-2xl font-black text-black mb-6 inline-block">Security</h3>
+                  <form onSubmit={handleUpdateMyPassword} className="flex flex-col gap-6">
+                    <div>
+                      <label className="block text-sm font-black mb-3 text-black uppercase tracking-widest">Change Password</label>
+                      <input 
+                        type="password" 
+                        value={myNewPassword}
+                        onChange={(e) => setMyNewPassword(e.target.value)}
+                        placeholder="New password"
+                        className="w-full max-w-md px-5 py-4 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0_0_#000] focus:-translate-y-1 transition-all placeholder-gray-400 shadow-[2px_2px_0_0_#000]"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <button 
+                        type="submit" 
+                        disabled={isSavingMyPassword || !myNewPassword}
+                        className="px-6 py-4 bg-[#FF6B6B] text-black font-black rounded-xl border-[3px] border-black shadow-[4px_4px_0_0_#000] hover:shadow-[2px_2px_0_0_#000] hover:translate-y-[2px] active:translate-y-1 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSavingMyPassword ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} strokeWidth={3} />}
+                        Update Password
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           )}
@@ -667,6 +746,51 @@ const PLBDashboard = () => {
                   className="py-3 bg-[#00E599] text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000] hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isAddingUser ? <Loader2 size={16} className="animate-spin" /> : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Password Modal */}
+      {showEditPasswordModal && userToEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isEditingPassword && setShowEditPasswordModal(false)}></div>
+          
+          <div className="bg-white border-[4px] border-black shadow-[12px_12px_0_0_#000] rounded-3xl max-w-sm w-full p-8 relative z-10 animate-in zoom-in-95 duration-200 text-left">
+            <h3 className="text-3xl font-black mb-2 text-black">Manage User</h3>
+            <p className="text-gray-500 font-bold mb-6 text-sm">Change password for <span className="text-black">@{userToEdit.username}</span></p>
+            
+            <form onSubmit={handleEditUserPassword} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-xs font-black mb-1 text-black uppercase tracking-widest">New Password</label>
+                <input 
+                  type="password" 
+                  value={editPasswordValue}
+                  onChange={(e) => setEditPasswordValue(e.target.value)}
+                  placeholder="Enter new password"
+                  className="w-full px-4 py-3 bg-white border-[3px] border-black rounded-xl text-black font-bold focus:outline-none focus:ring-0 focus:-translate-y-1 transition-all placeholder-gray-400"
+                  required
+                  disabled={isEditingPassword}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowEditPasswordModal(false)}
+                  disabled={isEditingPassword}
+                  className="py-3 bg-gray-100 text-black font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000] hover:-translate-y-1 transition-all duration-200 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isEditingPassword}
+                  className="py-3 bg-[#8B5CF6] text-white font-black border-[3px] border-black rounded-xl shadow-[4px_4px_0_0_#000] hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isEditingPassword ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
                 </button>
               </div>
             </form>

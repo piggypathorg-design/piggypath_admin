@@ -266,10 +266,10 @@ export const createUser = async (username, name, password, creatorName = 'Admin'
   return data;
 };
 
-export const updateUser = async (id, name) => {
+export const updateUser = async (id, updates, triggerUser = 'Someone') => {
   const { data, error } = await supabase
     .from('users')
-    .update({ name })
+    .update(updates)
     .eq('id', id)
     .select()
     .single();
@@ -279,6 +279,10 @@ export const updateUser = async (id, name) => {
     return null;
   }
   
-  await addActivity(data.name || data.username, 'updated their profile settings');
+  if (updates.password) {
+    await addActivity(triggerUser, `changed password for ${data.username}`);
+  } else {
+    await addActivity(triggerUser, 'updated their profile settings');
+  }
   return data;
 };
