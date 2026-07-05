@@ -457,8 +457,8 @@ const PLBBuilder = () => {
                       )}
                       
                       {/* Render block inline */}
-                      <div className="w-full relative z-0 pointer-events-none">
-                         <VisualBlockRenderer block={block} version={version} />
+                      <div className={`w-full relative z-0 ${!isPreviewMode ? 'pointer-events-none' : ''}`}>
+                         <VisualBlockRenderer block={block} version={version} isPreviewMode={isPreviewMode} />
                       </div>
                     </div>
                   ))}

@@ -41,8 +41,9 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
-const VisualBlockRenderer = ({ block, version }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
   const data = block[version] || {};
+  const [interactionState, setInteractionState] = React.useState({});
   
   const getAlign = (align) => {
     if (align === 'Center') return 'text-center justify-center';
@@ -230,6 +231,7 @@ const VisualBlockRenderer = ({ block, version }) => {
       );
 
     case 'MCQ':
+      const correctOptIndex = ['A', 'B', 'C', 'D'].indexOf(data.correct_option || 'A');
       return (
         <div className="w-full px-6 py-4">
           <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
@@ -240,11 +242,164 @@ const VisualBlockRenderer = ({ block, version }) => {
               <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Multiple Choice Question?'}</p>
             </div>
             <div className="flex flex-col gap-3 mt-2">
-              {[data.option_a, data.option_b, data.option_c, data.option_d].filter(Boolean).map((opt, i) => (
-                <div key={i} className="px-4 py-3 bg-[#F4F4F5] border-[3px] border-[#18181B] rounded-2xl text-sm font-bold text-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] transition-all cursor-pointer">
-                  {opt}
+              {[data.option_a, data.option_b, data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
+                const isSelected = interactionState?.selectedIndex === i;
+                let bgClass = "bg-[#F4F4F5] border-[#18181B]";
+                let animClass = "";
+                if (isSelected) {
+                  if (i === correctOptIndex) {
+                    bgClass = "bg-[#00E599] border-[#00E599] text-white";
+                    animClass = "animate-mascot-bounce";
+                  } else {
+                    bgClass = "bg-[#FF6B6B] border-[#FF6B6B] text-white";
+                    animClass = "animate-mascot-shake";
+                  }
+                }
+                return (
+                  <div 
+                    key={i} 
+                    onClick={() => {
+                      if (isPreviewMode) setInteractionState({ selectedIndex: i });
+                    }}
+                    className={`px-4 py-3 rounded-2xl text-sm font-bold shadow-[4px_4px_0_#18181B] transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass} border-[3px]`}
+                  >
+                    {opt}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'Fill in the Blank':
+      const parts = (data.question || 'Fill in the ___').split('___');
+      const isFillCorrect = interactionState?.status === 'correct';
+      const isFillIncorrect = interactionState?.status === 'incorrect';
+      
+      let inputBorder = "border-[#18181B] border-[3px]";
+      let inputBg = "bg-[#F4F4F5]";
+      if (isFillCorrect) {
+        inputBorder = "border-[#00E599] border-[3px]";
+        inputBg = "bg-[#00E599]/20";
+      } else if (isFillIncorrect) {
+        inputBorder = "border-[#FF6B6B] border-[3px]";
+        inputBg = "bg-[#FF6B6B]/20";
+      }
+
+      return (
+        <div className="w-full px-6 py-4">
+          <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-[#8B5CF6] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
+                <Edit3 className="text-white" size={20} strokeWidth={3} />
+              </div>
+              <div className="font-black text-lg text-[#18181B] leading-loose pt-1 flex flex-wrap items-center gap-2">
+                {parts.map((part, index) => (
+                  <React.Fragment key={index}>
+                    <span>{part}</span>
+                    {index < parts.length - 1 && (
+                      <input 
+                        type="text"
+                        disabled={!isPreviewMode}
+                        className={`w-32 px-3 py-1 rounded-xl text-center font-bold text-sm outline-none transition-all ${inputBorder} ${inputBg}`}
+                        placeholder="Type..."
+                        value={interactionState?.value || ''}
+                        onChange={(e) => setInteractionState({ ...interactionState, value: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
+                            setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                          }
+                        }}
+                        onBlur={(e) => {
+                          if (e.target.value) {
+                            const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
+                            setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                          }
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+            {data.hint && (
+              <p className="text-sm font-bold text-gray-400 mt-2">Hint: {data.hint}</p>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'Slider':
+      const min = data.min_value || 0;
+      const max = data.max_value || 100;
+      const target = data.target_value || 50;
+      const tol = data.tolerance || 5;
+      
+      const val = interactionState?.value ?? min;
+      const sliderStatus = interactionState?.status;
+      
+      let trackColor = "bg-[#18181B]";
+      if (sliderStatus === 'correct') trackColor = "bg-[#00E599]";
+      if (sliderStatus === 'incorrect') trackColor = "bg-[#FF6B6B]";
+
+      return (
+        <div className="w-full px-6 py-4">
+          <div className="w-full flex flex-col gap-6 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
+                <Sliders className="text-[#18181B]" size={20} strokeWidth={3} />
+              </div>
+              <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Estimate the value:'}</p>
+            </div>
+            
+            <div className="flex flex-col gap-2 mt-4">
+              <div className="text-center font-black text-3xl mb-2 text-[#8B5CF6]">
+                {val} <span className="text-lg text-gray-500">{data.unit || '%'}</span>
+              </div>
+              
+              <div className="relative w-full h-8 flex items-center">
+                {/* Custom track */}
+                <div className={`absolute left-0 right-0 h-4 rounded-full border-[3px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
+                
+                {/* Range input visually hidden but functionally overlaid */}
+                <input 
+                  type="range"
+                  min={min}
+                  max={max}
+                  value={val}
+                  disabled={!isPreviewMode}
+                  className="w-full absolute inset-0 opacity-0 cursor-pointer z-10"
+                  onChange={(e) => {
+                    if (!isPreviewMode) return;
+                    setInteractionState({ value: parseInt(e.target.value), status: null });
+                  }}
+                  onMouseUp={() => {
+                    if (!isPreviewMode) return;
+                    const correct = Math.abs(val - target) <= tol;
+                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                  }}
+                  onTouchEnd={() => {
+                    if (!isPreviewMode) return;
+                    const correct = Math.abs(val - target) <= tol;
+                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                  }}
+                />
+                
+                {/* Custom thumb */}
+                <div 
+                  className="absolute w-8 h-8 bg-white border-[4px] border-[#18181B] rounded-full shadow-[2px_2px_0_#18181B] pointer-events-none transition-all duration-75 flex items-center justify-center z-0"
+                  style={{ left: `calc(${((val - min) / (max - min)) * 100}% - 16px)` }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-[#18181B]"></div>
                 </div>
-              ))}
+              </div>
+              
+              <div className="flex justify-between w-full text-xs font-bold text-gray-400 mt-2">
+                <span>{min}{data.unit || '%'}</span>
+                <span>{max}{data.unit || '%'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -252,8 +407,6 @@ const VisualBlockRenderer = ({ block, version }) => {
 
     case 'Drag & Drop':
     case 'Arrange':
-    case 'Slider':
-    case 'Fill in the Blank':
     case 'Hotspot':
     case 'Reflection':
       const ActivityIcon = {
