@@ -30,7 +30,8 @@ const PLBBuilder = () => {
   const navigate = useNavigate();
   
   const [lesson, setLesson] = useState(null);
-  const [blocks, setBlocks] = useState([]);
+  const [pages, setPages] = useState([{ id: 'page_1', title: 'Page 1', blocks: [] }]);
+  const [activePageId, setActivePageId] = useState('page_1');
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -55,13 +56,23 @@ const PLBBuilder = () => {
         return;
       }
       setLesson(l);
-      let parsedBlocks = [];
+      let parsedData = [];
       if (Array.isArray(l.components)) {
-        parsedBlocks = l.components;
+        parsedData = l.components;
       } else if (typeof l.components === 'string') {
-        try { parsedBlocks = JSON.parse(l.components); } catch (e) { parsedBlocks = []; }
+        try { parsedData = JSON.parse(l.components); } catch (e) { parsedData = []; }
       }
-      setBlocks(Array.isArray(parsedBlocks) ? parsedBlocks : []);
+      
+      let initialPages = [{ id: 'page_1', title: 'Page 1', blocks: [] }];
+      if (Array.isArray(parsedData) && parsedData.length > 0) {
+        if (parsedData[0].blocks) {
+          initialPages = parsedData;
+        } else if (parsedData[0].type) {
+          initialPages = [{ id: 'page_1', title: 'Page 1', blocks: parsedData }];
+        }
+      }
+      setPages(initialPages);
+      setActivePageId(initialPages[0]?.id || 'page_1');
       setIsLoading(false);
     };
     fetchLesson();
@@ -73,20 +84,24 @@ const PLBBuilder = () => {
         { event: 'UPDATE', schema: 'public', table: 'lessons', filter: `id=eq.${id}` },
         (payload) => {
           const updatedLesson = payload.new;
-          let parsedBlocks = [];
+          let parsedData = [];
           if (typeof updatedLesson.components === 'string') {
-            try { parsedBlocks = JSON.parse(updatedLesson.components); } catch (e) { parsedBlocks = []; }
+            try { parsedData = JSON.parse(updatedLesson.components); } catch (e) { parsedData = []; }
           } else if (Array.isArray(updatedLesson.components)) {
-            parsedBlocks = updatedLesson.components;
+            parsedData = updatedLesson.components;
           }
           
-          setBlocks((currentBlocks) => {
-            // Only update local state if the remote state is actually different
-            // This prevents feedback loops from our own saves
-            if (JSON.stringify(currentBlocks) !== JSON.stringify(parsedBlocks)) {
-              return parsedBlocks;
+          let remotePages = [{ id: 'page_1', title: 'Page 1', blocks: [] }];
+          if (Array.isArray(parsedData) && parsedData.length > 0) {
+            if (parsedData[0].blocks) remotePages = parsedData;
+            else if (parsedData[0].type) remotePages = [{ id: 'page_1', title: 'Page 1', blocks: parsedData }];
+          }
+          
+          setPages((currentPages) => {
+            if (JSON.stringify(currentPages) !== JSON.stringify(remotePages)) {
+              return remotePages;
             }
-            return currentBlocks;
+            return currentPages;
           });
         }
       )
@@ -100,11 +115,11 @@ const PLBBuilder = () => {
   const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
   const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
 
-  const saveLesson = async (currentBlocks) => {
+  const saveLesson = async (currentPages) => {
     setIsSaving(true);
     const newLessonData = await updateLesson(id, { 
-      components: currentBlocks,
-      pagesCount: Math.max(1, currentBlocks.length)
+      components: currentPages,
+      pagesCount: currentPages.length
     }, user.name || user.username || 'Someone');
     if (newLessonData) setLesson(newLessonData);
     setTimeout(() => setIsSaving(false), 500);
@@ -121,7 +136,46 @@ const PLBBuilder = () => {
     setIsSaving(false);
   };
 
+  const addPage = () => {
+    const newPage = {
+      id: `page_${Date.now()}`,
+      title: `Page ${pages.length + 1}`,
+      blocks: []
+    };
+    const newPages = [...pages, newPage];
+    setPages(newPages);
+    setActivePageId(newPage.id);
+    saveLesson(newPages);
+  };
+
+  const deletePage = (pageId, e) => {
+    e.stopPropagation();
+    if (pages.length <= 1) {
+      alert("You must have at least one page.");
+      return;
+    }
+    const newPages = pages.filter(p => p.id !== pageId);
+    setPages(newPages);
+    if (activePageId === pageId) {
+      setActivePageId(newPages[newPages.length - 1].id);
+    }
+    setSelectedBlockId(null);
+    saveLesson(newPages);
+  };
+
+  const updatePagesWithActiveBlocks = (blockMutator) => {
+    const newPages = pages.map(page => {
+      if (page.id === activePageId) {
+        return { ...page, blocks: blockMutator(page.blocks) };
+      }
+      return page;
+    });
+    setPages(newPages);
+    saveLesson(newPages);
+  };
+
   const addBlock = (type) => {
+    if (!activePageId) return;
     const schema = plbSchema[type];
     const newBlock = {
       id: `block_${Date.now()}`,
@@ -135,41 +189,41 @@ const PLBBuilder = () => {
       newBlock.adult[field.name] = field.default;
     });
     
-    const newBlocks = [...blocks, newBlock];
-    setBlocks(newBlocks);
+    updatePagesWithActiveBlocks(blocks => [...blocks, newBlock]);
     setSelectedBlockId(newBlock.id);
-    saveLesson(newBlocks);
   };
 
   const deleteBlock = (blockId) => {
-    const newBlocks = blocks.filter(b => b.id !== blockId);
-    setBlocks(newBlocks);
+    updatePagesWithActiveBlocks(blocks => blocks.filter(b => b.id !== blockId));
     if (selectedBlockId === blockId) setSelectedBlockId(null);
-    saveLesson(newBlocks);
   };
 
   const bringForward = (blockId) => {
-    const index = blocks.findIndex(b => b.id === blockId);
-    if (index > 0) { // Moving UP the list (earlier in array) is moving "up" in the phone screen
-      const newBlocks = [...blocks];
-      [newBlocks[index], newBlocks[index - 1]] = [newBlocks[index - 1], newBlocks[index]];
-      setBlocks(newBlocks);
-      saveLesson(newBlocks);
-    }
+    updatePagesWithActiveBlocks(blocks => {
+      const index = blocks.findIndex(b => b.id === blockId);
+      if (index > 0) {
+        const newBlocks = [...blocks];
+        [newBlocks[index], newBlocks[index - 1]] = [newBlocks[index - 1], newBlocks[index]];
+        return newBlocks;
+      }
+      return blocks;
+    });
   };
   
   const sendBackward = (blockId) => {
-    const index = blocks.findIndex(b => b.id === blockId);
-    if (index < blocks.length - 1) { // Moving DOWN the list (later in array) is moving "down" in the phone screen
-      const newBlocks = [...blocks];
-      [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
-      setBlocks(newBlocks);
-      saveLesson(newBlocks);
-    }
+    updatePagesWithActiveBlocks(blocks => {
+      const index = blocks.findIndex(b => b.id === blockId);
+      if (index > -1 && index < blocks.length - 1) {
+        const newBlocks = [...blocks];
+        [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
+        return newBlocks;
+      }
+      return blocks;
+    });
   };
 
   const updateBlockData = (blockId, fieldName, value) => {
-    const newBlocks = blocks.map(block => {
+    updatePagesWithActiveBlocks(blocks => blocks.map(block => {
       if (block.id === blockId) {
         return {
           ...block,
@@ -180,9 +234,7 @@ const PLBBuilder = () => {
         };
       }
       return block;
-    });
-    setBlocks(newBlocks);
-    saveLesson(newBlocks);
+    }));
   };
 
   const handleFileUpload = (blockId, fieldName, file) => {
@@ -229,7 +281,9 @@ const PLBBuilder = () => {
     );
   }
 
-  const selectedBlock = blocks.find(b => b.id === selectedBlockId);
+  const activePage = pages.find(p => p.id === activePageId) || pages[0];
+  const activeBlocks = activePage?.blocks || [];
+  const selectedBlock = activeBlocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
   const categories = ['ALL', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'NAVIGATION'];
@@ -288,7 +342,7 @@ const PLBBuilder = () => {
           <aside className="w-72 bg-[#18181B] border-r-[1px] border-[#27272A] flex flex-col shrink-0 z-10">
             <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-baseline">
               <h2 className="font-black text-lg text-white">Components</h2>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{blocks.length} BLOCKS</span>
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
             </div>
             
             <div className="p-4 flex-1 flex flex-col gap-4 overflow-hidden">
@@ -342,49 +396,71 @@ const PLBBuilder = () => {
             <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-center">
               <div>
                 <h2 className="font-black text-lg text-white">Structure</h2>
-                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">1 PAGES</div>
+                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">{pages.length} PAGES</div>
               </div>
-              <button className="w-6 h-6 rounded-full bg-[#00E599] flex items-center justify-center hover:bg-[#00D68F] transition-all">
+              <button onClick={addPage} className="w-6 h-6 rounded-full bg-[#00E599] flex items-center justify-center hover:bg-[#00D68F] transition-all">
                 <Plus size={14} strokeWidth={3} className="text-black" />
               </button>
             </div>
             
-            <div className="p-4 flex-1 overflow-y-auto">
-              <div className="border-[1px] border-[#3F3F46] rounded-lg overflow-hidden bg-[#27272A]">
-                <div className="bg-[#00E599] p-2.5 text-black flex items-center gap-2 font-black text-sm">
-                  <ChevronDown size={16} strokeWidth={3} /> P1 Page 1
-                </div>
-                <div className="p-1 flex flex-col gap-1 min-h-[100px]">
-                  {blocks.length === 0 ? (
-                    <div className="text-xs font-bold text-gray-500 p-3 text-center">Empty Page</div>
-                  ) : (
-                    blocks.map((block, index) => {
-                      const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
-                      return (
-                        <div 
-                          key={block.id}
-                          className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-[#3F3F46] text-white' : 'text-gray-400 hover:bg-[#3F3F46]/50 hover:text-white'}`}
-                        >
-                          <button 
-                            className="flex items-center gap-2 flex-1 truncate"
-                            onClick={() => setSelectedBlockId(block.id)}
-                          >
-                            <Icon size={14} strokeWidth={2} className={selectedBlockId === block.id ? "text-[#00E599]" : "text-gray-500 group-hover:text-[#00E599]"} /> 
-                            <span className="truncate">{block.type}</span>
-                          </button>
-                          
-                          {selectedBlockId === block.id && (
-                            <div className="flex items-center gap-1">
-                               <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowUp size={14}/></button>
-                               <button disabled={index === blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowDown size={14}/></button>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              </div>
+            <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3">
+              {pages.map((page) => {
+                const isActive = activePageId === page.id;
+                return (
+                  <div key={page.id} className={`border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#3F3F46] bg-[#27272A]' : 'border-transparent bg-transparent hover:border-[#3F3F46]/50'}`}>
+                    <div 
+                      onClick={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-400 hover:bg-[#27272A] hover:text-gray-200'}`}
+                    >
+                      <div className="flex items-center gap-2 truncate flex-1">
+                        {isActive ? <ChevronDown size={16} strokeWidth={3} /> : <ArrowRight size={16} strokeWidth={3} />} 
+                        {page.title}
+                      </div>
+                      {pages.length > 1 && (
+                         <button 
+                            onClick={(e) => deletePage(page.id, e)} 
+                            className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'hover:bg-black/20 text-black' : 'hover:bg-[#3F3F46] text-gray-400'}`}
+                         >
+                            <Trash2 size={14} strokeWidth={2} />
+                         </button>
+                      )}
+                    </div>
+                    
+                    {isActive && (
+                      <div className="p-1 flex flex-col gap-1 min-h-[100px]">
+                        {page.blocks.length === 0 ? (
+                          <div className="text-xs font-bold text-gray-500 p-3 text-center">Empty Page</div>
+                        ) : (
+                          page.blocks.map((block, index) => {
+                            const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
+                            return (
+                              <div 
+                                key={block.id}
+                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-[#3F3F46] text-white' : 'text-gray-400 hover:bg-[#3F3F46]/50 hover:text-white'}`}
+                              >
+                                <button 
+                                  className="flex items-center gap-2 flex-1 truncate"
+                                  onClick={(e) => { e.stopPropagation(); setSelectedBlockId(block.id); }}
+                                >
+                                  <Icon size={14} strokeWidth={2} className={selectedBlockId === block.id ? "text-[#00E599]" : "text-gray-500 group-hover:text-[#00E599]"} /> 
+                                  <span className="truncate">{block.type}</span>
+                                </button>
+                                
+                                {selectedBlockId === block.id && (
+                                  <div className="flex items-center gap-1">
+                                     <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowUp size={14}/></button>
+                                     <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowDown size={14}/></button>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </aside>
         )}
@@ -403,7 +479,7 @@ const PLBBuilder = () => {
                  {previewDevice === 'laptop' && <Monitor size={12}/>}
                  LIVE CANVAS
               </span>
-              <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-white tracking-widest uppercase">PAGE 1</span>
+              <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-white tracking-widest uppercase">{activePage?.title || 'PAGE 1'}</span>
             </div>
             
             {/* Device Toggles */}
@@ -413,7 +489,7 @@ const PLBBuilder = () => {
               <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Monitor size={16} /></button>
             </div>
 
-            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{blocks.length} BLOCKS</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
           </div>
 
           {/* Dynamic Device Frame */}
@@ -426,7 +502,7 @@ const PLBBuilder = () => {
             
             {/* Content Area */}
             <div className={`flex-1 w-full bg-[#F8FAFC] overflow-y-auto custom-scrollbar ${previewDevice === 'laptop' ? 'pt-4' : 'pt-10'} pb-8 flex flex-col`}>
-              {blocks.length === 0 ? (
+              {activeBlocks.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8 text-center">
                   <div className="w-16 h-16 mb-4 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-300">
                     <Plus size={24} />
@@ -436,7 +512,7 @@ const PLBBuilder = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-0 w-full">
-                  {blocks.map((block) => (
+                  {activeBlocks.map((block) => (
                     <div 
                       key={block.id}
                       onClick={(e) => {
