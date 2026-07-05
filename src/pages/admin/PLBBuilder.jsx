@@ -66,14 +66,28 @@ const PLBBuilder = () => {
     fetchLesson();
   }, [id]);
 
+  const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
+  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
+
   const saveLesson = async (currentBlocks) => {
     setIsSaving(true);
     const newLessonData = await updateLesson(id, { 
       components: currentBlocks,
       pagesCount: Math.max(1, currentBlocks.length)
-    });
+    }, user.name || user.username || 'Someone');
     if (newLessonData) setLesson(newLessonData);
     setTimeout(() => setIsSaving(false), 500);
+  };
+
+  const handlePublish = async () => {
+    if (!isAdmin) {
+      alert("Only the Admin is allowed to publish lessons!");
+      return;
+    }
+    setIsSaving(true);
+    const newLessonData = await updateLesson(id, { status: 'Published' }, user.name || user.username || 'Admin');
+    if (newLessonData) setLesson(newLessonData);
+    setIsSaving(false);
   };
 
   const addBlock = (type) => {
@@ -224,7 +238,12 @@ const PLBBuilder = () => {
             <Eye size={16} strokeWidth={2} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
           </button>
           
-          <button className="flex items-center gap-2 px-5 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-lg font-bold text-sm transition-all">
+          <button 
+            onClick={handlePublish}
+            disabled={!isAdmin}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-white cursor-pointer' : 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50'}`}
+            title={isAdmin ? "Publish this lesson" : "Only Admin can publish"}
+          >
             <Rocket size={16} strokeWidth={2} /> Publish
           </button>
         </div>
