@@ -13,6 +13,7 @@ import {
   Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search
 } from 'lucide-react';
 import { getLesson, updateLesson } from '../../utils/api';
+import { supabase } from '../../utils/supabaseClient';
 import mascotGridImg from '../../assets/mascot_grid.png';
 
 const iconMap = {
@@ -64,6 +65,36 @@ const PLBBuilder = () => {
       setIsLoading(false);
     };
     fetchLesson();
+
+    const channel = supabase
+      .channel(`lesson-sync-${id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'lessons', filter: `id=eq.${id}` },
+        (payload) => {
+          const updatedLesson = payload.new;
+          let parsedBlocks = [];
+          if (typeof updatedLesson.components === 'string') {
+            try { parsedBlocks = JSON.parse(updatedLesson.components); } catch (e) { parsedBlocks = []; }
+          } else if (Array.isArray(updatedLesson.components)) {
+            parsedBlocks = updatedLesson.components;
+          }
+          
+          setBlocks((currentBlocks) => {
+            // Only update local state if the remote state is actually different
+            // This prevents feedback loops from our own saves
+            if (JSON.stringify(currentBlocks) !== JSON.stringify(parsedBlocks)) {
+              return parsedBlocks;
+            }
+            return currentBlocks;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [id]);
 
   const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
