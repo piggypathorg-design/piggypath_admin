@@ -183,9 +183,9 @@ const VisualBlockRenderer = ({ block, version }) => {
       return (
         <div className={`w-full flex ${alignClass} py-6 px-6`}>
           <div className="w-full max-w-[320px] bg-white p-5 rounded-[32px] border-[4px] border-[#18181B] shadow-[8px_8px_0_#18181B] flex items-center gap-4 relative">
-            <div className={`w-20 h-20 shrink-0 bg-[#F4F4F5] rounded-full border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[4px_4px_0_#18181B]`}>
+            <div className={`w-20 h-20 shrink-0 bg-[#F4F4F5] rounded-full border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[4px_4px_0_#18181B] ${getMascotAnimation(mascotType)}`}>
                <img 
-                  src={`/piggypath_admin/assets/mascots/${mascotType}.png?v=clean2`}
+                  src={`/piggypath_admin/assets/mascots/${mascotType}.png?v=clean3`}
                   alt={mascotType}
                   className="w-[60px] h-[60px] object-contain mix-blend-multiply"
                 />
@@ -358,9 +358,9 @@ const VisualBlockRenderer = ({ block, version }) => {
     case 'Mascot Emotion':
       return (
         <div className={`w-full flex ${alignClass} py-4 px-6`}>
-           <div className={`w-32 h-32 flex items-center justify-center`}>
+           <div className={`w-32 h-32 flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
              <img 
-               src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean2`}
+               src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean3`}
                alt={data.mascot_type || 'Happy'}
                className="w-full h-full object-contain mix-blend-multiply drop-shadow-md"
              />

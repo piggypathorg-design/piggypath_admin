@@ -4,7 +4,7 @@ import path from 'path';
 
 const splitMascots = async () => {
   try {
-    const imagePath = 'src/assets/mascot_grid.png';
+    const imagePath = 'src/assets/new_mascot_grid.jpg';
     const srcOutDir = 'public/assets/mascots';
     
     if (!fs.existsSync(srcOutDir)) {
@@ -30,7 +30,7 @@ const splitMascots = async () => {
         const left = c * colW;
         const top = r * rowH;
         
-        // Remove 10% from edges just to clear thick grid lines safely without cutting ears
+        // Remove 10% from edges just to clear grid lines safely without cutting ears
         const marginX = Math.floor(colW * 0.10);
         const marginY = Math.floor(rowH * 0.10);
         
@@ -47,26 +47,26 @@ const splitMascots = async () => {
           
         const { data, info } = await cellImage.raw().toBuffer({ resolveWithObject: true });
         
-        // 4 channels: R, G, B, A
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i+1];
-          const b = data[i+2];
+        // 4 channels: R, G, B, A (even if JPG has 3, Sharp toBuffer adds alpha if we use png or ensure it)
+        // Wait, if it's JPG, raw() might give 3 channels! We need to make sure we get 4 channels.
+        const { data: bgraData, info: bgraInfo } = await sharp(data, {
+          raw: { width: info.width, height: info.height, channels: info.channels }
+        }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+        
+        for (let i = 0; i < bgraData.length; i += 4) {
+          const r = bgraData[i];
+          const g = bgraData[i+1];
+          const b = bgraData[i+2];
           
-          // Make white backgrounds transparent
-          if (r > 230 && g > 230 && b > 230) {
-            data[i+3] = 0;
-          }
-          // Aggressively remove ANY bluish pixels (grid lines)
-          // Grid lines often have higher blue than red/green
-          if (b > 150 && r < 200 && g < 200) {
-             data[i+3] = 0;
+          // Make white backgrounds transparent (with higher tolerance for JPEG artifacts)
+          if (r > 240 && g > 240 && b > 240) {
+            bgraData[i+3] = 0;
           }
         }
         
         // Create an image, trim all transparent edges perfectly to the pig!
-        await sharp(data, {
-          raw: { width: info.width, height: info.height, channels: info.channels }
+        await sharp(bgraData, {
+          raw: { width: bgraInfo.width, height: bgraInfo.height, channels: bgraInfo.channels }
         })
         .png()
         .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
