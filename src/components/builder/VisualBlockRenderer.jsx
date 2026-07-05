@@ -159,15 +159,23 @@ const VisualBlockRenderer = ({ block, version }) => {
             {data.source ? (
               block.type === 'Image' ? (
                 <img src={data.source} alt={data.alt_text} className="w-full h-full object-cover" />
+              ) : (data.source.includes('youtube.com') || data.source.includes('youtu.be')) ? (
+                <iframe
+                  src={data.source.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                  className="w-full h-full object-cover"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               ) : (
                 <video 
                   src={data.source} 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-cover z-10 relative" 
                   autoPlay={data.autoplay === 'On'} 
                   loop={data.loop === 'On'}
                   controls={block.type === 'Video'} 
                   muted={data.autoplay === 'On'}
                   playsInline
+                  onClick={(e) => e.stopPropagation()}
                 />
               )
             ) : (
