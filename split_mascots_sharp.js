@@ -30,9 +30,9 @@ const splitMascots = async () => {
         const left = c * colW;
         const top = r * rowH;
         
-        // Remove 10% from edges just to clear grid lines safely without cutting ears
-        const marginX = Math.floor(colW * 0.10);
-        const marginY = Math.floor(rowH * 0.10);
+        // Use 0 margin! The new image has no grid lines, and 10% margin was cutting off the ears.
+        const marginX = 0;
+        const marginY = 0;
         
         const name = names[idx];
         const outPath = path.join(srcOutDir, `${name}.png`);
@@ -47,8 +47,6 @@ const splitMascots = async () => {
           
         const { data, info } = await cellImage.raw().toBuffer({ resolveWithObject: true });
         
-        // 4 channels: R, G, B, A (even if JPG has 3, Sharp toBuffer adds alpha if we use png or ensure it)
-        // Wait, if it's JPG, raw() might give 3 channels! We need to make sure we get 4 channels.
         const { data: bgraData, info: bgraInfo } = await sharp(data, {
           raw: { width: info.width, height: info.height, channels: info.channels }
         }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
