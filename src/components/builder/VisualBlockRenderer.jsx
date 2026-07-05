@@ -329,7 +329,7 @@ const VisualBlockRenderer = ({ block, version }) => {
             <div className="w-20 h-20 bg-white rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-bounce z-10">
               <Star className="text-[#FFD100] fill-[#FFD100]" size={40} strokeWidth={2} />
             </div>
-            <h2 className="text-4xl font-black text-white drop-shadow-[0_4px_0_#18181B] z-10">+{data.xp_amount || data.xp_reward || 15} XP</h2>
+            <h2 className="text-4xl font-black text-[#18181B] z-10">+{data.xp_amount || data.xp_reward || 15} XP</h2>
             <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 mt-2">{data.label || 'Awesome!'}</p>
           </div>
         </div>
