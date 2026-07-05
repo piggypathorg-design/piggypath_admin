@@ -357,9 +357,15 @@ const VisualBlockRenderer = ({ block, version }) => {
       );
 
     case 'Mascot Emotion':
+      const mascotSize = data.size || 'Medium';
+      const sizeClasses = {
+        'Small': 'w-24 h-24',
+        'Medium': 'w-40 h-40',
+        'Large': 'w-64 h-64'
+      }[mascotSize] || 'w-40 h-40';
       return (
         <div className={`w-full flex ${alignClass} py-4 px-6`}>
-           <div className={`w-32 h-32 flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
+           <div className={`${sizeClasses} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
              <img 
                src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean4`}
                alt={data.mascot_type || 'Happy'}
