@@ -253,6 +253,7 @@ const VisualBlockRenderer = ({ block, version }) => {
         'Slider': Sliders, 'Fill in the Blank': Edit3, 'Hotspot': MousePointer2, 'Reflection': MessageSquare
       }[block.type] || HelpCircle;
 
+      return (
         <div className="w-full px-6 py-4">
           <div className="w-full flex flex-col items-center justify-center gap-4 bg-[#8B5CF6]/10 border-[4px] border-dashed border-[#8B5CF6] rounded-[32px] p-8">
             <div className="w-16 h-16 bg-[#8B5CF6] rounded-2xl border-[4px] border-[#18181B] flex items-center justify-center shadow-[6px_6px_0_#18181B] transform -rotate-6">
