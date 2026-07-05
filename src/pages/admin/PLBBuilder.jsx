@@ -407,7 +407,7 @@ const PLBBuilder = () => {
               {pages.map((page) => {
                 const isActive = activePageId === page.id;
                 return (
-                  <div key={page.id} className={`border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#3F3F46] bg-[#27272A]' : 'border-transparent bg-transparent hover:border-[#3F3F46]/50'}`}>
+                  <div key={page.id} className={`group border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#3F3F46] bg-[#27272A]' : 'border-transparent bg-transparent hover:border-[#3F3F46]/50'}`}>
                     <div 
                       onClick={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
                       className={`p-2.5 flex items-center justify-between cursor-pointer font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-400 hover:bg-[#27272A] hover:text-gray-200'}`}
