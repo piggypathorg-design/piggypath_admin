@@ -419,7 +419,7 @@ const PLBBuilder = () => {
                       {pages.length > 1 && (
                          <button 
                             onClick={(e) => deletePage(page.id, e)} 
-                            className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'hover:bg-black/20 text-black' : 'hover:bg-[#3F3F46] text-gray-400'}`}
+                            className={`p-1 rounded transition-opacity ${isActive ? 'hover:bg-black/20 text-black' : 'hover:bg-[#3F3F46] text-gray-400'}`}
                          >
                             <Trash2 size={14} strokeWidth={2} />
                          </button>
