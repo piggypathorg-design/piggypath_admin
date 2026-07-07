@@ -526,15 +526,13 @@ const PLBBuilder = () => {
                 <div className="w-full h-[3000px] relative overflow-hidden">
                   {activeBlocks.map((block) => (
                     <Rnd
-                      key={block.id}
+                      key={`${block.id}-${version}`}
                       default={{
                         x: block[version].x || 20,
                         y: block[version].y || 20,
                         width: block[version].width || 320,
                         height: block[version].height || 'auto',
                       }}
-                      position={{ x: block[version].x || 20, y: block[version].y || 20 }}
-                      size={{ width: block[version].width || 320, height: block[version].height || 'auto' }}
                       onDragStop={(e, d) => {
                         updateBlockData(block.id, 'x', d.x);
                         updateBlockData(block.id, 'y', d.y);
