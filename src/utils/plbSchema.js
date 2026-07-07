@@ -363,7 +363,7 @@ export const plbSchema = {
     category: 'Feedback', icon: 'Star',
     fields: [
       { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
-      { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 84 },
+      { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 0 },
       { name: 'label', label: 'Label', type: 'text', default: 'Lifetime XP' }
     ]
   },
@@ -376,16 +376,16 @@ export const plbSchema = {
   'Rewards Summary': {
     category: 'Feedback', icon: 'Award',
     fields: [
-      { name: 'xp_amount', label: 'XP Amount', type: 'number', default: 235 },
-      { name: 'coins_amount', label: 'Coins Amount', type: 'number', default: 125 },
-      { name: 'gems_amount', label: 'Gems Amount', type: 'number', default: 10 }
+      { name: 'xp_amount', label: 'XP Amount', type: 'number', default: 0 },
+      { name: 'coins_amount', label: 'Coins Amount', type: 'number', default: 0 },
+      { name: 'gems_amount', label: 'Gems Amount', type: 'number', default: 0 }
     ]
   },
   'Reward Icon': {
     category: 'Feedback', icon: 'Trophy',
     fields: [
       { name: 'icon_type', label: 'Icon Type', type: 'select', options: ['XP Sparkle', 'Gold Coin', 'Green Gem'], default: 'XP Sparkle' },
-      { name: 'value', label: 'Value', type: 'number', default: 100 },
+      { name: 'value', label: 'Value', type: 'number', default: 0 },
       { name: 'show_value', label: 'Show Value', type: 'select', options: ['On', 'Off'], default: 'On' }
     ]
   },
@@ -393,7 +393,7 @@ export const plbSchema = {
     category: 'Feedback', icon: 'Coins',
     fields: [
       { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
-      { name: 'coins_amount', label: 'Coins Amount', type: 'number', required: true, default: 5 },
+      { name: 'coins_amount', label: 'Coins Amount', type: 'number', required: true, default: 0 },
       { name: 'label', label: 'Label', type: 'text', default: 'Coins earned!' }
     ]
   },
@@ -401,7 +401,7 @@ export const plbSchema = {
     category: 'Feedback', icon: 'Award',
     fields: [
       { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
-      { name: 'gems_amount', label: 'Gems Amount', type: 'number', required: true, default: 2 },
+      { name: 'gems_amount', label: 'Gems Amount', type: 'number', required: true, default: 0 },
       { name: 'label', label: 'Label', type: 'text', default: 'Gems found!' }
     ]
   },

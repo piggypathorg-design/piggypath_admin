@@ -830,7 +830,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       const renderIcon = () => {
         if (data.icon_type === 'Gold Coin') {
           return (
-            <svg viewBox="0 0 32 32" className="w-16 h-16 drop-shadow-sm animate-mascot-bounce">
+            <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-bounce">
               <circle cx="16" cy="16" r="14" fill="#FFD100" stroke="#18181B" strokeWidth="2.5" />
               <circle cx="16" cy="16" r="9" fill="none" stroke="#18181B" strokeWidth="2" strokeOpacity="0.8" />
               <circle cx="13" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
@@ -839,7 +839,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           );
         } else if (data.icon_type === 'Green Gem') {
           return (
-            <svg viewBox="0 0 32 32" className="w-16 h-16 drop-shadow-sm animate-mascot-float">
+            <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-float">
               <polygon points="16,2 30,10 24,28 8,28 2,10" fill="#00E599" stroke="#18181B" strokeWidth="2.5" strokeLinejoin="round" />
               <polygon points="16,6 26,12 20,24 12,24 6,12" fill="none" stroke="#A7F3D0" strokeWidth="2" strokeLinejoin="round" />
             </svg>
@@ -847,7 +847,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         } else {
           // XP Sparkle
           return (
-            <svg viewBox="0 0 24 24" className="w-16 h-16 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor">
+            <svg viewBox="0 0 24 24" className="w-12 h-12 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor">
               <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
             </svg>
           );
@@ -855,10 +855,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       };
 
       return (
-        <div className="w-full px-6 py-6 flex flex-col items-center justify-center gap-2">
+        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-3">
           {renderIcon()}
           {data.show_value !== 'Off' && (
-            <span className="font-black text-2xl text-[#18181B]">+{data.value ?? 100}</span>
+            <span className="font-black text-2xl text-[#18181B]">{data.value ?? 0}</span>
           )}
         </div>
       );
