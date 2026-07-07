@@ -312,7 +312,7 @@ const PLBBuilder = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 px-4 py-1.5 bg-[#27272A] hover:bg-[#3F3F46] rounded-full font-bold text-sm transition-all border border-[#3F3F46]"
+            className="flex items-center gap-2 px-4 py-1.5 bg-white hover:bg-[#F4F4F5] rounded-full font-bold text-sm transition-all border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]"
           >
             <ArrowLeft size={16} strokeWidth={3} /> Back
           </button>
@@ -330,7 +330,7 @@ const PLBBuilder = () => {
           
           <button 
             onClick={() => { setIsPreviewMode(!isPreviewMode); setSelectedBlockId(null); }}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border ${isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B]' : 'bg-[#18181B] text-[#18181B] border-[#3F3F46] hover:bg-[#27272A]'}`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border-[2px] ${isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B]' : 'bg-white text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B]'}`}
           >
             <Eye size={16} strokeWidth={2} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
           </button>
@@ -338,7 +338,7 @@ const PLBBuilder = () => {
           <button 
             onClick={handlePublish}
             disabled={!isAdmin}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-[#18181B] cursor-pointer' : 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50'}`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-[#18181B] border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B] cursor-pointer' : 'bg-gray-200 text-gray-500 border-[2px] border-gray-300 cursor-not-allowed opacity-50'}`}
             title={isAdmin ? "Publish this lesson" : "Only Admin can publish"}
           >
             <Rocket size={16} strokeWidth={2} /> Publish
@@ -491,11 +491,11 @@ const PLBBuilder = () => {
                  {previewDevice === 'laptop' && <Monitor size={12}/>}
                  LIVE CANVAS
               </span>
-              <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-[#18181B] tracking-widest uppercase">{activePage?.title || 'PAGE 1'}</span>
+              <span className="px-3 py-1 bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] rounded-full text-[10px] font-black text-[#18181B] tracking-widest uppercase">{activePage?.title || 'PAGE 1'}</span>
             </div>
             
             {/* Device Toggles */}
-            <div className="flex bg-[#27272A] border border-[#3F3F46] rounded-lg p-1">
+            <div className="flex bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] rounded-lg p-1">
               <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Smartphone size={16} /></button>
               <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Tablet size={16} /></button>
               <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Monitor size={16} /></button>
