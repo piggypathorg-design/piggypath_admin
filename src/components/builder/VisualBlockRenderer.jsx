@@ -151,7 +151,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       return (
         <div className={`w-full flex flex-col ${alignClass} py-4 px-6`}>
           <div 
-            className="bg-gray-200 border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[8px_8px_0_#18181B] w-full relative"
+            className="bg-transparent flex items-center justify-center overflow-hidden w-full relative"
             style={{
               borderRadius: data.frame_shape === 'Circle' ? '50%' : `${data.frame_roundness || 16}px`,
               aspectRatio: data.frame_shape === 'Square' || data.frame_shape === 'Circle' ? '1/1' : '16/9'
