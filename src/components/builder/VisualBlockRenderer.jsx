@@ -546,9 +546,14 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Sparkle XP':
       return (
         <div className="w-full px-6 py-10 flex flex-col items-center justify-center relative">
-          <div className="relative z-10 flex flex-col items-center">
-            <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
-            <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
+          <div className="relative z-10 flex flex-col items-center gap-6">
+            {data.title && (
+              <h2 className="text-3xl font-black text-[#18181B] text-center tracking-tight">{data.title}</h2>
+            )}
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
+              <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
+            </div>
           </div>
           
           {/* Floating Sparkles */}
@@ -570,7 +575,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                 viewBox="0 0 24 24" 
                 fill="currentColor"
               >
-                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+                <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
               </svg>
             ))}
           </div>
@@ -708,34 +713,34 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
     case 'Rewards Summary':
       return (
-        <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-[85%] bg-white border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-6 flex flex-row items-center justify-around">
+        <div className="w-full px-4 py-4 flex justify-center">
+          <div className="w-full bg-white border-[3px] border-[#18181B] rounded-[8px] shadow-[4px_4px_0_#18181B] py-3 px-4 flex flex-row items-center justify-around">
             
             {/* XP */}
-            <div className="flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-12 h-12 text-[#8B5CF6]" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
-                <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" />
+            <div className="flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#8B5CF6]" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
+                <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
               </svg>
-              <span className="font-black text-xl text-[#18181B]">{data.xp_amount ?? 235}</span>
+              <span className="font-black text-lg text-[#18181B]">{data.xp_amount ?? 235}</span>
             </div>
 
             {/* Coins */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-full bg-[#FFD100] border-[3px] border-[#18181B] flex items-center justify-center relative overflow-hidden shadow-[inset_-2px_-4px_0_rgba(0,0,0,0.1)]">
-                 <div className="w-8 h-8 rounded-full border-[2px] border-[#18181B] opacity-50 flex items-center justify-center">
-                   <div className="w-2 h-4 bg-[#18181B] opacity-50 rounded-sm"></div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-8 h-8 rounded-full bg-[#FFD100] border-[2px] border-[#18181B] flex items-center justify-center relative overflow-hidden shadow-[inset_-2px_-3px_0_rgba(0,0,0,0.15)]">
+                 <div className="w-5 h-5 rounded-full border-[1.5px] border-[#18181B] opacity-70 flex items-center justify-center">
+                   <div className="w-1.5 h-2.5 bg-[#18181B] opacity-70 rounded-[2px]"></div>
                  </div>
               </div>
-              <span className="font-black text-xl text-[#18181B]">{data.coins_amount ?? 125}</span>
+              <span className="font-black text-lg text-[#18181B]">{data.coins_amount ?? 125}</span>
             </div>
 
             {/* Gems */}
-            <div className="flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-12 h-12 text-[#00E599]" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
-                <path d="M12 2L2 8L6 22H18L22 8L12 2Z" />
-                <path d="M12 2V22M2 8H22M6 22L12 8L18 22" stroke="#18181B" strokeWidth="1.5" fill="none" />
+            <div className="flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#00E599]" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
+                <path d="M12 2L3 8L6 21H18L21 8L12 2Z" />
+                <path d="M12 2V21M3 8H21M6 21L12 8L18 21" stroke="#18181B" strokeWidth="1.5" fill="none" />
               </svg>
-              <span className="font-black text-xl text-[#18181B]">{data.gems_amount ?? 10}</span>
+              <span className="font-black text-lg text-[#18181B]">{data.gems_amount ?? 10}</span>
             </div>
 
           </div>
@@ -746,24 +751,24 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       const renderIcon = () => {
         if (data.icon_type === 'Gold Coin') {
           return (
-            <div className="w-16 h-16 rounded-full bg-[#FFD100] border-[4px] border-[#18181B] flex items-center justify-center relative shadow-[inset_-3px_-5px_0_rgba(0,0,0,0.1)] animate-mascot-bounce">
-               <div className="w-10 h-10 rounded-full border-[3px] border-[#18181B] opacity-50 flex items-center justify-center">
-                 <div className="w-3 h-5 bg-[#18181B] opacity-50 rounded-sm"></div>
+            <div className="w-16 h-16 rounded-full bg-[#FFD100] border-[3px] border-[#18181B] flex items-center justify-center relative shadow-[inset_-3px_-5px_0_rgba(0,0,0,0.15)] animate-mascot-bounce">
+               <div className="w-10 h-10 rounded-full border-[2px] border-[#18181B] opacity-70 flex items-center justify-center">
+                 <div className="w-3 h-5 bg-[#18181B] opacity-70 rounded-[3px]"></div>
                </div>
             </div>
           );
         } else if (data.icon_type === 'Green Gem') {
           return (
             <svg viewBox="0 0 24 24" className="w-16 h-16 text-[#00E599] animate-mascot-float" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
-              <path d="M12 2L2 8L6 22H18L22 8L12 2Z" />
-              <path d="M12 2V22M2 8H22M6 22L12 8L18 22" stroke="#18181B" strokeWidth="1.5" fill="none" />
+              <path d="M12 2L3 8L6 21H18L21 8L12 2Z" />
+              <path d="M12 2V21M3 8H21M6 21L12 8L18 21" stroke="#18181B" strokeWidth="1.5" fill="none" />
             </svg>
           );
         } else {
           // XP Sparkle
           return (
             <svg viewBox="0 0 24 24" className="w-16 h-16 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor" stroke="#18181B" strokeWidth="1.5">
-              <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" />
+              <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
             </svg>
           );
         }

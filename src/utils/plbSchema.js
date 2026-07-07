@@ -362,6 +362,7 @@ export const plbSchema = {
   'Sparkle XP': {
     category: 'Feedback', icon: 'Star',
     fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
       { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 84 },
       { name: 'label', label: 'Label', type: 'text', default: 'Lifetime XP' }
     ]
