@@ -202,18 +202,17 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Mascot Feedback':
       const mascotType = data.mascot_type || 'Happy';
       return (
-        <div className={`w-full flex ${alignClass} py-6 px-6`}>
-          <div className="w-full max-w-[320px] bg-white p-5 rounded-[32px] border-[4px] border-[#18181B] shadow-[8px_8px_0_#18181B] flex items-center gap-4 relative">
-            <div className={`w-20 h-20 shrink-0 bg-[#F4F4F5] rounded-full border-[4px] border-[#18181B] flex items-center justify-center overflow-hidden shadow-[4px_4px_0_#18181B] ${getMascotAnimation(mascotType)}`}>
+        <div className={`w-full flex ${alignClass} py-4 px-6`}>
+          <div className="w-full bg-white p-6 rounded-[16px] border-[3px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex items-center gap-6">
+            <div className={`w-20 h-20 shrink-0 flex items-center justify-center ${getMascotAnimation(mascotType)}`}>
                <img 
                   src={`/piggypath_admin/assets/mascots/${mascotType}.png?v=clean4`}
                   alt={mascotType}
-                  className="w-[60px] h-[60px] object-contain mix-blend-multiply"
+                  className="w-full h-full object-contain"
                 />
             </div>
-            <div className="flex-1">
-              <div className="font-black text-[#8B5CF6] text-[10px] uppercase tracking-widest mb-1 bg-[#8B5CF6]/10 inline-block px-2 py-0.5 rounded-full">{mascotType}</div>
-              <p className="font-bold text-[#18181B] leading-snug">{data.message || 'Great job!'}</p>
+            <div className="flex-1 text-[#18181B]">
+              <p className="font-bold leading-snug text-sm sm:text-base">"{data.message || 'Great job!'}"</p>
             </div>
           </div>
         </div>
@@ -244,42 +243,46 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
 
     case 'MCQ':
       const correctOptIndex = ['A', 'B', 'C', 'D'].indexOf(data.correct_option || 'A');
+      const hasSelection = interactionState?.selectedIndex !== undefined;
+      const isCorrectSelection = hasSelection && interactionState?.selectedIndex === correctOptIndex;
+      
       return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
-                <HelpCircle className="text-[#18181B]" size={20} strokeWidth={3} />
-              </div>
-              <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Multiple Choice Question?'}</p>
-            </div>
-            <div className="flex flex-col gap-3 mt-2">
-              {[data.option_a, data.option_b, data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
-                const isSelected = interactionState?.selectedIndex === i;
-                let bgClass = "bg-[#F4F4F5] border-[#18181B]";
-                let animClass = "";
-                if (isSelected) {
-                  if (i === correctOptIndex) {
-                    bgClass = "bg-[#00E599] border-[#00E599] text-white";
-                    animClass = "animate-mascot-bounce";
-                  } else {
-                    bgClass = "bg-[#FF6B6B] border-[#FF6B6B] text-white";
-                    animClass = "animate-mascot-shake";
-                  }
+        <div className="w-full px-6 py-2">
+          <div className="w-full flex flex-col gap-3">
+            <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
+            
+            {[data.option_a, data.option_b, data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
+              const isSelected = interactionState?.selectedIndex === i;
+              let bgClass = "bg-white text-[#18181B]";
+              let animClass = "";
+              if (isSelected) {
+                if (i === correctOptIndex) {
+                  bgClass = "bg-[#00E599] text-[#18181B]";
+                  animClass = "animate-mascot-bounce";
+                } else {
+                  bgClass = "bg-[#FF6B6B] text-white";
+                  animClass = "animate-mascot-shake";
                 }
-                return (
-                  <div 
-                    key={i} 
-                    onClick={() => {
-                      if (isPreviewMode) setInteractionState({ selectedIndex: i });
-                    }}
-                    className={`px-4 py-3 rounded-2xl text-sm font-bold shadow-[4px_4px_0_#18181B] transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass} border-[3px]`}
-                  >
-                    {opt}
-                  </div>
-                );
-              })}
-            </div>
+              }
+              return (
+                <div 
+                  key={i} 
+                  onClick={() => {
+                    if (isPreviewMode) setInteractionState({ selectedIndex: i });
+                  }}
+                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
+                >
+                  {opt}
+                </div>
+              );
+            })}
+            
+            {hasSelection && (
+              <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+                <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
+                {data.explanation || (isCorrectSelection ? 'That is correct!' : 'That is incorrect, please try again.')}
+              </div>
+            )}
           </div>
         </div>
       );
@@ -352,28 +355,23 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       const val = interactionState?.value ?? min;
       const sliderStatus = interactionState?.status;
       
-      let trackColor = "bg-[#18181B]";
+      let trackColor = "bg-[#8B5CF6]";
       if (sliderStatus === 'correct') trackColor = "bg-[#00E599]";
       if (sliderStatus === 'incorrect') trackColor = "bg-[#FF6B6B]";
 
       return (
         <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col gap-6 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
-                <Sliders className="text-[#18181B]" size={20} strokeWidth={3} />
-              </div>
-              <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Estimate the value:'}</p>
-            </div>
+          <div className="w-full flex flex-col gap-6">
+            <p className="font-black text-center text-sm">{data.question || 'Move the slider to show how much you think should be saved.'}</p>
             
-            <div className="flex flex-col gap-2 mt-4">
-              <div className="text-center font-black text-3xl mb-2 text-[#8B5CF6]">
-                {val} <span className="text-lg text-gray-500">{data.unit || '%'}</span>
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <div className="text-center font-black text-sm text-[#8B5CF6] mb-1">
+                {data.currency_symbol || '₹'}{val}{data.unit || ''}
               </div>
               
-              <div className="relative w-full h-8 flex items-center">
+              <div className="relative w-full max-w-[250px] h-10 flex items-center justify-center mx-auto">
                 {/* Custom track */}
-                <div className={`absolute left-0 right-0 h-4 rounded-full border-[3px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
+                <div className={`absolute left-0 right-0 h-3 rounded-full border-[2px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
                 
                 {/* Range input visually hidden but functionally overlaid */}
                 <input 
@@ -399,18 +397,18 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   }}
                 />
                 
-                {/* Custom thumb */}
+                {/* Custom thumb (Triangle pointing up) */}
                 <div 
-                  className="absolute w-8 h-8 bg-white border-[4px] border-[#18181B] rounded-full shadow-[2px_2px_0_#18181B] pointer-events-none transition-all duration-75 flex items-center justify-center z-0"
-                  style={{ left: `calc(${((val - min) / (max - min)) * 100}% - 16px)` }}
+                  className="absolute pointer-events-none transition-all duration-75 flex flex-col items-center justify-center z-0"
+                  style={{ left: `calc(${((val - min) / (max - min)) * 100}%)`, transform: 'translateX(-50%)', top: '16px' }}
                 >
-                  <div className="w-2 h-2 rounded-full bg-[#18181B]"></div>
+                  <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] border-b-[#00E599] drop-shadow-[0_2px_0_#18181B]"></div>
                 </div>
               </div>
               
-              <div className="flex justify-between w-full text-xs font-bold text-gray-400 mt-2">
-                <span>{min}{data.unit || '%'}</span>
-                <span>{max}{data.unit || '%'}</span>
+              <div className="flex justify-between w-full max-w-[250px] text-xs font-bold text-gray-500 mt-2">
+                <span>{data.currency_symbol || '₹'}{min}{data.unit || ''}</span>
+                <span>{data.currency_symbol || '₹'}{max}{data.unit || ''}</span>
               </div>
             </div>
           </div>
@@ -420,21 +418,28 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Drag & Drop':
     case 'Arrange':
     case 'Hotspot':
-    case 'Reflection':
-      const ActivityIcon = {
-        'Drag & Drop': Move, 'Match Pairs': Link, 'Arrange': ListOrdered, 
-        'Slider': Sliders, 'Fill in the Blank': Edit3, 'Hotspot': MousePointer2, 'Reflection': MessageSquare
-      }[block.type] || HelpCircle;
-
       return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col items-center justify-center gap-4 bg-[#8B5CF6]/10 border-[4px] border-dashed border-[#8B5CF6] rounded-[32px] p-8">
-            <div className="w-16 h-16 bg-[#8B5CF6] rounded-2xl border-[4px] border-[#18181B] flex items-center justify-center shadow-[6px_6px_0_#18181B] transform -rotate-6">
-              <ActivityIcon className="text-white" size={32} strokeWidth={3} />
-            </div>
-            <p className="font-black text-center text-xl text-[#18181B]">{data.question || `${block.type} Activity`}</p>
-            <div className="text-[10px] font-black text-[#8B5CF6] px-3 py-1.5 bg-white rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] uppercase tracking-widest">Interactive Area</div>
-          </div>
+        <div className="w-full px-6 py-4 flex flex-col gap-6">
+           <div className="flex gap-4 w-full">
+              {/* Box 1 */}
+              <div className="flex-1 flex flex-col items-center">
+                 <div className="text-xs font-bold mb-2">{data.bucket_1 || 'Needs'}</div>
+                 <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
+              </div>
+              {/* Box 2 */}
+              <div className="flex-1 flex flex-col items-center">
+                 <div className="text-xs font-bold mb-2">{data.bucket_2 || 'Wants'}</div>
+                 <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
+              </div>
+           </div>
+           
+           <div className="flex flex-wrap justify-center gap-3">
+              {['Water', 'Medicine', 'New Phone', 'Ice Cream'].map((pill, i) => (
+                 <div key={i} className="px-3 py-1.5 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-full text-xs font-bold cursor-pointer hover:-translate-y-0.5 transition-transform">
+                    {pill}
+                 </div>
+              ))}
+           </div>
         </div>
       );
 
@@ -469,17 +474,29 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Pie Chart':
     case 'Bar Graph':
     case 'Line Graph':
-    case 'Table':
-      const VizIcon = {
-        'Pie Chart': PieChart, 'Bar Graph': BarChart2, 'Line Graph': TrendingUp, 'Table': TableIcon
-      }[block.type] || PieChart;
       return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col items-center justify-center gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] shadow-[8px_8px_0_#18181B] overflow-hidden p-8">
-            <div className="w-16 h-16 bg-[#00E599] rounded-full border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex items-center justify-center">
-              <VizIcon className="text-[#18181B]" size={32} strokeWidth={3} />
-            </div>
-            <p className="font-black text-center text-xl text-[#18181B]">{data.title || `${block.type} Visualisation`}</p>
+        <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
+          <p className="font-black text-center text-sm">{data.title || 'How Kids Spend ₹100'}</p>
+          
+          {/* SVG Pie Chart Mockup */}
+          <div className="w-48 h-48 relative">
+             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90 filter drop-shadow-md">
+                <circle r="50" cx="50" cy="50" fill="#FFD100" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="0"></circle>
+                <circle r="50" cx="50" cy="50" fill="#00E599" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="78.5"></circle>
+                <circle r="50" cx="50" cy="50" fill="#8B5CF6" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="157"></circle>
+                <circle r="50" cx="50" cy="50" fill="#3B82F6" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="235.5"></circle>
+             </svg>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
+             {['Savings', 'Food', 'Entertainment', 'School'].map((legend, i) => {
+                const colors = ['bg-[#FFD100]', 'bg-[#00E599]', 'bg-[#8B5CF6]', 'bg-[#3B82F6]'];
+                return (
+                   <div key={i} className={`px-4 py-2 w-[110px] text-center border-[2px] border-[#18181B] rounded-lg shadow-[3px_3px_0_#18181B] text-xs font-bold ${legend === 'Entertainment' ? colors[1] : 'bg-white'}`}>
+                      {legend}
+                   </div>
+                );
+             })}
           </div>
         </div>
       );
@@ -570,12 +587,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       return (
         <div className="w-full px-6 py-4">
           <button 
-            className="w-full px-6 py-4 flex items-center justify-center gap-3 border-[4px] border-[#18181B] rounded-[24px] font-black text-lg shadow-[6px_6px_0_#18181B] text-[#18181B] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#18181B] active:translate-y-[6px] active:shadow-none transition-all"
+            className="w-full px-6 py-3 flex items-center justify-center gap-3 border-[2px] border-[#18181B] rounded-lg font-bold text-sm shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
             style={{ backgroundColor: navConf.color }}
           >
-            {block.type === 'Back Button' && <NavIcon size={24} strokeWidth={3} />}
+            {block.type === 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
             {navConf.label}
-            {block.type !== 'Back Button' && <NavIcon size={24} strokeWidth={3} />}
+            {block.type !== 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
           </button>
         </div>
       );
