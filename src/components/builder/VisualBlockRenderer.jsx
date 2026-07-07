@@ -577,10 +577,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Continue Button':
     case 'Back Button':
     case 'Skip Button':
+    case 'Next Lesson Button':
       const NavMap = {
         'Continue Button': { icon: ArrowRight, color: '#00E599', label: 'Continue' },
-        'Back Button': { icon: ArrowLeft, color: '#FFFFFF', label: 'Back' },
-        'Skip Button': { icon: FastForward, color: '#F4F4F5', label: 'Skip' }
+        'Back Button': { icon: ArrowLeft, color: '#00E599', label: 'Back' },
+        'Skip Button': { icon: FastForward, color: '#00E599', label: 'Skip' },
+        'Next Lesson Button': { icon: ArrowRight, color: '#00E599', label: 'Next lesson' }
       };
       const navConf = NavMap[block.type];
       const NavIcon = navConf.icon;

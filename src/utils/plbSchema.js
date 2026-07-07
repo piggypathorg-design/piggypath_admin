@@ -401,5 +401,9 @@ export const plbSchema = {
   'Skip Button': {
     category: 'Navigation', icon: 'FastForward',
     fields: []
+  },
+  'Next Lesson Button': {
+    category: 'Navigation', icon: 'ArrowRight',
+    fields: []
   }
 };
