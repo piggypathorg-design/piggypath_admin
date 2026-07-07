@@ -191,9 +191,8 @@ const PLBBuilder = () => {
     });
     
     // Add initial bounds for Rnd
-    const blockCount = pages.find(p => p.id === activePageId)?.blocks?.length || 0;
-    const spawnY = 20 + ((blockCount * 80) % 600);
-    const spawnX = 20 + ((blockCount * 20) % 100);
+    const spawnY = 20;
+    const spawnX = 20;
 
     newBlock.teen.x = spawnX;
     newBlock.teen.y = spawnY;
@@ -466,6 +465,7 @@ const PLBBuilder = () => {
                                   <div className="flex items-center gap-1">
                                      <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowUp size={14}/></button>
                                      <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowDown size={14}/></button>
+                                     <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} className="text-gray-400 hover:text-[#FF6B6B] ml-1"><Trash2 size={14}/></button>
                                   </div>
                                 )}
                               </div>
