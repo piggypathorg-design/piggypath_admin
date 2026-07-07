@@ -271,7 +271,7 @@ const PLBBuilder = () => {
     return (
       <div className="h-screen w-screen bg-[#18181B] flex flex-col items-center justify-center font-sans">
         <div className="w-16 h-16 border-4 border-white border-t-[#00E599] rounded-full animate-spin mb-4"></div>
-        <h2 className="text-2xl font-black text-white">Loading Canvas...</h2>
+        <h2 className="text-2xl font-black text-[#18181B]">Loading Canvas...</h2>
       </div>
     );
   }
@@ -281,7 +281,7 @@ const PLBBuilder = () => {
       <div className="h-screen w-screen bg-[#18181B] flex flex-col items-center justify-center font-sans p-4 text-center">
         <div className="bg-[#27272A] border-[4px] border-[#3F3F46] rounded-3xl p-8 max-w-md w-full">
           <h2 className="text-3xl font-black text-red-500 mb-4">Oops!</h2>
-          <p className="text-white font-bold mb-6">{errorMsg || "Lesson not found."}</p>
+          <p className="text-[#18181B] font-bold mb-6">{errorMsg || "Lesson not found."}</p>
           <button 
             onClick={() => navigate('/')}
             className="w-full py-4 bg-[#00E599] text-black font-black rounded-xl hover:-translate-y-1 transition-all"
@@ -306,9 +306,9 @@ const PLBBuilder = () => {
   });
 
   return (
-    <div className="h-screen w-screen bg-[#09090B] font-sans overflow-hidden text-white flex flex-col">
+    <div className="h-screen w-screen bg-[#F8FAFC] font-sans overflow-hidden text-[#18181B] flex flex-col">
       {/* Header */}
-      <header className="h-16 bg-[#18181B] border-b-[1px] border-[#27272A] px-6 flex items-center justify-between shrink-0 z-30">
+      <header className="h-16 bg-white border-b-[3px] border-[#18181B] px-6 flex items-center justify-between shrink-0 z-30">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/')}
@@ -317,7 +317,7 @@ const PLBBuilder = () => {
             <ArrowLeft size={16} strokeWidth={3} /> Back
           </button>
           <div className="h-6 w-[1px] bg-[#3F3F46]"></div>
-          <h1 className="font-black text-xl text-white truncate max-w-xs">{lesson.title}</h1>
+          <h1 className="font-black text-xl text-[#18181B] truncate max-w-xs">{lesson.title}</h1>
           <span className="px-3 py-1 bg-[#FFD100] text-black rounded-full text-[10px] font-black tracking-widest uppercase">
             {lesson.status}
           </span>
@@ -330,7 +330,7 @@ const PLBBuilder = () => {
           
           <button 
             onClick={() => { setIsPreviewMode(!isPreviewMode); setSelectedBlockId(null); }}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border ${isPreviewMode ? 'bg-[#00E599] text-black border-[#00E599]' : 'bg-[#18181B] text-white border-[#3F3F46] hover:bg-[#27272A]'}`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border ${isPreviewMode ? 'bg-[#00E599] text-black border-[#00E599]' : 'bg-[#18181B] text-[#18181B] border-[#3F3F46] hover:bg-[#27272A]'}`}
           >
             <Eye size={16} strokeWidth={2} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
           </button>
@@ -338,7 +338,7 @@ const PLBBuilder = () => {
           <button 
             onClick={handlePublish}
             disabled={!isAdmin}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-white cursor-pointer' : 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50'}`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-[#18181B] cursor-pointer' : 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50'}`}
             title={isAdmin ? "Publish this lesson" : "Only Admin can publish"}
           >
             <Rocket size={16} strokeWidth={2} /> Publish
@@ -351,9 +351,9 @@ const PLBBuilder = () => {
         
         {/* Column 1: Components Library */}
         {!isPreviewMode && (
-          <aside className="w-72 bg-[#18181B] border-r-[1px] border-[#27272A] flex flex-col shrink-0 z-10">
+          <aside className="w-72 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
             <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-baseline">
-              <h2 className="font-black text-lg text-white">Components</h2>
+              <h2 className="font-black text-lg text-[#18181B]">Components</h2>
               <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
             </div>
             
@@ -365,7 +365,7 @@ const PLBBuilder = () => {
                   placeholder="Search..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#27272A] border-[1px] border-[#3F3F46] rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-[#00E599] transition-colors placeholder-gray-500"
+                  className="w-full bg-[#27272A] border-[1px] border-[#3F3F46] rounded-lg pl-9 pr-3 py-2 text-sm text-[#18181B] focus:outline-none focus:border-[#00E599] transition-colors placeholder-gray-500"
                 />
               </div>
               
@@ -393,7 +393,7 @@ const PLBBuilder = () => {
                       <div className="w-10 h-10 bg-[#18181B] rounded-full border-[1px] border-[#3F3F46] flex items-center justify-center group-hover:border-[#00E599] transition-colors">
                         <Icon size={18} className="text-[#00E599]" strokeWidth={2} />
                       </div>
-                      <div className="font-bold text-xs text-gray-300 text-center leading-tight group-hover:text-white">{type}</div>
+                      <div className="font-bold text-xs text-gray-300 text-center leading-tight group-hover:text-[#18181B]">{type}</div>
                     </button>
                   )
                 })}
@@ -404,10 +404,10 @@ const PLBBuilder = () => {
 
         {/* Column 2: Structure Panel */}
         {!isPreviewMode && (
-          <aside className="w-64 bg-[#18181B] border-r-[1px] border-[#27272A] flex flex-col shrink-0 z-10">
+          <aside className="w-64 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
             <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-center">
               <div>
-                <h2 className="font-black text-lg text-white">Structure</h2>
+                <h2 className="font-black text-lg text-[#18181B]">Structure</h2>
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">{pages.length} PAGES</div>
               </div>
               <button onClick={addPage} className="w-6 h-6 rounded-full bg-[#00E599] flex items-center justify-center hover:bg-[#00D68F] transition-all">
@@ -448,7 +448,7 @@ const PLBBuilder = () => {
                             return (
                               <div 
                                 key={block.id}
-                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-[#3F3F46] text-white' : 'text-gray-400 hover:bg-[#3F3F46]/50 hover:text-white'}`}
+                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-400 hover:bg-[#3F3F46]/50 hover:text-[#18181B]'}`}
                               >
                                 <button 
                                   className="flex items-center gap-2 flex-1 truncate"
@@ -460,8 +460,8 @@ const PLBBuilder = () => {
                                 
                                 {selectedBlockId === block.id && (
                                   <div className="flex items-center gap-1">
-                                     <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowUp size={14}/></button>
-                                     <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-white disabled:opacity-30"><ArrowDown size={14}/></button>
+                                     <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowUp size={14}/></button>
+                                     <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowDown size={14}/></button>
                                   </div>
                                 )}
                               </div>
@@ -479,7 +479,7 @@ const PLBBuilder = () => {
 
         {/* Column 3: Main Canvas */}
         <main 
-          className="flex-1 overflow-y-auto relative bg-[#09090B] flex flex-col items-center p-8 custom-scrollbar"
+          className="flex-1 overflow-y-auto relative bg-[#F8FAFC] flex flex-col items-center p-8 custom-scrollbar"
           onClick={() => setSelectedBlockId(null)}
         >
           {/* Canvas Header */}
@@ -491,14 +491,14 @@ const PLBBuilder = () => {
                  {previewDevice === 'laptop' && <Monitor size={12}/>}
                  LIVE CANVAS
               </span>
-              <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-white tracking-widest uppercase">{activePage?.title || 'PAGE 1'}</span>
+              <span className="px-3 py-1 bg-[#27272A] border border-[#3F3F46] rounded-full text-[10px] font-black text-[#18181B] tracking-widest uppercase">{activePage?.title || 'PAGE 1'}</span>
             </div>
             
             {/* Device Toggles */}
             <div className="flex bg-[#27272A] border border-[#3F3F46] rounded-lg p-1">
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Smartphone size={16} /></button>
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Tablet size={16} /></button>
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-[#3F3F46] text-white' : 'text-gray-500 hover:text-white'}`}><Monitor size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Smartphone size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Tablet size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Monitor size={16} /></button>
             </div>
 
             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
@@ -559,7 +559,7 @@ const PLBBuilder = () => {
                         <div className="absolute -top-8 right-0 flex gap-1 z-50">
                           <button 
                             onPointerDown={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
-                            className="bg-red-500 text-white p-1.5 rounded-md shadow-md hover:bg-red-600 transition-colors pointer-events-auto"
+                            className="bg-red-500 text-[#18181B] p-1.5 rounded-md shadow-md hover:bg-red-600 transition-colors pointer-events-auto"
                           >
                             <Trash2 size={12} strokeWidth={3} />
                           </button>
@@ -581,9 +581,9 @@ const PLBBuilder = () => {
 
         {/* Column 4: Properties Panel */}
         {!isPreviewMode && (
-          <aside className="w-80 bg-[#18181B] border-l-[1px] border-[#27272A] flex flex-col shrink-0 z-20">
+          <aside className="w-80 bg-white border-l-[3px] border-[#18181B] flex flex-col shrink-0 z-20">
             <div className="p-4 border-b-[1px] border-[#27272A]">
-               <h2 className="font-black text-xl text-white">Properties</h2>
+               <h2 className="font-black text-xl text-[#18181B]">Properties</h2>
                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Select a block</div>
             </div>
             
@@ -596,10 +596,10 @@ const PLBBuilder = () => {
               ) : (
                 <div className="flex flex-col gap-6 animate-in fade-in duration-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#8B5CF6] rounded-lg text-white flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#8B5CF6] rounded-lg text-[#18181B] flex items-center justify-center">
                       <SettingsIcon type={selectedBlock.type} />
                     </div>
-                    <h3 className="font-black text-lg text-white">{selectedBlock.type}</h3>
+                    <h3 className="font-black text-lg text-[#18181B]">{selectedBlock.type}</h3>
                   </div>
                   
                   <div className="flex flex-col gap-5">
@@ -652,9 +652,9 @@ const PLBBuilder = () => {
                                 value={value}
                                 placeholder="https://..."
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="flex-1 w-full px-3 py-2 rounded-lg bg-[#27272A] border border-[#3F3F46] text-white text-sm focus:outline-none focus:border-[#00E599] transition-all"
+                                className="flex-1 w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all"
                               />
-                              <label className="bg-[#3F3F46] hover:bg-[#52525B] text-white px-3 py-2 rounded-lg cursor-pointer text-sm font-bold flex items-center justify-center shrink-0 transition-all">
+                              <label className="bg-[#3F3F46] hover:bg-[#52525B] text-[#18181B] px-3 py-2 rounded-lg cursor-pointer text-sm font-bold flex items-center justify-center shrink-0 transition-all">
                                 <Upload size={16} />
                                 <input 
                                   type="file" 
@@ -679,7 +679,7 @@ const PLBBuilder = () => {
                               type={field.type}
                               value={value}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg bg-[#27272A] border border-[#3F3F46] text-white text-sm focus:outline-none focus:border-[#00E599] transition-all"
+                              className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all"
                             />
                           ) : field.type === 'color' ? (
                             <div className="flex items-center gap-3">
@@ -696,14 +696,14 @@ const PLBBuilder = () => {
                               value={value}
                               rows={3}
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg bg-[#27272A] border border-[#3F3F46] text-white text-sm focus:outline-none focus:border-[#00E599] transition-all resize-y"
+                              className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all resize-y"
                             />
                           ) : field.type === 'select' ? (
                             <div className="relative">
                               <select
                                 value={value}
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-[#27272A] border border-[#3F3F46] text-white text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
+                                className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
                               >
                                 {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                               </select>
