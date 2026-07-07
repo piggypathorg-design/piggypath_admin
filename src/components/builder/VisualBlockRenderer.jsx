@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
-  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare
+  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check
 } from 'lucide-react';
 import mascotGridImg from '../../assets/mascot_grid.png';
 
@@ -475,16 +475,21 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Bar Graph':
     case 'Line Graph':
       const slices = [];
-      const colors = ['#FFD100', '#00E599', '#8B5CF6', '#3B82F6', '#FF6B6B', '#A8A29E'];
       for (let i = 1; i <= 6; i++) {
         if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
-          slices.push({ label: data[`slice_label_${i}`], value: Number(data[`slice_value_${i}`]), color: colors[i-1] });
+          slices.push({ 
+            id: String(i),
+            label: data[`slice_label_${i}`], 
+            value: Number(data[`slice_value_${i}`]), 
+            color: data[`slice_color_${i}`] || '#FFD100'
+          });
         }
       }
-      if (slices.length === 0) slices.push({ label: 'Savings', value: 50, color: '#FFD100' }, { label: 'Food', value: 50, color: '#00E599' });
+      if (slices.length === 0) slices.push({ id: '1', label: 'Savings', value: 50, color: '#FFD100' }, { id: '2', label: 'Food', value: 50, color: '#00E599' });
       
       const total = slices.reduce((acc, s) => acc + s.value, 0);
       let cumulativeOffset = 0;
+      const correctAnswer = String(data.correct_slice || '1');
 
       return (
         <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
@@ -505,18 +510,36 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           </div>
           
           <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
-             {slices.map((slice, i) => (
-                <div key={i} className="px-3 py-1.5 text-center border-[2px] border-[#18181B] rounded-lg shadow-[3px_3px_0_#18181B] text-xs font-bold text-[#18181B]" style={{ backgroundColor: slice.color }}>
-                   {slice.label}
-                </div>
-             ))}
-          </div>
+             {slices.map((slice, i) => {
+                const isSelected = pieSelectedAnswer === slice.id;
+                const isCorrect = slice.id === correctAnswer;
+                
+                let bgColor = slice.color;
+                let textColor = '#18181B';
+                
+                if (isPreviewMode && isSelected) {
+                  bgColor = isCorrect ? '#00E599' : '#FF6B6B';
+                }
 
-          {data.show_answer_box !== false && (
-            <div className="w-full max-w-[250px] mt-2">
-              <input type="text" disabled placeholder="Type your answer here..." className="w-full px-4 py-3 bg-white border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-xl text-[#18181B] font-bold text-center opacity-80" />
-            </div>
-          )}
+                return (
+                  <div 
+                    key={i} 
+                    onClick={() => {
+                      if (isPreviewMode) setPieSelectedAnswer(slice.id);
+                    }}
+                    className={`px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[5px_5px_0_#18181B] active:translate-y-1 active:shadow-none' : ''}`} 
+                    style={{ backgroundColor: bgColor, color: textColor }}
+                  >
+                     {slice.label}
+                     {!isPreviewMode && isCorrect && (
+                       <span className="w-4 h-4 bg-white rounded-full flex items-center justify-center border-2 border-[#18181B]">
+                         <Check size={10} strokeWidth={4} color="#00E599" />
+                       </span>
+                     )}
+                  </div>
+                );
+             })}
+          </div>
         </div>
       );
 
