@@ -528,10 +528,10 @@ const PLBBuilder = () => {
                     <Rnd
                       key={`${block.id}-${version}`}
                       default={{
-                        x: block[version].x || 20,
-                        y: block[version].y || 20,
-                        width: block[version].width || 320,
-                        height: block[version].height || 'auto',
+                        x: block[version]?.x || 20,
+                        y: block[version]?.y || 20,
+                        width: block[version]?.width || 320,
+                        height: block[version]?.height || 'auto',
                       }}
                       onDragStop={(e, d) => {
                         updateBlockData(block.id, 'x', d.x);
@@ -602,7 +602,7 @@ const PLBBuilder = () => {
                   
                   <div className="flex flex-col gap-5">
                     {selectedSchema ? selectedSchema.fields.map(field => {
-                      const value = selectedBlock[version][field.name] ?? field.default;
+                      const value = selectedBlock[version]?.[field.name] ?? field.default;
                       
                       // Dynamic Match Pairs Logic
                       if (selectedBlock.type === 'Match Pairs' && field.name.startsWith('pair_')) {

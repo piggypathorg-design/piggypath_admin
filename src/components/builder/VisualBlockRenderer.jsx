@@ -643,6 +643,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       return (
         <div className="w-full px-6 py-4">
           <button 
+            type="button"
             className="w-full px-6 py-3 flex items-center justify-center gap-3 border-[2px] border-[#18181B] rounded-lg font-bold text-sm shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
             style={{ backgroundColor: navConf.color }}
           >
