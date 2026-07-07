@@ -627,25 +627,28 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       
     case 'Coin Reward':
       return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-3">
-          <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-bounce">
-            <circle cx="16" cy="16" r="14" fill="#FFD100" stroke="#18181B" strokeWidth="2.5" />
-            <circle cx="16" cy="16" r="9" fill="none" stroke="#18181B" strokeWidth="2" strokeOpacity="0.8" />
-            <circle cx="13" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
-            <circle cx="19" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
+        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
+          <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce">
+            <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
+            <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
+            <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
+            <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
+            <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
           </svg>
-          <span className="font-black text-2xl text-[#18181B]">{data.coins_amount ?? 0}</span>
+          <span className="font-black text-[32px] text-[#18181B]">{data.coins_amount ?? 0}</span>
         </div>
       );
 
     case 'Gem Reward':
       return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-3">
-          <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-float">
-            <polygon points="16,2 30,10 24,28 8,28 2,10" fill="#00E599" stroke="#18181B" strokeWidth="2.5" strokeLinejoin="round" />
-            <polygon points="16,6 26,12 20,24 12,24 6,12" fill="none" stroke="#A7F3D0" strokeWidth="2" strokeLinejoin="round" />
+        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
+          <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-float">
+            <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
+            <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
+            <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
+            <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="font-black text-2xl text-[#18181B]">{data.gems_amount ?? 0}</span>
+          <span className="font-black text-[32px] text-[#18181B]">{data.gems_amount ?? 0}</span>
         </div>
       );
 
@@ -732,34 +735,37 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Rewards Summary':
       return (
         <div className="w-full px-4 py-4 flex justify-center">
-          <div className="w-full bg-white border-[3px] border-[#18181B] rounded-[8px] shadow-[4px_4px_0_#18181B] py-3 px-4 flex flex-row items-center justify-around">
+          <div className="w-[85%] max-w-[400px] bg-white border-[3px] border-[#18181B] rounded-[8px] shadow-[4px_4px_0_#18181B] py-3 px-6 flex flex-row items-center justify-between">
             
             {/* XP */}
-            <div className="flex items-center gap-1.5">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#8B5CF6]" fill="currentColor">
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-[#8B5CF6]" fill="currentColor">
                 <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
               </svg>
-              <span className="font-black text-lg text-[#18181B]">{data.xp_amount ?? 235}</span>
+              <span className="font-black text-2xl text-[#18181B]">{data.xp_amount ?? 0}</span>
             </div>
 
             {/* Coins */}
-            <div className="flex items-center gap-1.5">
-              <svg viewBox="0 0 32 32" className="w-8 h-8 drop-shadow-sm">
-                <circle cx="16" cy="16" r="14" fill="#FFD100" stroke="#18181B" strokeWidth="2.5" />
-                <circle cx="16" cy="16" r="9" fill="none" stroke="#18181B" strokeWidth="2" strokeOpacity="0.8" />
-                <circle cx="13" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
-                <circle cx="19" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 40 40" className="w-11 h-11 drop-shadow-sm">
+                <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
+                <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
+                <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
+                <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
+                <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
               </svg>
-              <span className="font-black text-lg text-[#18181B]">{data.coins_amount ?? 125}</span>
+              <span className="font-black text-2xl text-[#18181B]">{data.coins_amount ?? 0}</span>
             </div>
 
             {/* Gems */}
-            <div className="flex items-center gap-1.5">
-              <svg viewBox="0 0 32 32" className="w-8 h-8 drop-shadow-sm">
-                <polygon points="16,2 30,10 24,28 8,28 2,10" fill="#00E599" stroke="#18181B" strokeWidth="2.5" strokeLinejoin="round" />
-                <polygon points="16,6 26,12 20,24 12,24 6,12" fill="none" stroke="#A7F3D0" strokeWidth="2" strokeLinejoin="round" />
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 40 40" className="w-11 h-11 drop-shadow-sm">
+                <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
+                <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
+                <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
+                <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="font-black text-lg text-[#18181B]">{data.gems_amount ?? 10}</span>
+              <span className="font-black text-2xl text-[#18181B]">{data.gems_amount ?? 0}</span>
             </div>
 
           </div>
@@ -770,24 +776,27 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       const renderIcon = () => {
         if (data.icon_type === 'Gold Coin') {
           return (
-            <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-bounce">
-              <circle cx="16" cy="16" r="14" fill="#FFD100" stroke="#18181B" strokeWidth="2.5" />
-              <circle cx="16" cy="16" r="9" fill="none" stroke="#18181B" strokeWidth="2" strokeOpacity="0.8" />
-              <circle cx="13" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
-              <circle cx="19" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
+            <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce">
+              <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
+              <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
+              <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
+              <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
+              <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
             </svg>
           );
         } else if (data.icon_type === 'Green Gem') {
           return (
-            <svg viewBox="0 0 32 32" className="w-12 h-12 drop-shadow-sm animate-mascot-float">
-              <polygon points="16,2 30,10 24,28 8,28 2,10" fill="#00E599" stroke="#18181B" strokeWidth="2.5" strokeLinejoin="round" />
-              <polygon points="16,6 26,12 20,24 12,24 6,12" fill="none" stroke="#A7F3D0" strokeWidth="2" strokeLinejoin="round" />
+            <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-float">
+              <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
+              <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
+              <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
+              <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           );
         } else {
           // XP Sparkle
           return (
-            <svg viewBox="0 0 24 24" className="w-12 h-12 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor">
+            <svg viewBox="0 0 24 24" className="w-14 h-14 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor">
               <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
             </svg>
           );
@@ -795,10 +804,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       };
 
       return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-3">
+        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
           {renderIcon()}
           {data.show_value !== 'Off' && (
-            <span className="font-black text-2xl text-[#18181B]">{data.value ?? 0}</span>
+            <span className="font-black text-[32px] text-[#18181B]">{data.value ?? 0}</span>
           )}
         </div>
       );
