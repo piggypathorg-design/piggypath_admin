@@ -511,7 +511,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           
           <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
              {slices.map((slice, i) => {
-                const isSelected = pieSelectedAnswer === slice.id;
+                const isSelected = interactionState?.pieSelectedAnswer === slice.id;
                 const isCorrect = slice.id === correctAnswer;
                 
                 let bgColor = slice.color;
@@ -525,7 +525,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   <div 
                     key={i} 
                     onClick={() => {
-                      if (isPreviewMode) setPieSelectedAnswer(slice.id);
+                      if (isPreviewMode) setInteractionState({ ...interactionState, pieSelectedAnswer: slice.id });
                     }}
                     className={`px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[5px_5px_0_#18181B] active:translate-y-1 active:shadow-none' : ''}`} 
                     style={{ backgroundColor: bgColor, color: textColor }}
