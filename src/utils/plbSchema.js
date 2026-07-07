@@ -276,6 +276,7 @@ export const plbSchema = {
       { name: 'slice_value_3', label: 'Slice 3 Value', type: 'number', default: 0 },
       { name: 'slice_label_4', label: 'Slice 4 Label', type: 'text', default: '' },
       { name: 'slice_value_4', label: 'Slice 4 Value', type: 'number', default: 0 },
+      { name: 'show_answer_box', label: 'Show Answer Box', type: 'checkbox', default: true },
       { name: 'slice_label_5', label: 'Slice 5 Label', type: 'text', default: '' },
       { name: 'slice_value_5', label: 'Slice 5 Value', type: 'number', default: 0 },
       { name: 'slice_label_6', label: 'Slice 6 Label', type: 'text', default: '' },

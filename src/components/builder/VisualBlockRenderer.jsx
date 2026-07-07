@@ -474,30 +474,49 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Pie Chart':
     case 'Bar Graph':
     case 'Line Graph':
+      const slices = [];
+      const colors = ['#FFD100', '#00E599', '#8B5CF6', '#3B82F6', '#FF6B6B', '#A8A29E'];
+      for (let i = 1; i <= 6; i++) {
+        if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
+          slices.push({ label: data[`slice_label_${i}`], value: Number(data[`slice_value_${i}`]), color: colors[i-1] });
+        }
+      }
+      if (slices.length === 0) slices.push({ label: 'Savings', value: 50, color: '#FFD100' }, { label: 'Food', value: 50, color: '#00E599' });
+      
+      const total = slices.reduce((acc, s) => acc + s.value, 0);
+      let cumulativeOffset = 0;
+
       return (
         <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-          <p className="font-black text-center text-sm">{data.title || 'How Kids Spend ₹100'}</p>
+          <p className="font-black text-center text-sm text-[#18181B]">{data.title || 'How Kids Spend $100'}</p>
           
-          {/* SVG Pie Chart Mockup */}
           <div className="w-48 h-48 relative">
-             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90 filter drop-shadow-md">
-                <circle r="50" cx="50" cy="50" fill="#FFD100" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="0"></circle>
-                <circle r="50" cx="50" cy="50" fill="#00E599" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="78.5"></circle>
-                <circle r="50" cx="50" cy="50" fill="#8B5CF6" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="157"></circle>
-                <circle r="50" cx="50" cy="50" fill="#3B82F6" stroke="#18181B" strokeWidth="1" strokeDasharray="314" strokeDashoffset="235.5"></circle>
+             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90 filter drop-shadow-md rounded-full bg-white border-[3px] border-[#18181B]">
+                {slices.map((slice, i) => {
+                  if (total === 0) return null;
+                  const dashLength = (slice.value / total) * 157.08;
+                  const dashOffset = -cumulativeOffset;
+                  cumulativeOffset += dashLength;
+                  return (
+                    <circle key={i} r="25" cx="50" cy="50" fill="transparent" stroke={slice.color} strokeWidth="50" strokeDasharray={`${dashLength} 157.08`} strokeDashoffset={dashOffset}></circle>
+                  )
+                })}
              </svg>
           </div>
           
           <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
-             {['Savings', 'Food', 'Entertainment', 'School'].map((legend, i) => {
-                const colors = ['bg-[#FFD100]', 'bg-[#00E599]', 'bg-[#8B5CF6]', 'bg-[#3B82F6]'];
-                return (
-                   <div key={i} className={`px-4 py-2 w-[110px] text-center border-[2px] border-[#18181B] rounded-lg shadow-[3px_3px_0_#18181B] text-xs font-bold ${legend === 'Entertainment' ? colors[1] : 'bg-white'}`}>
-                      {legend}
-                   </div>
-                );
-             })}
+             {slices.map((slice, i) => (
+                <div key={i} className="px-3 py-1.5 text-center border-[2px] border-[#18181B] rounded-lg shadow-[3px_3px_0_#18181B] text-xs font-bold text-[#18181B]" style={{ backgroundColor: slice.color }}>
+                   {slice.label}
+                </div>
+             ))}
           </div>
+
+          {data.show_answer_box !== false && (
+            <div className="w-full max-w-[250px] mt-2">
+              <input type="text" disabled placeholder="Type your answer here..." className="w-full px-4 py-3 bg-white border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-xl text-[#18181B] font-bold text-center opacity-80" />
+            </div>
+          )}
         </div>
       );
 
