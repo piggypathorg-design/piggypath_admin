@@ -330,7 +330,7 @@ const PLBBuilder = () => {
           
           <button 
             onClick={() => { setIsPreviewMode(!isPreviewMode); setSelectedBlockId(null); }}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border ${isPreviewMode ? 'bg-[#00E599] text-black border-[#00E599]' : 'bg-[#18181B] text-[#18181B] border-[#3F3F46] hover:bg-[#27272A]'}`}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border ${isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B]' : 'bg-[#18181B] text-[#18181B] border-[#3F3F46] hover:bg-[#27272A]'}`}
           >
             <Eye size={16} strokeWidth={2} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
           </button>
@@ -352,7 +352,7 @@ const PLBBuilder = () => {
         {/* Column 1: Components Library */}
         {!isPreviewMode && (
           <aside className="w-72 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
-            <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-baseline">
+            <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-baseline">
               <h2 className="font-black text-lg text-[#18181B]">Components</h2>
               <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
             </div>
@@ -365,7 +365,7 @@ const PLBBuilder = () => {
                   placeholder="Search..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#27272A] border-[1px] border-[#3F3F46] rounded-lg pl-9 pr-3 py-2 text-sm text-[#18181B] focus:outline-none focus:border-[#00E599] transition-colors placeholder-gray-500"
+                  className="w-full bg-white border-[2px] border-[#18181B] rounded-lg pl-9 pr-3 py-2 text-sm text-[#18181B] shadow-[2px_2px_0_#18181B] focus:outline-none focus:border-[#00E599] transition-colors placeholder-gray-500"
                 />
               </div>
               
@@ -374,7 +374,7 @@ const PLBBuilder = () => {
                   <button 
                     key={cat} 
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-3 py-1 rounded-full border-[1px] text-[10px] font-bold tracking-wider transition-colors ${activeCategory === cat ? 'bg-[#00E599] text-black border-[#00E599]' : 'bg-transparent text-gray-400 border-[#3F3F46] hover:bg-[#27272A]'}`}
+                    className={`px-3 py-1 rounded-full border-[1px] text-[10px] font-bold tracking-wider transition-colors ${activeCategory === cat ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B]' : 'bg-white text-[#18181B] border-[#18181B] shadow-[1px_1px_0_#18181B] hover:bg-[#F4F4F5]'}`}
                   >
                     {cat}
                   </button>
@@ -388,12 +388,12 @@ const PLBBuilder = () => {
                     <button 
                       key={type}
                       onClick={() => addBlock(type)}
-                      className="flex flex-col items-center justify-center gap-2 p-3 bg-[#27272A] border-[1px] border-[#3F3F46] rounded-xl hover:border-[#00E599] hover:bg-[#00E599]/10 transition-all aspect-square group"
+                      className="flex flex-col items-center justify-center gap-2 p-3 bg-white border-[2px] border-[#18181B] rounded-xl hover:-translate-y-1 hover:shadow-[4px_4px_0_#18181B] transition-all aspect-square shadow-[2px_2px_0_#18181B] group"
                     >
-                      <div className="w-10 h-10 bg-[#18181B] rounded-full border-[1px] border-[#3F3F46] flex items-center justify-center group-hover:border-[#00E599] transition-colors">
+                      <div className="w-10 h-10 bg-white rounded-full border-[2px] border-[#18181B] flex items-center justify-center group-hover:border-[#00E599] transition-colors">
                         <Icon size={18} className="text-[#00E599]" strokeWidth={2} />
                       </div>
-                      <div className="font-bold text-xs text-gray-300 text-center leading-tight group-hover:text-[#18181B]">{type}</div>
+                      <div className="font-bold text-xs text-[#18181B] text-center leading-tight group-hover:text-[#18181B]">{type}</div>
                     </button>
                   )
                 })}
@@ -405,7 +405,7 @@ const PLBBuilder = () => {
         {/* Column 2: Structure Panel */}
         {!isPreviewMode && (
           <aside className="w-64 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
-            <div className="p-4 border-b-[1px] border-[#27272A] flex justify-between items-center">
+            <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-center">
               <div>
                 <h2 className="font-black text-lg text-[#18181B]">Structure</h2>
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">{pages.length} PAGES</div>
@@ -419,10 +419,10 @@ const PLBBuilder = () => {
               {pages.map((page) => {
                 const isActive = activePageId === page.id;
                 return (
-                  <div key={page.id} className={`group border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#3F3F46] bg-[#27272A]' : 'border-transparent bg-transparent hover:border-[#3F3F46]/50'}`}>
+                  <div key={page.id} className={`group border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}>
                     <div 
                       onClick={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
-                      className={`p-2.5 flex items-center justify-between cursor-pointer font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-400 hover:bg-[#27272A] hover:text-gray-200'}`}
+                      className={`p-2.5 flex items-center justify-between cursor-pointer font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-500 hover:bg-[#F4F4F5] hover:text-[#18181B]'}`}
                     >
                       <div className="flex items-center gap-2 truncate flex-1">
                         {isActive ? <ChevronDown size={16} strokeWidth={3} /> : <ArrowRight size={16} strokeWidth={3} />} 
@@ -448,7 +448,7 @@ const PLBBuilder = () => {
                             return (
                               <div 
                                 key={block.id}
-                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-400 hover:bg-[#3F3F46]/50 hover:text-[#18181B]'}`}
+                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:bg-white hover:border-[2px] hover:border-[#18181B] hover:shadow-[2px_2px_0_#18181B] hover:text-[#18181B]'}`}
                               >
                                 <button 
                                   className="flex items-center gap-2 flex-1 truncate"
@@ -496,9 +496,9 @@ const PLBBuilder = () => {
             
             {/* Device Toggles */}
             <div className="flex bg-[#27272A] border border-[#3F3F46] rounded-lg p-1">
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Smartphone size={16} /></button>
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Tablet size={16} /></button>
-              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-[#3F3F46] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Monitor size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('mobile'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'mobile' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Smartphone size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('tablet'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'tablet' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Tablet size={16} /></button>
+              <button onClick={(e) => { e.stopPropagation(); setPreviewDevice('laptop'); }} className={`p-1.5 rounded-md transition-colors ${previewDevice === 'laptop' ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:text-[#18181B]'}`}><Monitor size={16} /></button>
             </div>
 
             <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
@@ -516,7 +516,7 @@ const PLBBuilder = () => {
             <div className={`flex-1 w-full bg-[#F8FAFC] overflow-y-auto custom-scrollbar ${previewDevice === 'laptop' ? 'pt-4' : 'pt-10'} pb-8 flex flex-col`}>
               {activeBlocks.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-8 text-center">
-                  <div className="w-16 h-16 mb-4 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-300">
+                  <div className="w-16 h-16 mb-4 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-[#18181B]">
                     <Plus size={24} />
                   </div>
                   <h3 className="text-lg font-black text-gray-800 mb-1">Blank Canvas</h3>
@@ -580,7 +580,7 @@ const PLBBuilder = () => {
         {/* Column 4: Properties Panel */}
         {!isPreviewMode && (
           <aside className="w-80 bg-white border-l-[3px] border-[#18181B] flex flex-col shrink-0 z-20">
-            <div className="p-4 border-b-[1px] border-[#27272A]">
+            <div className="p-4 border-b-[3px] border-[#18181B]">
                <h2 className="font-black text-xl text-[#18181B]">Properties</h2>
                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Select a block</div>
             </div>
@@ -687,7 +687,7 @@ const PLBBuilder = () => {
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
                                 className="w-8 h-8 p-0 rounded-md border-0 bg-transparent cursor-pointer"
                               />
-                              <span className="text-sm font-bold text-gray-300 uppercase">{value || '#000000'}</span>
+                              <span className="text-sm font-bold text-[#18181B] uppercase">{value || '#000000'}</span>
                             </div>
                           ) : field.type === 'textarea' ? (
                             <textarea 
