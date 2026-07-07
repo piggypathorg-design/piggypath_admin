@@ -372,6 +372,22 @@ export const plbSchema = {
       { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' }
     ]
   },
+  'Rewards Summary': {
+    category: 'Feedback', icon: 'Award',
+    fields: [
+      { name: 'xp_amount', label: 'XP Amount', type: 'number', default: 235 },
+      { name: 'coins_amount', label: 'Coins Amount', type: 'number', default: 125 },
+      { name: 'gems_amount', label: 'Gems Amount', type: 'number', default: 10 }
+    ]
+  },
+  'Reward Icon': {
+    category: 'Feedback', icon: 'Trophy',
+    fields: [
+      { name: 'icon_type', label: 'Icon Type', type: 'select', options: ['XP Sparkle', 'Gold Coin', 'Green Gem'], default: 'XP Sparkle' },
+      { name: 'value', label: 'Value', type: 'number', default: 100 },
+      { name: 'show_value', label: 'Show Value', type: 'select', options: ['On', 'Off'], default: 'On' }
+    ]
+  },
   'Coin Reward': {
     category: 'Feedback', icon: 'Coins',
     fields: [
@@ -426,6 +442,12 @@ export const plbSchema = {
     category: 'Navigation', icon: 'ArrowRight',
     fields: [
       { name: 'label', label: 'Button Text', type: 'text', default: 'Next lesson' }
+    ]
+  },
+  'Back to Courses Button': {
+    category: 'Navigation', icon: 'ArrowLeft',
+    fields: [
+      { name: 'label', label: 'Button Text', type: 'text', default: 'Back to courses' }
     ]
   }
 };
