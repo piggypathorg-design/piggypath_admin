@@ -627,13 +627,84 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       
     case 'Coin Reward':
       return (
-        <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-[80%] flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#00E599] to-[#00A36C] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform hover:scale-105 transition-transform cursor-pointer">
-            <div className="w-20 h-20 bg-white rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-bounce z-10">
-              <Coins className="text-[#00E599]" size={40} strokeWidth={3} />
+        <div className="w-full px-6 py-10 flex flex-col items-center justify-center relative">
+          <div className="relative z-10 flex flex-col items-center gap-6">
+            {data.title && (
+              <h2 className="text-3xl font-black text-[#18181B] text-center tracking-tight">{data.title}</h2>
+            )}
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Coins earned!'}</span>
+              <span className="text-5xl font-black text-[#18181B]">+{data.coins_amount || 5}</span>
             </div>
-            <h2 className="text-4xl font-black text-white drop-shadow-[0_4px_0_#18181B] z-10">+{data.coins_amount || 5}</h2>
-            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 mt-2">{data.label || 'Coins Earned!'}</p>
+          </div>
+          
+          {/* Floating Coins */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[
+              { top: '20%', left: '20%', size: 24, delay: '0s' },
+              { top: '15%', left: '75%', size: 18, delay: '0.2s' },
+              { top: '40%', left: '15%', size: 32, delay: '0.4s' },
+              { top: '70%', left: '25%', size: 20, delay: '0.1s' },
+              { top: '80%', left: '75%', size: 28, delay: '0.5s' },
+              { top: '45%', left: '80%', size: 24, delay: '0.3s' },
+              { top: '65%', left: '80%', size: 16, delay: '0.6s' },
+              { top: '15%', left: '35%', size: 20, delay: '0.7s' },
+              { top: '85%', left: '15%', size: 18, delay: '0.8s' },
+              { top: '10%', left: '55%', size: 22, delay: '0.3s' },
+            ].map((item, i) => (
+              <svg 
+                key={i} 
+                className="absolute drop-shadow-sm animate-mascot-float" 
+                style={{ top: item.top, left: item.left, width: item.size, height: item.size, animationDelay: item.delay }} 
+                viewBox="0 0 32 32"
+              >
+                <circle cx="16" cy="16" r="14" fill="#FFD100" stroke="#18181B" strokeWidth="2.5" />
+                <circle cx="16" cy="16" r="9" fill="none" stroke="#18181B" strokeWidth="2" strokeOpacity="0.8" />
+                <circle cx="13" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
+                <circle cx="19" cy="16" r="3" fill="none" stroke="#18181B" strokeWidth="1.5" />
+              </svg>
+            ))}
+          </div>
+        </div>
+      );
+
+    case 'Gem Reward':
+      return (
+        <div className="w-full px-6 py-10 flex flex-col items-center justify-center relative">
+          <div className="relative z-10 flex flex-col items-center gap-6">
+            {data.title && (
+              <h2 className="text-3xl font-black text-[#18181B] text-center tracking-tight">{data.title}</h2>
+            )}
+            <div className="flex flex-col items-center">
+              <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Gems found!'}</span>
+              <span className="text-5xl font-black text-[#18181B]">+{data.gems_amount || 2}</span>
+            </div>
+          </div>
+          
+          {/* Floating Gems */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[
+              { top: '20%', left: '20%', size: 24, delay: '0s' },
+              { top: '15%', left: '75%', size: 18, delay: '0.2s' },
+              { top: '40%', left: '15%', size: 32, delay: '0.4s' },
+              { top: '70%', left: '25%', size: 20, delay: '0.1s' },
+              { top: '80%', left: '75%', size: 28, delay: '0.5s' },
+              { top: '45%', left: '80%', size: 24, delay: '0.3s' },
+              { top: '65%', left: '80%', size: 16, delay: '0.6s' },
+              { top: '15%', left: '35%', size: 20, delay: '0.7s' },
+              { top: '85%', left: '15%', size: 18, delay: '0.8s' },
+              { top: '10%', left: '55%', size: 22, delay: '0.3s' },
+            ].map((item, i) => (
+              <svg 
+                key={i} 
+                className="absolute drop-shadow-sm animate-mascot-float" 
+                style={{ top: item.top, left: item.left, width: item.size, height: item.size, animationDelay: item.delay }} 
+                viewBox="0 0 32 32"
+              >
+                <polygon points="16,2 30,10 24,28 8,28 2,10" fill="#00E599" stroke="#18181B" strokeWidth="2.5" strokeLinejoin="round" />
+                <polygon points="16,6 26,12 20,24 12,24 6,12" fill="none" stroke="#A7F3D0" strokeWidth="2" strokeLinejoin="round" />
+              </svg>
+            ))}
           </div>
         </div>
       );

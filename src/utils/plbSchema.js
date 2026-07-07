@@ -392,8 +392,17 @@ export const plbSchema = {
   'Coin Reward': {
     category: 'Feedback', icon: 'Coins',
     fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
       { name: 'coins_amount', label: 'Coins Amount', type: 'number', required: true, default: 5 },
       { name: 'label', label: 'Label', type: 'text', default: 'Coins earned!' }
+    ]
+  },
+  'Gem Reward': {
+    category: 'Feedback', icon: 'Award',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Lesson complete!' },
+      { name: 'gems_amount', label: 'Gems Amount', type: 'number', required: true, default: 2 },
+      { name: 'label', label: 'Label', type: 'text', default: 'Gems found!' }
     ]
   },
   Badge: {
