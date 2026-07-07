@@ -601,7 +601,7 @@ const PLBBuilder = () => {
                   </div>
                   
                   <div className="flex flex-col gap-5">
-                    {selectedSchema.fields.map(field => {
+                    {selectedSchema ? selectedSchema.fields.map(field => {
                       const value = selectedBlock[version][field.name] ?? field.default;
                       
                       // Dynamic Match Pairs Logic
@@ -710,7 +710,11 @@ const PLBBuilder = () => {
                           ) : null}
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="p-4 bg-[#FF6B6B]/10 border-[2px] border-[#FF6B6B] rounded-xl text-[#FF6B6B] font-bold text-sm">
+                        This block type "{selectedBlock.type}" is no longer supported or is missing from the schema.
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
