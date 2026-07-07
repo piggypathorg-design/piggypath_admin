@@ -155,7 +155,8 @@ const PLBBuilder = () => {
       alert("You must have at least one page.");
       return;
     }
-    const newPages = pages.filter(p => p.id !== pageId);
+    const filteredPages = pages.filter(p => p.id !== pageId);
+    const newPages = filteredPages.map((p, index) => ({ ...p, title: `Page ${index + 1}` }));
     setPages(newPages);
     if (activePageId === pageId) {
       setActivePageId(newPages[newPages.length - 1].id);
