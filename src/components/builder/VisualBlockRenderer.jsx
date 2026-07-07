@@ -501,19 +501,73 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         </div>
       );
 
-    case 'XP Reward':
+    case 'Sparkle XP':
       return (
-        <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-[80%] relative flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#FFD100] to-[#F97316] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 transform hover:scale-105 transition-transform cursor-pointer">
-            <div className="absolute top-0 right-0 w-16 h-16 opacity-20 pointer-events-none">
-               <Star className="text-white fill-white absolute -top-4 -right-4" size={48} />
-            </div>
-            <div className="w-20 h-20 bg-white rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-bounce z-10">
-              <Star className="text-[#FFD100] fill-[#FFD100]" size={40} strokeWidth={2} />
-            </div>
-            <h2 className="text-4xl font-black text-[#18181B] z-10">+{data.xp_amount || data.xp_reward || 15} XP</h2>
-            <p className="text-sm font-black text-[#18181B] uppercase tracking-widest bg-white px-4 py-1.5 rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 mt-2">{data.label || 'Awesome!'}</p>
+        <div className="w-full px-6 py-10 flex flex-col items-center justify-center relative">
+          <div className="relative z-10 flex flex-col items-center">
+            <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
+            <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
           </div>
+          
+          {/* Floating Sparkles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[
+              { top: '20%', left: '20%', size: 16, delay: '0s' },
+              { top: '15%', left: '30%', size: 12, delay: '0.2s' },
+              { top: '40%', left: '15%', size: 24, delay: '0.4s' },
+              { top: '70%', left: '25%', size: 14, delay: '0.1s' },
+              { top: '80%', left: '45%', size: 20, delay: '0.5s' },
+              { top: '30%', left: '70%', size: 16, delay: '0.3s' },
+              { top: '65%', left: '80%', size: 12, delay: '0.6s' },
+              { top: '75%', left: '65%', size: 28, delay: '0.2s' },
+            ].map((sparkle, i) => (
+              <svg 
+                key={i} 
+                className="absolute text-[#8B5CF6] animate-mascot-pulse" 
+                style={{ top: sparkle.top, left: sparkle.left, width: sparkle.size, height: sparkle.size, animationDelay: sparkle.delay }} 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+              >
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+              </svg>
+            ))}
+          </div>
+        </div>
+      );
+
+    case 'Mascot Platform':
+      const mascotIcon = data.mascot_type || 'Happy';
+      return (
+        <div className="w-full px-6 py-12 flex flex-col items-center justify-center">
+           <div className="relative flex flex-col items-center">
+             {/* Mascot Head */}
+             <div className="w-24 h-24 z-10 animate-mascot-float relative drop-shadow-xl">
+               <img 
+                 src={`/piggypath_admin/assets/mascots/${mascotIcon}.png?v=clean4`}
+                 alt={mascotIcon}
+                 className="w-full h-full object-contain"
+               />
+             </div>
+             
+             {/* Platform Shadow */}
+             <div className="w-16 h-4 bg-black/5 rounded-[100%] absolute top-28 filter blur-sm"></div>
+             
+             {/* 3D Isometric Platform SVG */}
+             <div className="w-32 h-16 mt-4 relative z-0">
+               <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-[0_8px_0_rgba(0,0,0,0.1)]">
+                  {/* Top Face */}
+                  <polygon points="50,0 100,25 50,50 0,25" fill="#00E599" stroke="#00A36C" strokeWidth="1"/>
+                  {/* Left Face */}
+                  <polygon points="0,25 50,50 50,60 0,35" fill="#00A36C"/>
+                  {/* Right Face */}
+                  <polygon points="100,25 50,50 50,60 100,35" fill="#008055"/>
+                  
+                  {/* Circle and Checkmark */}
+                  <ellipse cx="50" cy="25" rx="16" ry="8" fill="#00A36C" />
+                  <path d="M44 25 L48 28 L56 21" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+               </svg>
+             </div>
+           </div>
         </div>
       );
       

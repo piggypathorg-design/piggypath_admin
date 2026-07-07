@@ -612,7 +612,7 @@ const PLBBuilder = () => {
                       }
                       
                       // Special handling for the Mascot grid selector
-                      if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion') && field.name === 'mascot_type') {
+                      if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion' || selectedBlock.type === 'Mascot Platform') && field.name === 'mascot_type') {
                         return (
                           <div key={field.name} className="flex flex-col gap-2">
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">

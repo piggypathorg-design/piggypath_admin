@@ -345,11 +345,17 @@ export const plbSchema = {
   },
 
   // 6 Feedback & Reward
-  'XP Reward': {
+  'Sparkle XP': {
     category: 'Feedback', icon: 'Star',
     fields: [
-      { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 10 },
-      { name: 'label', label: 'Label', type: 'text', default: 'You earned!' }
+      { name: 'xp_amount', label: 'XP Amount', type: 'number', required: true, default: 84 },
+      { name: 'label', label: 'Label', type: 'text', default: 'Lifetime XP' }
+    ]
+  },
+  'Mascot Platform': {
+    category: 'Feedback', icon: 'Move',
+    fields: [
+      { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' }
     ]
   },
   'Coin Reward': {
