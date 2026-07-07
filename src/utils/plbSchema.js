@@ -411,6 +411,8 @@ export const plbSchema = {
   },
   'Next Lesson Button': {
     category: 'Navigation', icon: 'ArrowRight',
-    fields: []
+    fields: [
+      { name: 'label', label: 'Button Text', type: 'text', default: 'Next lesson' }
+    ]
   }
 };

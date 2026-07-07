@@ -650,12 +650,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
     case 'Continue Button':
     case 'Back Button':
     case 'Skip Button':
-    case 'Next Lesson Button':
       const NavMap = {
         'Continue Button': { icon: ArrowRight, color: '#00E599', label: 'Continue' },
         'Back Button': { icon: ArrowLeft, color: '#00E599', label: 'Back' },
-        'Skip Button': { icon: FastForward, color: '#00E599', label: 'Skip' },
-        'Next Lesson Button': { icon: ArrowRight, color: '#00E599', label: 'Next lesson' }
+        'Skip Button': { icon: FastForward, color: '#00E599', label: 'Skip' }
       };
       const navConf = NavMap[block.type];
       const NavIcon = navConf.icon;
@@ -669,6 +667,19 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
             {block.type === 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
             {navConf.label}
             {block.type !== 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
+          </button>
+        </div>
+      );
+
+    case 'Next Lesson Button':
+      return (
+        <div className="w-full px-6 py-4">
+          <button 
+            type="button"
+            className="w-full px-6 py-2.5 flex items-center justify-center border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
+            style={{ backgroundColor: '#00E599' }}
+          >
+            {data.label || 'Next lesson'}
           </button>
         </div>
       );
