@@ -191,13 +191,17 @@ const PLBBuilder = () => {
     });
     
     // Add initial bounds for Rnd
-    newBlock.teen.x = 20;
-    newBlock.teen.y = 20 + (pages.find(p => p.id === activePageId)?.blocks?.length || 0) * 80;
+    const blockCount = pages.find(p => p.id === activePageId)?.blocks?.length || 0;
+    const spawnY = 20 + ((blockCount * 80) % 600);
+    const spawnX = 20 + ((blockCount * 20) % 100);
+
+    newBlock.teen.x = spawnX;
+    newBlock.teen.y = spawnY;
     newBlock.teen.width = 300;
     newBlock.teen.height = 'auto';
     
-    newBlock.adult.x = 20;
-    newBlock.adult.y = 20 + (pages.find(p => p.id === activePageId)?.blocks?.length || 0) * 80;
+    newBlock.adult.x = spawnX;
+    newBlock.adult.y = spawnY;
     newBlock.adult.width = 300;
     newBlock.adult.height = 'auto';
     
