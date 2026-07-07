@@ -251,7 +251,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           <div className="w-full flex flex-col gap-3">
             <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
             
-            {[data.option_a, data.option_b, data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
+            {[data.option_a || 'Option A', data.option_b || 'Option B', data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
               const isSelected = interactionState?.selectedIndex === i;
               let bgClass = "bg-white text-[#18181B]";
               let animClass = "";

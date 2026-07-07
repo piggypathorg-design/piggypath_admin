@@ -144,16 +144,24 @@ export const plbSchema = {
   MCQ: {
     category: 'Activity', icon: 'HelpCircle',
     fields: [
-      { name: 'question', label: 'Question', type: 'textarea', required: true, default: '' },
-      { name: 'option_a', label: 'Option A', type: 'text', required: true, default: '' },
-      { name: 'option_b', label: 'Option B', type: 'text', required: true, default: '' },
-      { name: 'option_c', label: 'Option C', type: 'text', default: '' },
-      { name: 'option_d', label: 'Option D', type: 'text', default: '' },
+      { name: 'question', label: 'Question', type: 'textarea', required: true, default: 'Question' },
+      { name: 'option_a', label: 'Option A', type: 'text', required: true, default: 'Option A' },
+      { name: 'option_b', label: 'Option B', type: 'text', required: true, default: 'Option B' },
+      { name: 'option_c', label: 'Option C', type: 'text', default: 'Option C' },
+      { name: 'option_d', label: 'Option D', type: 'text', default: 'Option D' },
       { name: 'correct_option', label: 'Correct Option', type: 'select', options: ['A', 'B', 'C', 'D'], required: true, default: 'A' },
       { name: 'why_correct', label: 'Why it is correct', type: 'textarea', required: true, default: '' },
-      { name: 'why_incorrect', label: 'Why it is incorrect', type: 'textarea', required: true, default: '' },
-      { name: 'hint', label: 'Hint (Optional)', type: 'text', default: '' },
-      { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
+      { name: 'why_incorrect', label: 'Why it is incorrect', type: 'textarea', required: true, default: '' }
+    ]
+  },
+  'Multiple Select': {
+    category: 'Activity', icon: 'ListOrdered',
+    fields: [
+      { name: 'question', label: 'Question', type: 'textarea', required: true, default: '' },
+      { name: 'options', label: 'Options (comma separated)', type: 'textarea', required: true, default: '' },
+      { name: 'correct_options', label: 'Correct Options (comma separated)', type: 'textarea', required: true, default: '' },
+      { name: 'min_selections', label: 'Min Selections', type: 'number', default: 1 },
+      { name: 'max_selections', label: 'Max Selections', type: 'number', default: 4 }
     ]
   },
   'Drag & Drop': {
