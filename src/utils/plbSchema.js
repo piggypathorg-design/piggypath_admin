@@ -239,7 +239,7 @@ export const plbSchema = {
   'Fill in the Blank': {
     category: 'Activity', icon: 'Edit3',
     fields: [
-      { name: 'question', label: 'Question (use ___ for blank)', type: 'text', required: true, default: '' },
+      { name: 'question', label: 'Question (use ___ for blank)', type: 'text', required: true, default: 'Fill in the blank ___' },
       { name: 'answer', label: 'Answer', type: 'text', required: true, default: '' },
       { name: 'hint', label: 'Hint', type: 'text', default: '' },
       { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },

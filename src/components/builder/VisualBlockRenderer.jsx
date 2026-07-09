@@ -288,7 +288,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Fill in the Blank':
-      const parts = (data.question || 'Fill in the ___').split('___');
+      const parts = (data.question || 'Fill in the blank ___').split('___');
       const isFillCorrect = interactionState?.status === 'correct';
       const isFillIncorrect = interactionState?.status === 'incorrect';
       
