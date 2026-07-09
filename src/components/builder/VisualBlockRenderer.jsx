@@ -317,7 +317,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                       <input 
                         type="text"
                         disabled={!isPreviewMode}
-                        className={`w-32 px-3 py-1 rounded-xl text-center font-bold text-sm outline-none transition-all ${inputBorder} ${inputBg}`}
+                        className={`w-20 sm:w-28 px-2 py-1 rounded-xl text-center font-bold text-sm outline-none transition-all shrink ${inputBorder} ${inputBg}`}
                         placeholder="Type..."
                         value={interactionState?.value || ''}
                         onChange={(e) => setInteractionState({ ...interactionState, value: e.target.value })}
