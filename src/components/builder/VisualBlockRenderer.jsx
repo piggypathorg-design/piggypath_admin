@@ -472,8 +472,6 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Pie Chart':
-    case 'Bar Graph':
-    case 'Line Graph':
       const slices = [];
       for (let i = 1; i <= 6; i++) {
         if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
@@ -539,6 +537,49 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   </div>
                 );
              })}
+          </div>
+        </div>
+      );
+
+    case 'Bar Graph':
+      const bars = [];
+      for (let i = 1; i <= 8; i++) {
+        if (data[`bar_label_${i}`] && data[`bar_value_${i}`] > 0) {
+          bars.push({ 
+            id: String(i),
+            label: data[`bar_label_${i}`], 
+            value: Number(data[`bar_value_${i}`]),
+            color: i % 2 === 0 ? '#00E599' : '#FFD100'
+          });
+        }
+      }
+      if (bars.length === 0) bars.push({ id: '1', label: 'Item 1', value: 30, color: '#FFD100' }, { id: '2', label: 'Item 2', value: 80, color: '#00E599' }, { id: '3', label: 'Item 3', value: 50, color: '#8B5CF6' });
+      
+      const maxVal = Math.max(...bars.map(b => b.value));
+      const isVertical = data.orientation !== 'Horizontal';
+
+      return (
+        <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
+          <p className="font-black text-center text-sm text-[#18181B]">{data.title || 'Bar Graph'}</p>
+          
+          <div className={`w-full max-w-[250px] flex ${isVertical ? 'flex-row items-end h-48 border-b-4 border-l-4' : 'flex-col justify-end border-l-4 border-b-4'} border-[#18181B] gap-3 p-2 relative bg-white`}>
+             {bars.map((bar, i) => (
+                <div key={i} className={`flex ${isVertical ? 'flex-col items-center justify-end flex-1 h-full' : 'flex-row items-center justify-start w-full flex-1'} gap-1`}>
+                   {isVertical ? (
+                      <>
+                        <span className="text-[10px] font-bold text-[#18181B] -mb-1">{bar.value}</span>
+                        <div className="w-full border-[2px] border-[#18181B] rounded-t-sm shadow-[2px_0_0_#18181B] transition-all" style={{ height: `${(bar.value / maxVal) * 85}%`, backgroundColor: bar.color }}></div>
+                        <span className="text-[10px] font-bold text-[#18181B] truncate w-full text-center mt-1">{bar.label}</span>
+                      </>
+                   ) : (
+                      <>
+                        <span className="text-[10px] font-bold text-[#18181B] truncate w-16 text-right pr-1 shrink-0">{bar.label}</span>
+                        <div className="h-full border-[2px] border-[#18181B] rounded-r-sm shadow-[0_2px_0_#18181B] transition-all" style={{ width: `${(bar.value / maxVal) * 85}%`, backgroundColor: bar.color }}></div>
+                        <span className="text-[10px] font-bold text-[#18181B] pl-1 shrink-0">{bar.value}</span>
+                      </>
+                   )}
+                </div>
+             ))}
           </div>
         </div>
       );
