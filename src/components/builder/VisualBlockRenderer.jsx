@@ -858,10 +858,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         <div className="w-full px-6 py-4">
           <button 
             type="button" 
-            className="w-full px-6 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-lg hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
+            className="w-full px-4 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-base hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all whitespace-nowrap"
           >
-            <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
-            <span>{data.label || 'Back to courses'}</span>
+            <ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />
+            <span className="truncate">{data.label || 'Back to courses'}</span>
           </button>
         </div>
       );
