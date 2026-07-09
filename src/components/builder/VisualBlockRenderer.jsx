@@ -814,9 +814,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
 
     case 'Back to Courses Button':
       return (
-        <div className="w-full px-6 py-2">
-          <button type="button" className={`w-full flex items-center justify-center gap-3 bg-white text-[#18181B] border-[4px] border-[#18181B] rounded-[24px] shadow-[6px_6px_0_#18181B] p-5 font-black text-xl transition-transform ${isPreviewMode ? 'hover:-translate-y-1 hover:shadow-[8px_8px_0_#18181B] active:translate-y-1 active:shadow-none' : 'pointer-events-none'}`}>
-            <ArrowLeft strokeWidth={3} className="w-6 h-6" />
+        <div className="w-full px-6 py-4">
+          <button 
+            type="button" 
+            className="w-full px-6 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-lg hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
+          >
+            <ArrowLeft strokeWidth={2.5} className="w-5 h-5" />
             <span>{data.label || 'Back to courses'}</span>
           </button>
         </div>
