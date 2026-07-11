@@ -528,24 +528,29 @@ const PLBBuilder = () => {
                   <p className="text-xs font-bold text-gray-400">Click components on the left to add them here.</p>
                 </div>
               ) : (
-                <div className="w-full max-w-[375px] mx-auto h-[3000px] relative overflow-hidden bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none">
-                  {activeBlocks.map((block) => (
+                <div className={`mx-auto h-[3000px] relative overflow-hidden bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
+                  {activeBlocks.map((block) => {
+                    const canvasWidth = previewDevice === 'mobile' ? 375 : 600;
+                    const blockWidth = block[version]?.width || 320;
+                    const safeWidth = typeof blockWidth === 'string' ? parseInt(blockWidth, 10) : blockWidth;
+                    const centeredX = (canvasWidth - safeWidth) / 2;
+
+                    return (
                     <Rnd
-                      key={`${block.id}-${version}`}
+                      key={`${block.id}-${version}-${previewDevice}`}
                       default={{
-                        x: block[version]?.x || 20,
+                        x: centeredX,
                         y: block[version]?.y || 20,
-                        width: block[version]?.width || 320,
+                        width: safeWidth,
                         height: block[version]?.height || 'auto',
                       }}
+                      dragAxis="y"
                       onDragStop={(e, d) => {
-                        updateBlockData(block.id, 'x', d.x);
                         updateBlockData(block.id, 'y', d.y);
                       }}
                       onResizeStop={(e, direction, ref, delta, position) => {
                         updateBlockData(block.id, 'width', parseInt(ref.style.width, 10));
                         updateBlockData(block.id, 'height', parseInt(ref.style.height, 10));
-                        updateBlockData(block.id, 'x', position.x);
                         updateBlockData(block.id, 'y', position.y);
                       }}
                       disableDragging={isPreviewMode}
@@ -574,7 +579,7 @@ const PLBBuilder = () => {
                          <VisualBlockRenderer block={block} version={version} isPreviewMode={isPreviewMode} />
                       </div>
                     </Rnd>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>
