@@ -21,6 +21,8 @@ const getMascotBackgroundPosition = (opt) => {
     'Sleeping': '100% 100%'
   };
 
+  return map[opt] || '0% 0%';
+};
 
 const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
   const [shuffledOptions, setShuffledOptions] = React.useState([]);
@@ -87,9 +89,6 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
       )}
     </div>
   );
-};
-
-  return map[opt] || '0% 0%';
 };
 
 const getMascotAnimation = (opt) => {
