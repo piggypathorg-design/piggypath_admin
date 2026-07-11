@@ -559,7 +559,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
 
       return (
         <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-          <p className="font-black text-center text-sm text-[#18181B]">{data.title || 'Pie Chart Working'}</p>
+          <p className="font-black text-center text-sm text-[#18181B]">{data.title || 'Pie Chart'}</p>
           
           <div className="w-48 h-48 relative">
              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90 filter drop-shadow-md rounded-full bg-white border-[3px] border-[#18181B]">

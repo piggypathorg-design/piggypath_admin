@@ -275,7 +275,7 @@ export const plbSchema = {
     category: 'Visualisation', icon: 'PieChart',
     fields: [
       { name: 'type', label: 'Type', type: 'select', options: ['Visual', 'Clickable'], required: true, default: 'Visual' },
-{ name: 'title', label: 'Question Title', type: 'text', default: 'Pie Chart Working' },
+{ name: 'title', label: 'Question Title', type: 'text', default: 'Pie Chart' },
 { name: 'correct_slice', label: 'Correct Answer', type: 'select', options: ['1', '2', '3', '4', '5', '6'], default: '1' },
 { name: 'number_of_slices', label: 'Number of Slices', type: 'select', options: ['1','2','3','4','5','6','7','8','9','10'], default: '4' },
       { name: 'slice_label_1', label: 'Option 1 Label', type: 'text', required: true, default: 'Savings' },
