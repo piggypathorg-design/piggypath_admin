@@ -616,6 +616,23 @@ const PLBBuilder = () => {
                         if (pairIndex > numPairs) return null;
                       }
                       
+                      // Dynamic Pie Chart / Bar Graph / Line Graph Logic
+                      if (selectedBlock.type === 'Pie Chart' && field.name.startsWith('slice_')) {
+                        const idx = parseInt(field.name.split('_').pop(), 10);
+                        const numSlices = parseInt(selectedBlock[version]['number_of_slices'] || '4', 10);
+                        if (idx > numSlices) return null;
+                      }
+                      if (selectedBlock.type === 'Bar Graph' && field.name.startsWith('bar_')) {
+                        const idx = parseInt(field.name.split('_').pop(), 10);
+                        const numBars = parseInt(selectedBlock[version]['number_of_bars'] || '4', 10);
+                        if (idx > numBars) return null;
+                      }
+                      if (selectedBlock.type === 'Line Graph' && field.name.startsWith('point_')) {
+                        const idx = parseInt(field.name.split('_')[1], 10);
+                        const numPoints = parseInt(selectedBlock[version]['number_of_points'] || '4', 10);
+                        if (idx > numPoints) return null;
+                      }
+                      
                       // Special handling for the Mascot grid selector
                       if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion' || selectedBlock.type === 'Mascot Platform') && field.name === 'mascot_type') {
                         return (
@@ -685,14 +702,27 @@ const PLBBuilder = () => {
                               className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all"
                             />
                           ) : field.type === 'color' ? (
-                            <div className="flex items-center gap-3">
-                              <input 
-                                type="color"
-                                value={value}
-                                onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-8 h-8 p-0 rounded-md border-0 bg-transparent cursor-pointer"
-                              />
-                              <span className="text-sm font-bold text-[#18181B] uppercase">{value || '#000000'}</span>
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="color"
+                                  value={value}
+                                  onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
+                                  className="w-8 h-8 p-0 rounded-md border-0 bg-transparent cursor-pointer shrink-0"
+                                />
+                                <span className="text-sm font-bold text-[#18181B] uppercase">{value || '#000000'}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {['#00E599', '#FFD100', '#8B5CF6', '#3B82F6', '#FF6B6B', '#A8A29E'].map(hex => (
+                                  <button
+                                    key={hex}
+                                    onClick={() => updateBlockData(selectedBlock.id, field.name, hex)}
+                                    className={`w-5 h-5 rounded-md border-[2px] transition-all shadow-[1px_1px_0_#18181B] ${value === hex ? 'border-[#18181B] scale-110 ring-2 ring-[#00E599]' : 'border-[#18181B] hover:scale-110'}`}
+                                    style={{ backgroundColor: hex }}
+                                    title={hex}
+                                  />
+                                ))}
+                              </div>
                             </div>
                           ) : field.type === 'textarea' ? (
                             <textarea 
