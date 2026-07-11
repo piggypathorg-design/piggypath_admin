@@ -596,13 +596,15 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                     className={`px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[5px_5px_0_#18181B] active:translate-y-1 active:shadow-none' : ''}`} 
                     style={{ backgroundColor: bgColor, color: textColor }}
                   >
-                     {slice.label}
-                     {!isPreviewMode && isCorrect && (
-                       <span className="w-4 h-4 bg-white rounded-full flex items-center justify-center border-2 border-[#18181B]">
-                         <Check size={10} strokeWidth={4} color="#00E599" />
-                       </span>
-                     )}
-                  </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] uppercase tracking-wider font-bold opacity-80 leading-tight">
+                          {slice.label}
+                        </span>
+                        <span className="text-sm font-black mt-0.5 leading-tight">
+                          {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
+                        </span>
+                      </div>
+                    </div>
                 );
              })}
              <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
