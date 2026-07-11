@@ -528,7 +528,7 @@ const PLBBuilder = () => {
                   <p className="text-xs font-bold text-gray-400">Click components on the left to add them here.</p>
                 </div>
               ) : (
-                <div className="w-full h-[3000px] relative overflow-hidden">
+                <div className="w-full max-w-[375px] mx-auto h-[3000px] relative overflow-hidden bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none">
                   {activeBlocks.map((block) => (
                     <Rnd
                       key={`${block.id}-${version}`}
