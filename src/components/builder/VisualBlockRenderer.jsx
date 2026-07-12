@@ -336,9 +336,9 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     
-    const targetX = data.hotspot_x || 50;
-    const targetY = data.hotspot_y || 50;
-    const size = (data.hotspot_size || 2) * 5; // size 2 => 10% radius
+    const targetX = parseFloat(data.hotspot_x || 50);
+    const targetY = parseFloat(data.hotspot_y || 50);
+    const size = parseInt(data.hotspot_size || 2, 10) * 5; // size 2 => 10% radius
     
     const dist = Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
     const isCorrect = dist <= size;
@@ -1073,10 +1073,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       );
 
     case 'Slider':
-      const min = data.min_value || 0;
-      const max = data.max_value || 100;
-      const target = data.target_value || 50;
-      const tol = data.tolerance || 5;
+      const min = parseInt(data.min_value || 0, 10);
+      const max = parseInt(data.max_value || 100, 10);
+      const target = parseInt(data.target_value || 50, 10);
+      const tol = parseInt(data.tolerance || 5, 10);
       
       const val = interactionState?.value ?? min;
       const sliderStatus = interactionState?.status;
