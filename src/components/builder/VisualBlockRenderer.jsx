@@ -898,20 +898,31 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       return <AudioBlock data={data} isPreviewMode={isPreviewMode} />;
 
     case 'Mascot Feedback':
-      const mascotType = data.mascot_type || 'Happy';
+      const fbMascotType = data.mascot_type || 'Happy';
+      const fbAlignClass = {
+        'Left': 'justify-start',
+        'Center': 'justify-center',
+        'Right': 'justify-end'
+      }[data.alignment || 'Center'];
+
       return (
-        <div className={`w-full flex ${alignClass} py-4 px-6`}>
-          <div className="w-full bg-white p-6 rounded-[16px] border-[3px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex items-center gap-6">
-            <div className={`w-20 h-20 shrink-0 flex items-center justify-center ${getMascotAnimation(mascotType)}`}>
-               <img 
-                  src={`/piggypath_admin/assets/mascots/${mascotType}.png?v=clean4`}
-                  alt={mascotType}
-                  className="w-full h-full object-contain"
-                />
+        <div className={`w-full flex ${fbAlignClass} py-4 px-6 gap-4 items-end`}>
+          <div className={`w-20 h-20 shrink-0 flex items-center justify-center z-10 ${getMascotAnimation(fbMascotType)}`}>
+             <img 
+                src={`/piggypath_admin/assets/mascots/${fbMascotType}.png?v=clean4`}
+                alt={fbMascotType}
+                className="w-full h-full object-contain drop-shadow-md"
+              />
+          </div>
+          <div className="relative flex-1 max-w-[75%]">
+            <div 
+              className="w-full p-4 border-[4px] border-[#18181B] rounded-3xl shadow-[6px_6px_0_#18181B] bg-white relative z-10 text-left font-bold text-sm text-[#18181B]"
+            >
+              {data.message || 'Great job!'}
             </div>
-            <div className="flex-1 text-[#18181B]">
-              <p className="font-bold leading-snug text-sm sm:text-base">"{data.message || 'Great job!'}"</p>
-            </div>
+            <div 
+              className="absolute -left-2 bottom-6 w-6 h-6 border-l-[4px] border-b-[4px] border-[#18181B] transform rotate-45 z-0 bg-white"
+            ></div>
           </div>
         </div>
       );
