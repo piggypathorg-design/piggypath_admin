@@ -1,8 +1,26 @@
 import React, { useState } from 'react';
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
-  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check
+  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, GripVertical
 } from 'lucide-react';
+import {
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  useDraggable
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import mascotGridImg from '../../assets/mascot_grid.png';
 
 const getMascotBackgroundPosition = (opt) => {
@@ -246,6 +264,391 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
              );
            })}
         </div>
+      </div>
+    </div>
+  );
+};
+
+const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+  const state = (interactionState && interactionState[blockId]) || { status: 'idle', clickX: null, clickY: null };
+
+  const handleImageClick = (e) => {
+    if (!isPreviewMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    const targetX = data.hotspot_x || 50;
+    const targetY = data.hotspot_y || 50;
+    const size = (data.hotspot_size || 2) * 5; // size 2 => 10% radius
+    
+    const dist = Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
+    const isCorrect = dist <= size;
+    
+    setInteractionState({
+      ...interactionState,
+      [blockId]: {
+        status: isCorrect ? 'correct' : 'error',
+        clickX: x,
+        clickY: y
+      }
+    });
+
+    if (!isCorrect) {
+      setTimeout(() => {
+        setInteractionState(prev => {
+          if (prev[blockId]?.status === 'error') {
+            return { ...prev, [blockId]: { ...prev[blockId], status: 'idle' } };
+          }
+          return prev;
+        });
+      }, 1000);
+    }
+  };
+
+  return (
+    <div className="w-full px-6 py-4 flex flex-col gap-4 items-center">
+       {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
+       <div 
+         className={`relative w-full max-w-sm aspect-square bg-gray-100 border-[3px] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}
+         onClick={handleImageClick}
+       >
+          {data.image ? (
+            <img src={data.image} alt="Hotspot area" className={`w-full h-full object-cover transition-opacity ${isPreviewMode && state.status !== 'correct' ? 'cursor-crosshair hover:opacity-90' : ''}`} draggable={false} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold uppercase text-xs tracking-wider">No Image</div>
+          )}
+          
+          {(!isPreviewMode || state.status === 'correct') && (
+            <div 
+              className={`absolute w-8 h-8 -ml-4 -mt-4 border-2 rounded-full flex items-center justify-center transition-all ${state.status === 'correct' ? 'border-[#00E599] bg-[#00E599]/30 scale-125' : 'border-red-500 bg-red-500/30 animate-pulse pointer-events-none'}`}
+              style={{ left: `${data.hotspot_x || 50}%`, top: `${data.hotspot_y || 50}%` }}
+            >
+              <div className={`w-2 h-2 rounded-full ${state.status === 'correct' ? 'bg-[#00E599]' : 'bg-red-500'}`} />
+            </div>
+          )}
+          
+          {state.status === 'error' && state.clickX !== null && (
+            <div 
+              className="absolute w-8 h-8 -ml-4 -mt-4 border-2 border-[#FF6B6B] bg-[#FF6B6B]/50 rounded-full animate-ping pointer-events-none"
+              style={{ left: `${state.clickX}%`, top: `${state.clickY}%` }}
+            />
+          )}
+       </div>
+    </div>
+  );
+};
+
+const ArrangeSortableItem = ({ id, text, isPreviewMode }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: id, disabled: !isPreviewMode });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 1,
+    position: 'relative',
+    opacity: isDragging ? 0.5 : 1
+  };
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`w-full bg-white border-[3px] border-[#18181B] rounded-2xl p-4 flex items-center gap-3 shadow-[4px_4px_0_#18181B] transition-all font-bold text-[#18181B] ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]' : 'cursor-default'}`}
+    >
+      <div 
+        {...attributes} 
+        {...listeners} 
+        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-[2px] border-[#18181B] bg-[#F4F4F5] ${isPreviewMode ? 'cursor-grab active:cursor-grabbing hover:bg-[#E4E4E7]' : ''}`}
+      >
+        <GripVertical size={16} strokeWidth={3} className="text-[#18181B]" />
+      </div>
+      <span className="flex-1 text-sm">{text}</span>
+    </div>
+  );
+};
+
+const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const [items, setItems] = React.useState([]);
+  const [originalItems, setOriginalItems] = React.useState([]);
+  
+  React.useEffect(() => {
+    const rawItems = (data.items || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (rawItems.length === 0) rawItems.push('Item 1', 'Item 2', 'Item 3');
+    
+    const objects = rawItems.map((text, i) => ({ id: `arr_${i}`, text }));
+    setOriginalItems(objects.map(o => o.id));
+    
+    if (isPreviewMode) {
+      const shuffled = [...objects];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setItems(shuffled);
+    } else {
+      setItems(objects);
+    }
+  }, [data.items, isPreviewMode]);
+
+  const state = (interactionState && interactionState[blockId]) || { status: 'idle' };
+
+  const handleDragEnd = (event) => {
+    if (!isPreviewMode) return;
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.findIndex(p => p.id === active.id);
+        const newIndex = items.findIndex(p => p.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+      if (interactionState) {
+        setInteractionState({ ...interactionState, [blockId]: { status: 'idle' } });
+      }
+    }
+  };
+
+  const handleCheck = () => {
+    if (!isPreviewMode) return;
+    const currentOrder = items.map(i => i.id).join(',');
+    const correctOrder = originalItems.join(',');
+    const isCorrect = currentOrder === correctOrder;
+    
+    if (interactionState) {
+      setInteractionState({
+        ...interactionState,
+        [blockId]: { status: isCorrect ? 'correct' : 'error' }
+      });
+      
+      if (!isCorrect) {
+        setTimeout(() => {
+          setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
+        }, 1000);
+      }
+    }
+  };
+
+  return (
+    <div className="w-full px-6 py-4">
+      <div className={`w-full flex flex-col gap-4 bg-white border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}>
+        <div className="flex items-start gap-3 mb-2">
+          <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
+            <ListOrdered className="text-[#18181B]" size={20} strokeWidth={3} />
+          </div>
+          <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Put these in the correct order:'}</p>
+        </div>
+        
+        <div className="flex flex-col gap-3">
+          <DndContext 
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext 
+              items={items.map(i => i.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {items.map((item) => (
+                <ArrangeSortableItem key={item.id} id={item.id} text={item.text} isPreviewMode={isPreviewMode} />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+        
+        {isPreviewMode && (
+          <button 
+            onClick={handleCheck}
+            className={`mt-4 w-full py-3 rounded-xl font-black text-lg transition-all border-[3px] shadow-[4px_4px_0_#18181B] ${state.status === 'correct' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-[#18181B] text-white border-[#18181B] hover:bg-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]'}`}
+          >
+            {state.status === 'correct' ? 'Correct!' : 'Check Answer'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DraggablePill = ({ id, text, disabled }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id, disabled });
+  
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    zIndex: 50,
+  } : undefined;
+  
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      {...listeners} 
+      {...attributes}
+      className={`px-4 py-2 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-full text-xs font-bold transition-transform ${disabled ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B]'}`}
+    >
+      {text}
+    </div>
+  );
+};
+
+const DroppableBucket = ({ id, label, items, isCorrectState }) => {
+  const { isOver, setNodeRef } = useDroppable({ id });
+  
+  return (
+    <div className="flex-1 max-w-[150px] flex flex-col items-center">
+      <div className="text-sm font-black mb-2 text-center break-words w-full text-[#18181B]">{label}</div>
+      <div 
+        ref={setNodeRef}
+        className={`w-full min-h-[120px] bg-white border-[3px] border-[#18181B] rounded-2xl p-2 flex flex-col gap-2 items-center transition-all ${isOver ? 'bg-[#FFD100]/20 scale-105' : ''} ${isCorrectState === 'error' ? 'border-[#FF6B6B] bg-[#FF6B6B]/10' : isCorrectState === 'correct' ? 'border-[#00E599] bg-[#00E599]/10' : ''}`}
+      >
+        {items.map(item => (
+          <div key={item.id} className={`px-3 py-1.5 border-[2px] border-[#18181B] rounded-full text-[10px] font-bold shadow-[2px_2px_0_#18181B] truncate max-w-full ${isCorrectState === 'correct' ? 'bg-[#00E599]' : 'bg-white'}`}>
+            {item.text}
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div className="flex-1 w-full flex items-center justify-center opacity-30">
+            <Move size={24} className="text-[#18181B]" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+  const [bankItems, setBankItems] = React.useState([]);
+  const [bucketItems, setBucketItems] = React.useState({ b1: [], b2: [], b3: [] });
+  
+  React.useEffect(() => {
+    let allItems = [];
+    const b1 = data.bucket_1_items ? data.bucket_1_items.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const b2 = data.bucket_2_items ? data.bucket_2_items.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const b3 = data.bucket_3_items ? data.bucket_3_items.split(',').map(s => s.trim()).filter(Boolean) : [];
+    
+    b1.forEach((t, i) => allItems.push({ id: `b1_${i}`, text: t, bucket: 'b1' }));
+    b2.forEach((t, i) => allItems.push({ id: `b2_${i}`, text: t, bucket: 'b2' }));
+    b3.forEach((t, i) => allItems.push({ id: `b3_${i}`, text: t, bucket: 'b3' }));
+    
+    if (allItems.length === 0) {
+       allItems = [
+         { id: 'b1_0', text: 'Water', bucket: 'b1' },
+         { id: 'b1_1', text: 'Medicine', bucket: 'b1' },
+         { id: 'b2_0', text: 'New Phone', bucket: 'b2' },
+         { id: 'b2_1', text: 'Ice Cream', bucket: 'b2' },
+       ];
+    }
+    
+    if (isPreviewMode) {
+      const shuffled = [...allItems].sort(() => Math.random() - 0.5);
+      setBankItems(shuffled);
+      setBucketItems({ b1: [], b2: [], b3: [] });
+    } else {
+      setBankItems(allItems);
+      setBucketItems({ b1: [], b2: [], b3: [] });
+    }
+  }, [data, isPreviewMode]);
+
+  const state = (interactionState && interactionState[blockId]) || { status: 'idle' };
+
+  const handleDragEnd = (event) => {
+    if (!isPreviewMode) return;
+    const { active, over } = event;
+    
+    if (over) {
+      const draggedItem = bankItems.find(i => i.id === active.id);
+      if (draggedItem) {
+        setBankItems(prev => prev.filter(i => i.id !== active.id));
+        setBucketItems(prev => ({
+          ...prev,
+          [over.id]: [...prev[over.id], draggedItem]
+        }));
+        
+        if (interactionState) {
+          setInteractionState({ ...interactionState, [blockId]: { status: 'idle' } });
+        }
+      }
+    }
+  };
+  
+  const handleCheck = () => {
+    if (!isPreviewMode) return;
+    
+    const allPlaced = bankItems.length === 0;
+    
+    let isCorrect = allPlaced;
+    if (isCorrect) {
+      ['b1', 'b2', 'b3'].forEach(bId => {
+        bucketItems[bId].forEach(item => {
+          if (item.bucket !== bId) isCorrect = false;
+        });
+      });
+    }
+
+    if (interactionState) {
+      setInteractionState({
+        ...interactionState,
+        [blockId]: { status: isCorrect ? 'correct' : 'error' }
+      });
+      
+      if (!isCorrect) {
+        setTimeout(() => {
+          setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
+        }, 1000);
+      }
+    }
+  };
+
+  const buckets = [];
+  if (data.bucket_1_name || (!data.bucket_1_name && !data.bucket_2_name)) buckets.push({ id: 'b1', label: data.bucket_1_name || 'Needs' });
+  if (data.bucket_2_name || (!data.bucket_1_name && !data.bucket_2_name)) buckets.push({ id: 'b2', label: data.bucket_2_name || 'Wants' });
+  if (data.bucket_3_name) buckets.push({ id: 'b3', label: data.bucket_3_name });
+
+  return (
+    <div className="w-full px-6 py-4">
+      <div className={`w-full flex flex-col gap-6 bg-[#F4F4F5] border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}>
+        {data.question && <p className="font-black text-center text-lg leading-tight text-[#18181B]">{data.question}</p>}
+        
+        <DndContext onDragEnd={handleDragEnd}>
+          <div className="flex gap-4 w-full justify-center">
+            {buckets.map(b => (
+              <DroppableBucket key={b.id} id={b.id} label={b.label} items={bucketItems[b.id] || []} isCorrectState={state.status} />
+            ))}
+          </div>
+          
+          <div className="w-full h-[2px] bg-[#18181B]/10 my-2 rounded-full" />
+          
+          <div className="flex flex-wrap justify-center gap-3 min-h-[60px]">
+            {bankItems.length === 0 ? (
+              <div className="text-gray-400 font-bold text-sm">All items sorted!</div>
+            ) : (
+              bankItems.map(item => (
+                <DraggablePill key={item.id} id={item.id} text={item.text} disabled={!isPreviewMode} />
+              ))
+            )}
+          </div>
+        </DndContext>
+        
+        {isPreviewMode && bankItems.length === 0 && (
+          <button 
+            onClick={handleCheck}
+            className={`w-full py-3 rounded-xl font-black text-lg transition-all border-[3px] shadow-[4px_4px_0_#18181B] ${state.status === 'correct' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-[#18181B] text-white border-[#18181B] hover:bg-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]'}`}
+          >
+            {state.status === 'correct' ? 'Correct!' : 'Check Answer'}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -674,81 +1077,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         </div>
       );
 
-    case 'Drag & Drop': {
-      const buckets = [];
-      if (data.bucket_1_name) buckets.push(data.bucket_1_name);
-      if (data.bucket_2_name) buckets.push(data.bucket_2_name);
-      if (data.bucket_3_name) buckets.push(data.bucket_3_name);
-      if (buckets.length === 0) buckets.push('Needs', 'Wants');
-
-      let allItems = [];
-      ['bucket_1_items', 'bucket_2_items', 'bucket_3_items'].forEach(k => {
-        if (data[k]) {
-          allItems = allItems.concat(data[k].split(',').map(s => s.trim()).filter(Boolean));
-        }
-      });
-      if (allItems.length === 0) allItems = ['Water', 'Medicine', 'New Phone', 'Ice Cream'];
-      
-      return (
-        <div className="w-full px-6 py-4 flex flex-col gap-6">
-           {data.question && <p className="font-black text-center text-sm mb-2">{data.question}</p>}
-           <div className="flex gap-4 w-full justify-center">
-              {buckets.map((b, i) => (
-                <div key={i} className="flex-1 max-w-[150px] flex flex-col items-center">
-                   <div className="text-xs font-bold mb-2 text-center break-words w-full">{b}</div>
-                   <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
-                </div>
-              ))}
-           </div>
-           
-           <div className="flex flex-wrap justify-center gap-3">
-              {allItems.map((pill, i) => (
-                 <div key={i} className="px-3 py-1.5 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-full text-xs font-bold cursor-pointer hover:-translate-y-0.5 transition-transform">
-                    {pill}
-                 </div>
-              ))}
-           </div>
-        </div>
-      );
-    }
-    case 'Arrange': {
-      let items = data.items ? data.items.split(',').map(s => s.trim()).filter(Boolean) : ['Item 1', 'Item 2', 'Item 3'];
-      return (
-        <div className="w-full px-6 py-4 flex flex-col gap-4">
-           {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
-           <div className="flex flex-col gap-2 w-full">
-              {items.map((item, i) => (
-                 <div key={i} className="flex items-center gap-3 bg-white border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] cursor-pointer">
-                    <GripVertical size={20} className="text-gray-400" />
-                    <span>{item}</span>
-                 </div>
-              ))}
-           </div>
-        </div>
-      );
-    }
-    case 'Hotspot': {
-      return (
-        <div className="w-full px-6 py-4 flex flex-col gap-4 items-center">
-           {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
-           <div className="relative w-full max-w-sm aspect-square bg-gray-100 border-[3px] border-[#18181B] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B]">
-              {data.image ? (
-                <img src={data.image} alt="Hotspot area" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold uppercase text-xs tracking-wider">No Image</div>
-              )}
-              {isPreviewMode && (
-                <div 
-                  className="absolute w-8 h-8 -ml-4 -mt-4 border-2 border-red-500 rounded-full bg-red-500/30 flex items-center justify-center animate-pulse"
-                  style={{ left: `${data.hotspot_x || 50}%`, top: `${data.hotspot_y || 50}%` }}
-                >
-                  <div className="w-1 h-1 bg-red-500 rounded-full" />
-                </div>
-              )}
-           </div>
-        </div>
-      );
-    }
+    case 'Drag & Drop':
+      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+    case 'Arrange':
+      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+    case 'Hotspot':
+      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
     case 'Match Pairs':
       return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
 

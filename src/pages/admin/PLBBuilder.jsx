@@ -4,6 +4,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { plbSchema } from '../../utils/plbSchema';
 import { starterTemplates } from '../../utils/starterTemplates';
 import VisualBlockRenderer from '../../components/builder/VisualBlockRenderer';
+import { SortablePageItem } from '../../components/builder/SortablePageItem';
+import {
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
 import { 
   Type, AlignLeft, FileText, Minus, Maximize2, Square, 
   Image as ImageIcon, Video, Film, Volume2, 
@@ -141,6 +156,13 @@ const PLBBuilder = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [previewDevice, setPreviewDevice] = useState('mobile'); // mobile | tablet | laptop
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // History state
   const historyRef = useRef([]);
@@ -338,6 +360,19 @@ const PLBBuilder = () => {
     }
     setSelectedBlockId(null);
     saveLesson(newPages);
+  };
+
+  const handleDragEndPages = (event) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setPages((items) => {
+        const oldIndex = items.findIndex(p => p.id === active.id);
+        const newIndex = items.findIndex(p => p.id === over.id);
+        const newPages = arrayMove(items, oldIndex, newIndex);
+        saveLesson(newPages);
+        return newPages;
+      });
+    }
   };
 
   const duplicateBlock = (blockId) => {
@@ -729,65 +764,33 @@ const PLBBuilder = () => {
             </div>
             
             <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3">
-              {pages.map((page) => {
-                const isActive = activePageId === page.id;
-                return (
-                  <div key={page.id} className={`group border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}>
-                    <div 
-                      onClick={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
-                      className={`p-2.5 flex items-center justify-between cursor-pointer font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-500 hover:bg-[#F4F4F5] hover:text-[#18181B]'}`}
-                    >
-                      <div className="flex items-center gap-2 truncate flex-1">
-                        {isActive ? <ChevronDown size={16} strokeWidth={3} /> : <ArrowRight size={16} strokeWidth={3} />} 
-                        {page.title}
-                      </div>
-                      {pages.length > 1 && (
-                         <button 
-                            onClick={(e) => deletePage(page.id, e)} 
-                            className={`p-1 rounded transition-opacity ${isActive ? 'hover:bg-black/20 text-black' : 'hover:bg-[#3F3F46] text-gray-400'}`}
-                         >
-                            <Trash2 size={14} strokeWidth={2} />
-                         </button>
-                      )}
-                    </div>
-                    
-                    {isActive && (
-                      <div className="p-1 flex flex-col gap-1 min-h-[100px]">
-                        {page.blocks.length === 0 ? (
-                          <div className="text-xs font-bold text-gray-500 p-3 text-center">Empty Page</div>
-                        ) : (
-                          page.blocks.map((block, index) => {
-                            const Icon = iconMap[plbSchema[block.type]?.icon] || Type;
-                            return (
-                              <div 
-                                key={block.id}
-                                className={`group flex items-center justify-between p-2 rounded-md text-sm font-bold transition-colors text-left ${selectedBlockId === block.id ? 'bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] text-[#18181B]' : 'text-gray-500 hover:bg-white hover:border-[2px] hover:border-[#18181B] hover:shadow-[2px_2px_0_#18181B] hover:text-[#18181B]'}`}
-                              >
-                                <button 
-                                  className="flex items-center gap-2 flex-1 truncate"
-                                  onClick={(e) => { e.stopPropagation(); setSelectedBlockId(block.id); }}
-                                >
-                                  <Icon size={14} strokeWidth={2} className={selectedBlockId === block.id ? "text-[#00E599]" : "text-gray-500 group-hover:text-[#00E599]"} /> 
-                                  <span className="truncate">{block.type}</span>
-                                </button>
-                                
-                                {selectedBlockId === block.id && (
-                                  <div className="flex items-center gap-1">
-                                     <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowUp size={14}/></button>
-                                     <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowDown size={14}/></button>
-                                     <button onClick={(e) => { e.stopPropagation(); duplicateBlock(block.id); }} className="text-gray-400 hover:text-[#00E599] ml-1" title="Duplicate (Ctrl+D)"><Copy size={14}/></button>
-                                     <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} className="text-gray-400 hover:text-[#FF6B6B] ml-1"><Trash2 size={14}/></button>
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+              <DndContext 
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEndPages}
+              >
+                <SortableContext 
+                  items={pages.map(p => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {pages.map((page) => (
+                    <SortablePageItem 
+                      key={page.id}
+                      page={page}
+                      isActive={activePageId === page.id}
+                      canDelete={pages.length > 1}
+                      onSelect={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
+                      onDelete={(e) => { e.stopPropagation(); deletePage(page.id, e); }}
+                      bringForward={bringForward}
+                      sendBackward={sendBackward}
+                      duplicateBlock={duplicateBlock}
+                      deleteBlock={deleteBlock}
+                      selectedBlockId={selectedBlockId}
+                      setSelectedBlockId={setSelectedBlockId}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             </div>
           </aside>
         )}
