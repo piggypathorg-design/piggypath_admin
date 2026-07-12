@@ -1500,12 +1500,30 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       }[mascotSize] || 'w-40 h-40';
       const showBubble = block.type === 'Mascot Character' ? (data.show_bubble !== 'Off') : false;
 
+      const mAlignClass = {
+        'Left': 'self-start',
+        'Center': 'self-center',
+        'Right': 'self-end'
+      }[data.mascot_alignment || data.alignment || 'Center'];
+
+      const bAlignClass = {
+        'Left': 'self-start',
+        'Center': 'self-center',
+        'Right': 'self-end'
+      }[data.bubble_alignment || data.alignment || 'Center'];
+
+      const tAlignClass = {
+        'Left': 'text-left',
+        'Center': 'text-center',
+        'Right': 'text-right'
+      }[data.text_alignment || data.alignment || 'Center'];
+
       return (
-        <div className={`w-full flex flex-col ${alignClass} py-4 px-6 items-center`}>
+        <div className={`w-full flex flex-col py-4 px-6 gap-2`}>
           {showBubble && (
-            <div className="w-full relative flex justify-center mb-2">
+            <div className={`w-[80%] relative flex justify-center mb-2 ${bAlignClass}`}>
               <div 
-                className="w-[80%] p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex items-center justify-center relative z-10"
+                className={`w-full p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex flex-col justify-center relative z-10 ${tAlignClass}`}
                 style={{
                   backgroundColor: data.bubble_colour || '#FFFFFF',
                   color: data.text_colour || '#18181B',
@@ -1518,12 +1536,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                 {data.text || 'Mascot says...'}
               </div>
               <div 
-                className="absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0"
+                className={`absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0`}
                 style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
               ></div>
             </div>
           )}
-           <div className={`${sizeClasses} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
+           <div className={`${sizeClasses} ${mAlignClass} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
              <img 
                src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean4`}
                alt={data.mascot_type || 'Happy'}
