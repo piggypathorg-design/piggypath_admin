@@ -103,18 +103,40 @@ const MediaUploadField = ({ value, onChange, label, required }) => {
       </div>
       
       {mode === 'url' ? (
-        <input 
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="https://..."
-          className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all"
-        />
+        <div className="flex gap-2 items-center">
+          <input 
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://..."
+            className="flex-1 w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all min-w-0"
+          />
+          {value && (
+            <button 
+              type="button"
+              onClick={() => onChange('')}
+              className="p-2 text-red-500 hover:text-red-700 bg-white border-[2px] border-[#18181B] rounded-lg shadow-[2px_2px_0_#18181B] transition-all"
+              title="Clear Media"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {value && mode === 'upload' && (
-            <div className="text-[10px] font-bold text-[#18181B] bg-gray-100 p-2 rounded border-[2px] border-gray-300 truncate max-w-full">
-              Current: {value}
+          {value && (
+            <div className="flex items-center justify-between bg-gray-100 p-2 rounded border-[2px] border-gray-300 gap-2">
+              <div className="text-[10px] font-bold text-[#18181B] truncate">
+                Current: {value}
+              </div>
+              <button 
+                type="button"
+                onClick={() => onChange('')}
+                className="text-red-500 hover:text-red-700 flex-shrink-0"
+                title="Clear Media"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
           )}
           <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-[#18181B] border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors shadow-[2px_2px_0_#18181B]">
