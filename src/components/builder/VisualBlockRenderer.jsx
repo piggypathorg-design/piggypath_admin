@@ -1491,7 +1491,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
 
     case 'Mascot Emotion':
     case 'Mascot Character':
-      const fontForMascot = getFontFamily(data.font || 'Montserrat');
+      const fontForMascot = data.font || 'Montserrat';
       const mascotSize = data.size || 'Medium';
       const sizeClasses = {
         'Small': 'w-24 h-24',
