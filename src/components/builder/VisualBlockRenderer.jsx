@@ -730,7 +730,7 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) => {
   const data = block[version] || {};
   const [interactionState, setInteractionState] = React.useState({});
   
@@ -1569,10 +1569,11 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Progress Bar':
+      const finalProgress = progressValue !== undefined ? progressValue : (data.value || 50);
       return (
         <div className="w-full px-6 py-4">
           <div className="w-full h-6 bg-white rounded-full border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] overflow-hidden p-0.5">
-            <div className="h-full bg-[#00E599] rounded-full border-r-[3px] border-[#18181B]" style={{ width: `${Math.min(100, Math.max(0, data.value || 50))}%` }}></div>
+            <div className="h-full bg-[#00E599] rounded-full border-r-[3px] border-[#18181B] transition-all duration-300" style={{ width: `${Math.min(100, Math.max(0, finalProgress))}%` }}></div>
           </div>
         </div>
       );

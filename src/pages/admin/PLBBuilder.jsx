@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Rnd } from 'react-rnd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { plbSchema } from '../../utils/plbSchema';
@@ -148,6 +148,29 @@ const PLBBuilder = () => {
   const [isSaving, setIsSaving] = useState(false);
   
   const [version, setVersion] = useState('teen');
+
+  const progressValues = useMemo(() => {
+    let totalProgressBars = 0;
+    const progressMap = {};
+    
+    pages.forEach(page => {
+      page.blocks.forEach(b => {
+        if (b.type === 'Progress Bar') totalProgressBars++;
+      });
+    });
+
+    let currentCount = 0;
+    pages.forEach(page => {
+      page.blocks.forEach(b => {
+        if (b.type === 'Progress Bar') {
+          currentCount++;
+          progressMap[b.id] = totalProgressBars > 0 ? Math.round((currentCount / totalProgressBars) * 100) : 0;
+        }
+      });
+    });
+
+    return progressMap;
+  }, [pages]);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -896,7 +919,7 @@ const PLBBuilder = () => {
                       
                       {/* Render block inline */}
                       <div className={`w-full h-full relative z-0 ${!isPreviewMode ? 'pointer-events-none' : ''}`}>
-                         <VisualBlockRenderer block={block} version={version} isPreviewMode={isPreviewMode} />
+                         <VisualBlockRenderer block={block} version={version} isPreviewMode={isPreviewMode} progressValue={progressValues[block.id]} />
                       </div>
                     </Rnd>
                   )})}

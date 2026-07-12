@@ -478,9 +478,7 @@ export const plbSchema = {
   },
   'Progress Bar': {
     category: 'Feedback', icon: 'Percent',
-    fields: [
-      { name: 'value', label: 'Progress (%)', type: 'number', required: true, default: 50 }
-    ]
+    fields: []
   },
   'Mascot Feedback': {
     category: 'Feedback', icon: 'MessageCircle',
