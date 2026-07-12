@@ -224,6 +224,7 @@ export const plbSchema = {
       { name: 'target_value', label: 'Target value', type: 'number', required: true, default: 50 },
       { name: 'unit', label: 'Unit', type: 'text', default: '%' },
       { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: '' },
+      { name: 'why_incorrect', label: 'Why incorrect', type: 'textarea', required: true, default: '' },
       { name: 'tolerance', label: 'Tolerance', type: 'number', default: 5 },
       { name: 'xp_reward', label: 'XP Reward', type: 'number', default: 10 }
     ]

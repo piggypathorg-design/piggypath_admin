@@ -348,7 +348,8 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
       [blockId]: {
         status: isCorrect ? 'correct' : 'error',
         clickX: x,
-        clickY: y
+        clickY: y,
+        missCount: isCorrect ? (state.missCount || 0) : (state.missCount || 0) + 1
       }
     });
 
@@ -356,7 +357,7 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
       setTimeout(() => {
         setInteractionState(prev => {
           if (prev[blockId]?.status === 'error') {
-            return { ...prev, [blockId]: { ...prev[blockId], status: 'idle' } };
+            return { ...prev, [blockId]: { ...prev[blockId], status: 'idle', clickX: null, clickY: null } };
           }
           return prev;
         });
@@ -379,20 +380,47 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
           
           {(!isPreviewMode || state.status === 'correct') && (
             <div 
-              className={`absolute w-8 h-8 -ml-4 -mt-4 border-2 rounded-full flex items-center justify-center transition-all ${state.status === 'correct' ? 'border-[#00E599] bg-[#00E599]/30 scale-125' : 'border-red-500 bg-red-500/30 animate-pulse pointer-events-none'}`}
-              style={{ left: `${data.hotspot_x || 50}%`, top: `${data.hotspot_y || 50}%` }}
+              className={`absolute border-[4px] rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all ${state.status === 'correct' ? 'border-[#00E599] bg-[#00E599]/20' : 'border-[#F97316] border-dashed opacity-50 bg-[#F97316]/20'}`}
+              style={{
+                left: `${data.hotspot_x || 50}%`,
+                top: `${data.hotspot_y || 50}%`,
+                width: `${(data.hotspot_size || 2) * 10}%`,
+                height: `${(data.hotspot_size || 2) * 10}%`
+              }}
             >
-              <div className={`w-2 h-2 rounded-full ${state.status === 'correct' ? 'bg-[#00E599]' : 'bg-red-500'}`} />
+              {state.status === 'correct' && <CheckCircle size={32} className="text-[#00E599] drop-shadow-[0_2px_0_#18181B]" />}
             </div>
           )}
-          
+
+          {isPreviewMode && state.status !== 'correct' && (state.missCount || 0) >= 3 && (
+            <div 
+              className="absolute rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-ping opacity-30 bg-white z-0 pointer-events-none"
+              style={{
+                left: `${data.hotspot_x || 50}%`,
+                top: `${data.hotspot_y || 50}%`,
+                width: `${(data.hotspot_size || 2) * 10}%`,
+                height: `${(data.hotspot_size || 2) * 10}%`
+              }}
+            ></div>
+          )}
+
           {state.status === 'error' && state.clickX !== null && (
             <div 
-              className="absolute w-8 h-8 -ml-4 -mt-4 border-2 border-[#FF6B6B] bg-[#FF6B6B]/50 rounded-full animate-ping pointer-events-none"
+              className="absolute w-4 h-4 rounded-full bg-[#FF6B6B] border-[2px] border-white transform -translate-x-1/2 -translate-y-1/2 animate-mascot-bounce shadow-md pointer-events-none"
               style={{ left: `${state.clickX}%`, top: `${state.clickY}%` }}
-            />
+            ></div>
           )}
        </div>
+
+       {(state.status === 'correct' || (state.status === 'error' && state.missCount > 0)) && (
+         <div className={`mt-2 p-4 w-full max-w-sm rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${state.status === 'correct' ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+           <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
+           {state.status === 'correct' ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, keep looking.')}
+         </div>
+       )}
+       {state.status === 'correct' && data.xp_reward && (
+          <div className="mt-2 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
+       )}
     </div>
   );
 };
@@ -1099,6 +1127,17 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                 {/* Custom track */}
                 <div className={`absolute left-0 right-0 h-3 rounded-full border-[2px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
                 
+                {/* Hint Band */}
+                {interactionState?.hasAttempted && sliderStatus !== 'correct' && (
+                  <div 
+                    className="absolute h-3 rounded-full bg-[#00E599] opacity-40 pointer-events-none"
+                    style={{
+                      left: `${Math.max(0, (target - tol - min) / (max - min) * 100)}%`,
+                      right: `${Math.max(0, 100 - ((target + tol - min) / (max - min) * 100))}%`
+                    }}
+                  ></div>
+                )}
+                
                 {/* Range input visually hidden but functionally overlaid */}
                 <input 
                   type="range"
@@ -1109,17 +1148,17 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                   className="w-full absolute inset-0 opacity-0 cursor-pointer z-10"
                   onChange={(e) => {
                     if (!isPreviewMode) return;
-                    setInteractionState({ value: parseInt(e.target.value), status: null });
+                    setInteractionState({ ...interactionState, value: parseInt(e.target.value) });
                   }}
                   onMouseUp={() => {
                     if (!isPreviewMode) return;
                     const correct = Math.abs(val - target) <= tol;
-                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect', hasAttempted: true });
                   }}
                   onTouchEnd={() => {
                     if (!isPreviewMode) return;
                     const correct = Math.abs(val - target) <= tol;
-                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect', hasAttempted: true });
                   }}
                 />
                 
@@ -1136,6 +1175,16 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                 <span>{data.currency_symbol || '₹'}{min}{data.unit || ''}</span>
                 <span>{data.currency_symbol || '₹'}{max}{data.unit || ''}</span>
               </div>
+
+              {(sliderStatus === 'correct' || sliderStatus === 'incorrect') && (
+                <div className={`mt-2 w-full max-w-[250px] p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold text-left ${sliderStatus === 'correct' ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+                  <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
+                  {sliderStatus === 'correct' ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
+                </div>
+              )}
+              {sliderStatus === 'correct' && data.xp_reward && (
+                 <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
+              )}
             </div>
           </div>
         </div>
