@@ -1455,14 +1455,39 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Mascot Emotion':
+    case 'Mascot Character':
+      const fontForMascot = getFontFamily(data.font || 'Montserrat');
       const mascotSize = data.size || 'Medium';
       const sizeClasses = {
         'Small': 'w-24 h-24',
         'Medium': 'w-40 h-40',
         'Large': 'w-64 h-64'
       }[mascotSize] || 'w-40 h-40';
+      const showBubble = block.type === 'Mascot Character' ? (data.show_bubble !== 'Off') : false;
+
       return (
-        <div className={`w-full flex ${alignClass} py-4 px-6`}>
+        <div className={`w-full flex flex-col ${alignClass} py-4 px-6 items-center`}>
+          {showBubble && (
+            <div className="w-full relative flex justify-center mb-2">
+              <div 
+                className="w-[80%] p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex items-center justify-center relative z-10"
+                style={{
+                  backgroundColor: data.bubble_colour || '#FFFFFF',
+                  color: data.text_colour || '#18181B',
+                  fontFamily: fontForMascot,
+                  fontSize: `${data.font_size || 15}px`,
+                  fontWeight: data.font_style === 'Bold' ? '900' : 'bold',
+                  fontStyle: data.font_style === 'Italic' ? 'italic' : 'normal',
+                }}
+              >
+                {data.text || 'Mascot says...'}
+              </div>
+              <div 
+                className="absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0"
+                style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
+              ></div>
+            </div>
+          )}
            <div className={`${sizeClasses} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
              <img 
                src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean4`}

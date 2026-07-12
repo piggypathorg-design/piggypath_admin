@@ -121,19 +121,15 @@ export const plbSchema = {
   },
 
   // 3 Mascot
-  'Mascot Emotion': {
-    category: 'Mascot', icon: 'Smile',
+  'Mascot Character': {
+    category: 'Mascot', icon: 'MessageCircle',
     fields: [
       { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' },
       { name: 'size', label: 'Size', type: 'select', options: ['Small', 'Medium', 'Large'], default: 'Medium' },
-      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
-    ]
-  },
-  'Mascot Bubble': {
-    category: 'Mascot', icon: 'MessageCircle',
-    fields: [
-      { name: 'bubble_type', label: 'Bubble Type', type: 'select', options: ['Dialogue', 'Speech', 'Thought'], required: true, default: 'Dialogue' },
-      { name: 'text', label: 'Text', type: 'textarea', required: true, default: '' },
+      { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
+      { name: 'show_bubble', label: 'Show Dialogue Bubble', type: 'select', options: ['On', 'Off'], default: 'On' },
+      { name: 'bubble_type', label: 'Bubble Type', type: 'select', options: ['Dialogue', 'Speech', 'Thought'], default: 'Dialogue' },
+      { name: 'text', label: 'Text', type: 'textarea', default: 'Hello there!' },
       { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
       { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 15 },
       { name: 'font_style', label: 'Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Normal' },
