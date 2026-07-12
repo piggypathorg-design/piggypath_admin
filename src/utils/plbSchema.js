@@ -154,16 +154,7 @@ export const plbSchema = {
       { name: 'why_incorrect', label: 'Why it is incorrect', type: 'textarea', required: true, default: '' }
     ]
   },
-  'Multiple Select': {
-    category: 'Activity', icon: 'ListOrdered',
-    fields: [
-      { name: 'question', label: 'Question', type: 'textarea', required: true, default: '' },
-      { name: 'options', label: 'Options (comma separated)', type: 'textarea', required: true, default: '' },
-      { name: 'correct_options', label: 'Correct Options (comma separated)', type: 'textarea', required: true, default: '' },
-      { name: 'min_selections', label: 'Min Selections', type: 'number', default: 1 },
-      { name: 'max_selections', label: 'Max Selections', type: 'number', default: 4 }
-    ]
-  },
+
   'Drag & Drop': {
     category: 'Activity', icon: 'Move',
     fields: [
