@@ -91,6 +91,166 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
   );
 };
 
+const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+  const numPairs = parseInt(data.number_of_pairs || '3', 10);
+  
+  const [shuffledRightItems, setShuffledRightItems] = React.useState([]);
+  
+  React.useEffect(() => {
+    let rItems = [];
+    for (let i = 1; i <= numPairs; i++) {
+      rItems.push({ id: i, text: data[`pair_${i}_b`] || `Pair ${i} B` });
+    }
+    for (let i = rItems.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [rItems[i], rItems[j]] = [rItems[j], rItems[i]];
+    }
+    setShuffledRightItems(rItems);
+  }, [blockId, data, numPairs]);
+
+  const state = (interactionState && interactionState[blockId]) || {
+    leftSelected: null,
+    rightSelected: null,
+    matchedPairs: [],
+    errorLeft: null,
+    errorRight: null
+  };
+
+  const handleLeftClick = (id) => {
+    if (!isPreviewMode) return;
+    if (state.matchedPairs.includes(id)) return;
+    
+    setInteractionState({
+      ...interactionState,
+      [blockId]: {
+        ...state,
+        leftSelected: id,
+        errorLeft: null,
+        errorRight: null
+      }
+    });
+  };
+
+  const handleRightClick = (id) => {
+    if (!isPreviewMode) return;
+    if (state.matchedPairs.includes(id)) return;
+    if (!state.leftSelected) return;
+
+    const isMatch = state.leftSelected === id;
+    
+    if (isMatch) {
+      setInteractionState({
+        ...interactionState,
+        [blockId]: {
+          ...state,
+          leftSelected: null,
+          matchedPairs: [...state.matchedPairs, id]
+        }
+      });
+    } else {
+      const leftSelected = state.leftSelected;
+      setInteractionState({
+        ...interactionState,
+        [blockId]: {
+          ...state,
+          leftSelected: null,
+          errorLeft: leftSelected,
+          errorRight: id
+        }
+      });
+      setTimeout(() => {
+        setInteractionState(prev => {
+           const s = prev[blockId];
+           if (s && s.errorLeft === leftSelected) {
+             return {
+               ...prev,
+               [blockId]: { ...s, errorLeft: null, errorRight: null, leftSelected: null }
+             };
+           }
+           return prev;
+        });
+      }, 1000);
+    }
+  };
+
+  return (
+    <div className="w-full px-6 py-4 flex flex-col gap-6">
+      <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
+        <div className="flex items-start gap-3 mb-2">
+          <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
+            <Link className="text-[#18181B]" size={20} strokeWidth={3} />
+          </div>
+          <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Match the pairs!'}</p>
+        </div>
+        
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: numPairs }).map((_, i) => {
+            const id = i + 1;
+            const isMatched = state.matchedPairs.includes(id);
+            const isSelected = state.leftSelected === id;
+            const isError = state.errorLeft === id;
+            
+            let bgClass = "bg-[#F4F4F5] border-[#18181B] text-[#18181B]";
+            let animClass = "";
+            let matchedRightText = null;
+
+            if (isMatched) {
+              bgClass = "bg-[#00E599] border-[#18181B] text-[#18181B]";
+              matchedRightText = data[`pair_${id}_b`] || `Pair ${id} B`;
+            } else if (isError) {
+              bgClass = "bg-[#FF6B6B] border-[#FF6B6B] text-white";
+              animClass = "animate-mascot-shake";
+            } else if (isSelected) {
+              bgClass = "bg-[#FFD100] border-[#18181B] text-[#18181B]";
+            }
+
+            return (
+              <div key={id} className="flex gap-4 w-full">
+                <div 
+                  onClick={() => handleLeftClick(id)}
+                  className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center break-words transition-colors select-none ${isPreviewMode && !isMatched ? 'cursor-pointer hover:-translate-y-0.5' : ''} ${bgClass} ${animClass}`}
+                >
+                  {data[`pair_${id}_a`] || `Pair ${id} A`}
+                </div>
+                
+                <div className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center transition-colors select-none ${isMatched ? 'bg-[#00E599] border-[#18181B] text-[#18181B]' : 'bg-[#F4F4F5] border-[#18181B] border-dashed border-gray-400 text-gray-500'}`}>
+                  {isMatched ? matchedRightText : (state.leftSelected ? 'Tap below to match' : 'Tap left first')}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t-[2px] border-dashed border-gray-200 min-h-[60px]">
+           {shuffledRightItems.map((item) => {
+             const isMatched = state.matchedPairs.includes(item.id);
+             if (isMatched) return null;
+             
+             const isError = state.errorRight === item.id;
+             let bgClass = "bg-white border-[#18181B] text-[#18181B]";
+             let animClass = "";
+             
+             if (isError) {
+               bgClass = "bg-[#FF6B6B] border-[#FF6B6B] text-white";
+               animClass = "animate-mascot-shake";
+             }
+             
+             return (
+               <div 
+                 key={item.id} 
+                 onClick={() => handleRightClick(item.id)}
+                 className={`px-3 py-1.5 border-[2px] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold transition-all select-none ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5' : 'cursor-default'} ${bgClass} ${animClass}`}
+               >
+                  {item.text}
+               </div>
+             );
+           })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const getMascotAnimation = (opt) => {
   const map = {
     'Happy': 'animate-mascot-bounce',
@@ -589,51 +749,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         </div>
       );
     }
-    case 'Match Pairs': {
-      const numPairs = parseInt(data.number_of_pairs || '3', 10);
-      let rightItems = [];
-      for (let i = 1; i <= numPairs; i++) {
-        if (data[`pair_${i}_b`]) {
-          rightItems.push(data[`pair_${i}_b`]);
-        } else {
-          rightItems.push(`Pair ${i} B`);
-        }
-      }
-
-      return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
-            <div className="flex items-start gap-3 mb-2">
-              <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
-                <Link className="text-[#18181B]" size={20} strokeWidth={3} />
-              </div>
-              <p className="font-black text-lg text-[#18181B] leading-tight pt-1">{data.question || 'Match the pairs!'}</p>
-            </div>
-            
-            <div className="flex flex-col gap-3">
-              {Array.from({ length: numPairs }).map((_, i) => (
-                <div key={i} className="flex gap-4 w-full">
-                  <div className="flex-1 bg-[#F4F4F5] border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] text-center flex items-center justify-center break-words">
-                    {data[`pair_${i+1}_a`] || `Pair ${i+1} A`}
-                  </div>
-                  <div className="flex-1 bg-[#F4F4F5] border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] text-center flex items-center justify-center border-dashed border-[#8B5CF6]/50">
-                    Drop matching item here
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t-[2px] border-dashed border-gray-200">
-               {rightItems.map((item, i) => (
-                 <div key={i} className="px-3 py-1.5 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold cursor-pointer hover:-translate-y-0.5 transition-transform">
-                    {item}
-                 </div>
-               ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
+    case 'Match Pairs':
+      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
 
     case 'Table': {
       const headers = data.headers ? data.headers.split(',').map(s => s.trim()).filter(Boolean) : ['Col 1', 'Col 2'];
