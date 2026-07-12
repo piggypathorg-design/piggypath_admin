@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { plbSchema } from '../../utils/plbSchema';
@@ -11,7 +11,7 @@ import {
   Star, Coins, Award, Trophy, Percent, 
   ArrowRight, ArrowLeft, FastForward,
   Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus,
-  Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search
+  Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search, Copy, Undo2, Redo2
 } from 'lucide-react';
 import { getLesson, updateLesson } from '../../utils/api';
 import { supabase } from '../../utils/supabaseClient';
@@ -141,6 +141,79 @@ const PLBBuilder = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [previewDevice, setPreviewDevice] = useState('mobile'); // mobile | tablet | laptop
 
+  // History state
+  const historyRef = useRef([]);
+  const historyIndexRef = useRef(-1);
+  const [historyTick, setHistoryTick] = useState(0);
+
+  const pagesRef = useRef(pages);
+  const activePageIdRef = useRef(activePageId);
+  const selectedBlockIdRef = useRef(selectedBlockId);
+
+  useEffect(() => {
+    pagesRef.current = pages;
+    activePageIdRef.current = activePageId;
+    selectedBlockIdRef.current = selectedBlockId;
+  }, [pages, activePageId, selectedBlockId]);
+
+  const pushToHistory = useCallback((newPages) => {
+    if (historyIndexRef.current >= 0 && JSON.stringify(newPages) === JSON.stringify(historyRef.current[historyIndexRef.current])) {
+      return;
+    }
+    const newHistory = historyRef.current.slice(0, historyIndexRef.current + 1);
+    newHistory.push(JSON.parse(JSON.stringify(newPages)));
+    if (newHistory.length > 50) newHistory.shift();
+    historyRef.current = newHistory;
+    historyIndexRef.current = newHistory.length - 1;
+    setHistoryTick(t => t + 1);
+  }, []);
+
+  const handleUndo = useCallback(() => {
+    if (historyIndexRef.current > 0) {
+      historyIndexRef.current -= 1;
+      const previousPages = historyRef.current[historyIndexRef.current];
+      setPages(JSON.parse(JSON.stringify(previousPages)));
+      setIsSaving(true);
+      updateLesson(id, { components: previousPages, pagesCount: previousPages.length }, user.name || user.username || 'Someone').then(() => setIsSaving(false));
+      setHistoryTick(t => t + 1);
+    }
+  }, [id, user]);
+
+  const handleRedo = useCallback(() => {
+    if (historyIndexRef.current < historyRef.current.length - 1) {
+      historyIndexRef.current += 1;
+      const nextPages = historyRef.current[historyIndexRef.current];
+      setPages(JSON.parse(JSON.stringify(nextPages)));
+      setIsSaving(true);
+      updateLesson(id, { components: nextPages, pagesCount: nextPages.length }, user.name || user.username || 'Someone').then(() => setIsSaving(false));
+      setHistoryTick(t => t + 1);
+    }
+  }, [id, user]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        if (selectedBlockIdRef.current) {
+          duplicateBlock(selectedBlockIdRef.current);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
+
   useEffect(() => {
     const fetchLesson = async () => {
       setIsLoading(true);
@@ -168,6 +241,9 @@ const PLBBuilder = () => {
         }
       }
       setPages(initialPages);
+      historyRef.current = [JSON.parse(JSON.stringify(initialPages))];
+      historyIndexRef.current = 0;
+      setHistoryTick(t => t + 1);
       setActivePageId(initialPages[0]?.id || 'page_1');
       setIsLoading(false);
     };
@@ -211,8 +287,11 @@ const PLBBuilder = () => {
   const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
   const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
 
-  const saveLesson = async (currentPages) => {
+  const saveLesson = async (currentPages, bypassHistory = false) => {
     setIsSaving(true);
+    if (!bypassHistory) {
+      pushToHistory(currentPages);
+    }
     const newLessonData = await updateLesson(id, { 
       components: currentPages,
       pagesCount: currentPages.length
@@ -258,6 +337,37 @@ const PLBBuilder = () => {
     }
     setSelectedBlockId(null);
     saveLesson(newPages);
+  };
+
+  const duplicateBlock = (blockId) => {
+    const currentPages = pagesRef.current;
+    const currentActivePage = activePageIdRef.current;
+    
+    let clonedBlock = null;
+    const newPages = currentPages.map(page => {
+      if (page.id === currentActivePage) {
+        const blockIndex = page.blocks.findIndex(b => b.id === blockId);
+        if (blockIndex === -1) return page;
+        const blockToClone = page.blocks[blockIndex];
+        const newBlock = {
+          ...JSON.parse(JSON.stringify(blockToClone)),
+          id: `block_${Date.now()}`,
+          x: blockToClone.x + 20,
+          y: blockToClone.y + 20
+        };
+        clonedBlock = newBlock;
+        const newBlocks = [...page.blocks];
+        newBlocks.splice(blockIndex + 1, 0, newBlock);
+        return { ...page, blocks: newBlocks };
+      }
+      return page;
+    });
+    
+    if (clonedBlock) {
+      setPages(newPages);
+      setSelectedBlockId(clonedBlock.id);
+      saveLesson(newPages);
+    }
   };
 
   const updatePagesWithActiveBlocks = (blockMutator) => {
@@ -427,6 +537,26 @@ const PLBBuilder = () => {
             {isSaving ? <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-400 rounded-full animate-ping"></div> SAVING...</span> : <span className="flex items-center gap-2"><Check size={14} strokeWidth={3}/> SAVED</span>}
           </div>
           
+          {/* Undo / Redo Buttons */}
+          <div className="flex items-center gap-2 border-r-[2px] border-gray-200 pr-4">
+            <button 
+              onClick={handleUndo} 
+              disabled={historyIndexRef.current <= 0}
+              className="p-2 rounded-lg hover:bg-[#F4F4F5] transition-colors disabled:opacity-30 disabled:hover:bg-transparent text-[#18181B]"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 size={18} strokeWidth={2.5} />
+            </button>
+            <button 
+              onClick={handleRedo} 
+              disabled={historyIndexRef.current >= historyRef.current.length - 1}
+              className="p-2 rounded-lg hover:bg-[#F4F4F5] transition-colors disabled:opacity-30 disabled:hover:bg-transparent text-[#18181B]"
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo2 size={18} strokeWidth={2.5} />
+            </button>
+          </div>
+          
           <button 
             onClick={() => { setIsPreviewMode(!isPreviewMode); setSelectedBlockId(null); }}
             className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border-[2px] ${isPreviewMode ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B]' : 'bg-white text-[#18181B] border-[#18181B] shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B]'}`}
@@ -561,6 +691,7 @@ const PLBBuilder = () => {
                                   <div className="flex items-center gap-1">
                                      <button disabled={index === 0} onClick={(e) => { e.stopPropagation(); bringForward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowUp size={14}/></button>
                                      <button disabled={index === page.blocks.length - 1} onClick={(e) => { e.stopPropagation(); sendBackward(block.id); }} className="text-gray-400 hover:text-[#18181B] disabled:opacity-30"><ArrowDown size={14}/></button>
+                                     <button onClick={(e) => { e.stopPropagation(); duplicateBlock(block.id); }} className="text-gray-400 hover:text-[#00E599] ml-1" title="Duplicate (Ctrl+D)"><Copy size={14}/></button>
                                      <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }} className="text-gray-400 hover:text-[#FF6B6B] ml-1"><Trash2 size={14}/></button>
                                   </div>
                                 )}
@@ -658,6 +789,13 @@ const PLBBuilder = () => {
                     >
                       {!isPreviewMode && selectedBlockId === block.id && (
                         <div className="absolute -top-8 right-0 flex gap-1 z-50">
+                          <button 
+                            onPointerDown={(e) => { e.stopPropagation(); duplicateBlock(block.id); }} 
+                            className="bg-white text-[#18181B] border-2 border-[#18181B] p-1.5 rounded-md shadow-md hover:bg-gray-100 transition-colors pointer-events-auto"
+                            title="Duplicate (Ctrl+D)"
+                          >
+                            <Copy size={12} strokeWidth={3} />
+                          </button>
                           <button 
                             onPointerDown={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
                             className="bg-red-500 text-[#18181B] p-1.5 rounded-md shadow-md hover:bg-red-600 transition-colors pointer-events-auto"
