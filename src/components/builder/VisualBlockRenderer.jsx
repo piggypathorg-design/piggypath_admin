@@ -100,23 +100,28 @@ const AudioBlock = ({ data, isPreviewMode }) => {
   );
 };
 
-const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
-  const [shuffledOptions, setShuffledOptions] = React.useState([]);
+const useShuffledOptions = (blockId, optionsArray) => {
+  const [shuffled, setShuffled] = React.useState([]);
   
   React.useEffect(() => {
-    const options = [
-      { key: 'A', text: data.quiz_option_a },
-      { key: 'B', text: data.quiz_option_b },
-      { key: 'C', text: data.quiz_option_c },
-      { key: 'D', text: data.quiz_option_d }
-    ].filter(o => o.text);
-    
-    for (let i = options.length - 1; i > 0; i--) {
+    const valid = [...optionsArray].filter(o => o.text);
+    for (let i = valid.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], options[i]];
+      [valid[i], valid[j]] = [valid[j], valid[i]];
     }
-    setShuffledOptions(options);
-  }, [blockId, data.quiz_option_a, data.quiz_option_b, data.quiz_option_c, data.quiz_option_d]);
+    setShuffled(valid);
+  }, [blockId, ...optionsArray.map(o => o.text)]);
+  
+  return shuffled;
+};
+
+const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+  const shuffledOptions = useShuffledOptions(blockId, [
+    { key: 'A', text: data.quiz_option_a },
+    { key: 'B', text: data.quiz_option_b },
+    { key: 'C', text: data.quiz_option_c },
+    { key: 'D', text: data.quiz_option_d }
+  ]);
 
   const correctOptKey = data.quiz_correct_option || 'A';
   const selectedKey = interactionState?.chartQuizSelectedKey;
@@ -982,35 +987,65 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return (
         <div className="w-full px-6 py-4 flex flex-col gap-4">
            {data.question && <p className="font-black text-center text-sm mb-2">{data.question}</p>}
-           <div className="w-full bg-white border-[3px] border-[#18181B] rounded-xl p-4 shadow-[4px_4px_0_#18181B] min-h-[100px] flex items-start text-gray-400 font-bold text-sm">
-              Type your thoughts here...
-           </div>
-           {data.model_answer && (
-             <div className="mt-4 p-4 rounded-xl border-[2px] border-dashed border-[#00E599] bg-[#00E599]/10">
+           
+           <textarea 
+             className="w-full bg-white border-[3px] border-[#18181B] rounded-xl p-4 shadow-[4px_4px_0_#18181B] min-h-[100px] text-[#18181B] font-bold text-sm outline-none resize-none focus:ring-2 focus:ring-[#8B5CF6]"
+             placeholder="Type your thoughts here..."
+             value={interactionState?.reflectionText || ''}
+             disabled={!isPreviewMode || interactionState?.revealedAnswer}
+             onChange={(e) => {
+               if (!isPreviewMode) return;
+               setInteractionState({ ...interactionState, reflectionText: e.target.value });
+             }}
+           />
+
+           {interactionState?.reflectionText?.trim().length > 0 && !interactionState?.revealedAnswer && (
+             <button
+               onClick={() => {
+                 if (!isPreviewMode) return;
+                 setInteractionState({ ...interactionState, revealedAnswer: true });
+               }}
+               className="mx-auto px-6 py-2 bg-[#8B5CF6] text-white font-black text-sm rounded-xl border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] transition-all"
+             >
+               Reveal model answer
+             </button>
+           )}
+
+           {interactionState?.revealedAnswer && data.model_answer && (
+             <div className="mt-2 p-4 rounded-xl border-[2px] border-dashed border-[#00E599] bg-[#00E599]/10">
                 <span className="text-xs font-bold text-[#00E599] uppercase tracking-wider block mb-1">Model Answer</span>
                 <p className="text-sm font-bold text-[#18181B]">{data.model_answer}</p>
              </div>
+           )}
+           {interactionState?.revealedAnswer && data.xp_reward && (
+             <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
            )}
         </div>
       );
     }
 
-    case 'MCQ':
-      const correctOptIndex = ['A', 'B', 'C', 'D'].indexOf(data.correct_option || 'A');
-      const hasSelection = interactionState?.selectedIndex !== undefined;
-      const isCorrectSelection = hasSelection && interactionState?.selectedIndex === correctOptIndex;
+    case 'MCQ': {
+      const mcqShuffled = useShuffledOptions(blockId, [
+        { key: 'A', text: data.option_a },
+        { key: 'B', text: data.option_b },
+        { key: 'C', text: data.option_c },
+        { key: 'D', text: data.option_d }
+      ]);
+      const correctOptKey = data.correct_option || 'A';
+      const hasSelection = interactionState?.selectedKey !== undefined;
+      const isCorrectSelection = hasSelection && interactionState?.selectedKey === correctOptKey;
       
       return (
         <div className="w-full px-6 py-2">
           <div className="w-full flex flex-col gap-3">
             <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
             
-            {[data.option_a || 'Option A', data.option_b || 'Option B', data.option_c, data.option_d].filter(Boolean).map((opt, i) => {
-              const isSelected = interactionState?.selectedIndex === i;
+            {mcqShuffled.map((opt) => {
+              const isSelected = interactionState?.selectedKey === opt.key;
               let bgClass = "bg-white text-[#18181B]";
               let animClass = "";
               if (isSelected) {
-                if (i === correctOptIndex) {
+                if (opt.key === correctOptKey) {
                   bgClass = "bg-[#00E599] text-[#18181B]";
                   animClass = "animate-mascot-bounce";
                 } else {
@@ -1020,13 +1055,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
               }
               return (
                 <div 
-                  key={i} 
+                  key={opt.key} 
                   onClick={() => {
-                    if (isPreviewMode) setInteractionState({ selectedIndex: i });
+                    if (isPreviewMode && !hasSelection) setInteractionState({ selectedKey: opt.key });
                   }}
-                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
+                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode && !hasSelection ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
                 >
-                  {opt}
+                  {opt.text}
                 </div>
               );
             })}
@@ -1034,12 +1069,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             {hasSelection && (
               <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
                 <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-                {data.explanation || (isCorrectSelection ? 'That is correct!' : 'That is incorrect, please try again.')}
+                {isCorrectSelection ? (data.why_correct || 'That is correct!') : (data.why_incorrect || 'That is incorrect, please try again.')}
               </div>
             )}
           </div>
         </div>
       );
+    }
 
     case 'Fill in the Blank':
       const parts = (data.question || 'Fill in the blank ___').split('___');
@@ -1095,6 +1131,16 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             </div>
             {data.hint && (
               <p className="text-sm font-bold text-gray-400 mt-2">Hint: {data.hint}</p>
+            )}
+
+            {(isFillCorrect || isFillIncorrect) && (
+              <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isFillCorrect ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+                <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
+                {isFillCorrect ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
+              </div>
+            )}
+            {isFillCorrect && data.xp_reward && (
+               <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
             )}
           </div>
         </div>
@@ -1283,23 +1329,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
           
           <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
              {slices.map((slice, i) => {
-                const isSelected = interactionState?.pieSelectedAnswer === slice.id;
-                const isCorrect = slice.id === correctAnswer;
+                const bgColor = slice.color;
+                const textColor = '#18181B';
                 
-                let bgColor = slice.color;
-                let textColor = '#18181B';
-                
-                if (isPreviewMode && isSelected) {
-                  bgColor = isCorrect ? '#00E599' : '#FF6B6B';
-                }
-
                 return (
                   <div 
                     key={i} 
-                    onClick={() => {
-                      if (isPreviewMode) setInteractionState({ ...interactionState, pieSelectedAnswer: slice.id });
-                    }}
-                    className={`px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[5px_5px_0_#18181B] active:translate-y-1 active:shadow-none' : ''}`} 
+                    className="px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all cursor-default" 
                     style={{ backgroundColor: bgColor, color: textColor }}
                   >
                       <div className="flex flex-col items-center">
