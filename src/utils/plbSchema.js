@@ -402,12 +402,19 @@ export const plbSchema = {
   Table: {
     category: 'Visualisation', icon: 'Table',
     fields: [
+      { name: 'number_of_columns', label: 'Number of Columns', type: 'select', options: ['1','2','3','4','5','6'], default: '2' },
+      { name: 'number_of_rows', label: 'Number of Rows', type: 'select', options: ['1','2','3','4','5','6','7','8','9','10'], default: '2' },
       { name: 'headers', label: 'Headers (comma-sep)', type: 'text', required: true, default: '' },
       { name: 'row_1', label: 'Row 1 (comma-sep)', type: 'text', required: true, default: '' },
       { name: 'row_2', label: 'Row 2 (comma-sep)', type: 'text', default: '' },
       { name: 'row_3', label: 'Row 3 (comma-sep)', type: 'text', default: '' },
       { name: 'row_4', label: 'Row 4 (comma-sep)', type: 'text', default: '' },
       { name: 'row_5', label: 'Row 5 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_6', label: 'Row 6 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_7', label: 'Row 7 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_8', label: 'Row 8 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_9', label: 'Row 9 (comma-sep)', type: 'text', default: '' },
+      { name: 'row_10', label: 'Row 10 (comma-sep)', type: 'text', default: '' },
       { name: 'header_bg', label: 'Header BG Color', type: 'color', default: '#1E293B' },
       { name: 'header_text_colour', label: 'Header Text Color', type: 'color', default: '#FFFFFF' },
       { name: 'alternate_rows', label: 'Alternate Rows', type: 'select', options: ['On', 'Off'], default: 'On' }

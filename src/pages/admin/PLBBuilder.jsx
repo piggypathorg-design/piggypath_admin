@@ -981,6 +981,13 @@ const PLBBuilder = () => {
                         if (idx > numPoints) return null;
                       }
                       
+                      // Dynamic Table Logic
+                      if (selectedBlock.type === 'Table' && field.name.startsWith('row_')) {
+                        const idx = parseInt(field.name.split('_')[1], 10);
+                        const numRows = parseInt(selectedBlock[version]['number_of_rows'] || '2', 10);
+                        if (idx > numRows) return null;
+                      }
+                      
                       // Special handling for the Mascot grid selector
                       if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion' || selectedBlock.type === 'Mascot Platform') && field.name === 'mascot_type') {
                         return (

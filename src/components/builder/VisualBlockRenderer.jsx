@@ -1151,12 +1151,21 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
 
     case 'Table': {
-      const headers = data.headers ? data.headers.split(',').map(s => s.trim()).filter(Boolean) : ['Col 1', 'Col 2'];
+      const numCols = parseInt(data.number_of_columns || '2', 10);
+      const numRows = parseInt(data.number_of_rows || '2', 10);
+      
+      const rawHeaders = data.headers ? data.headers.split(',').map(s => s.trim()).filter(Boolean) : ['Col 1', 'Col 2'];
+      const headers = rawHeaders.slice(0, numCols);
+      while(headers.length < numCols) headers.push(`Col ${headers.length + 1}`);
+
       const rows = [];
-      ['row_1', 'row_2', 'row_3', 'row_4', 'row_5'].forEach(r => {
-        if (data[r]) rows.push(data[r].split(',').map(s => s.trim()));
-      });
-      if (rows.length === 0) rows.push(['Val 1', 'Val 2'], ['Val 3', 'Val 4']);
+      for (let i = 1; i <= numRows; i++) {
+        const rowKey = `row_${i}`;
+        const rawRow = data[rowKey] ? data[rowKey].split(',').map(s => s.trim()) : [];
+        const finalRow = rawRow.slice(0, numCols);
+        while(finalRow.length < numCols) finalRow.push('');
+        rows.push(finalRow);
+      }
       
       const headerBg = data.header_bg || '#1E293B';
       const headerText = data.header_text_colour || '#FFFFFF';
