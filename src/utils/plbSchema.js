@@ -71,7 +71,7 @@ export const plbSchema = {
   'Image': {
     category: 'Media', icon: 'ImageIcon',
     fields: [
-      { name: 'source', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'source', label: 'Image URL', type: 'media', required: true, default: '' },
       { name: 'object_fit', label: 'Image Fit', type: 'select', options: ['Fill (Cover)', 'Fit (Contain)', 'Original Size'], default: 'Fill (Cover)' },
       { name: 'image_scale', label: 'Zoom Scale (%)', type: 'number', default: 100 },
       { name: 'image_x', label: 'Pan X (%)', type: 'number', default: 50 },
@@ -86,7 +86,7 @@ export const plbSchema = {
   Video: {
     category: 'Media', icon: 'Video',
     fields: [
-      { name: 'source', label: 'Video URL', type: 'text', required: true, default: '' },
+      { name: 'source', label: 'Video URL', type: 'media', required: true, default: '' },
       { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
       { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
@@ -98,7 +98,7 @@ export const plbSchema = {
   Animation: {
     category: 'Media', icon: 'Film',
     fields: [
-      { name: 'source', label: 'Animation URL', type: 'text', required: true, default: '' },
+      { name: 'source', label: 'Animation URL', type: 'media', required: true, default: '' },
       { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
       { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
@@ -110,7 +110,7 @@ export const plbSchema = {
   Audio: {
     category: 'Media', icon: 'Volume2',
     fields: [
-      { name: 'source', label: 'Audio URL', type: 'text', required: true, default: '' },
+      { name: 'source', label: 'Audio URL', type: 'media', required: true, default: '' },
       { name: 'visibility', label: 'Volume level', type: 'number', default: 100 },
       { name: 'autoplay', label: 'Autoplay', type: 'select', options: ['On', 'Off'], default: 'Off' },
       { name: 'loop', label: 'Loop', type: 'select', options: ['On', 'Off'], default: 'Off' },
@@ -250,7 +250,7 @@ export const plbSchema = {
   Hotspot: {
     category: 'Activity', icon: 'MousePointer2',
     fields: [
-      { name: 'image', label: 'Image URL', type: 'text', required: true, default: '' },
+      { name: 'image', label: 'Image URL', type: 'media', required: true, default: '' },
       { name: 'question', label: 'Question', type: 'text', required: true, default: '' },
       { name: 'hotspot_size', label: 'Hotspot Size (0-5)', type: 'number', required: true, default: 2 },
       { name: 'hotspot_x', label: 'Hotspot X (%)', type: 'number', required: true, default: 50 },
@@ -448,7 +448,7 @@ export const plbSchema = {
   Badge: {
     category: 'Feedback', icon: 'Award',
     fields: [
-      { name: 'image', label: 'Badge Image URL', type: 'text', required: true, default: '' },
+      { name: 'image', label: 'Badge Image URL', type: 'media', required: true, default: '' },
       { name: 'badge_name', label: 'Badge Name', type: 'text', required: true, default: '' },
       { name: 'label', label: 'Label', type: 'text', default: '' }
     ]

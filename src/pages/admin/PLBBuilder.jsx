@@ -26,6 +26,101 @@ const iconMap = {
   'ArrowRight': ArrowRight, 'ArrowLeft': ArrowLeft, 'FastForward': FastForward
 };
 
+const MediaUploadField = ({ value, onChange, label, required }) => {
+  const [mode, setMode] = React.useState('url');
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState('');
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError('');
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('media')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      onChange(publicUrlData.publicUrl);
+    } catch (err) {
+      console.error('Error uploading file:', err);
+      setUploadError(err.message || 'Failed to upload file.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className="flex bg-[#F4F4F5] rounded-md p-1 border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B]">
+          <button 
+            type="button"
+            onClick={() => setMode('url')}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded transition-all ${mode === 'url' ? 'bg-[#00E599] text-black border-[2px] border-[#18181B]' : 'text-gray-500 border-[2px] border-transparent hover:text-black'}`}
+          >
+            URL
+          </button>
+          <button 
+            type="button"
+            onClick={() => setMode('upload')}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded transition-all ${mode === 'upload' ? 'bg-[#00E599] text-black border-[2px] border-[#18181B]' : 'text-gray-500 border-[2px] border-transparent hover:text-black'}`}
+          >
+            UPLOAD
+          </button>
+        </div>
+      </div>
+      
+      {mode === 'url' ? (
+        <input 
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://..."
+          className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all"
+        />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {value && mode === 'upload' && (
+            <div className="text-[10px] font-bold text-[#18181B] bg-gray-100 p-2 rounded border-[2px] border-gray-300 truncate max-w-full">
+              Current: {value}
+            </div>
+          )}
+          <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-[#18181B] border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors shadow-[2px_2px_0_#18181B]">
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              {isUploading ? (
+                <div className="w-6 h-6 border-4 border-[#00E599] border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <Upload size={20} className="mb-2 text-[#18181B]" />
+                  <p className="text-xs font-bold text-gray-500">Click to upload file</p>
+                </>
+              )}
+            </div>
+            <input type="file" className="hidden" onChange={handleFileUpload} disabled={isUploading} accept="image/*,video/*,audio/*,.gif" />
+          </label>
+          {uploadError && <p className="text-xs text-red-500 font-bold">{uploadError}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PLBBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -745,6 +840,13 @@ const PLBBuilder = () => {
                               </select>
                               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
+                          ) : field.type === 'media' ? (
+                            <MediaUploadField
+                              value={value}
+                              onChange={(newVal) => updateBlockData(selectedBlock.id, field.name, newVal)}
+                              label={field.label}
+                              required={field.required}
+                            />
                           ) : null}
                         </div>
                       );
