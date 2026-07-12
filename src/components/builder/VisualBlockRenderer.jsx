@@ -267,6 +267,20 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         </div>
       );
 
+    case 'Audio':
+      return (
+        <div className={`w-full flex flex-col items-center justify-center py-4 px-6 gap-2`}>
+           <div className="w-16 h-16 bg-[#00E599] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] mb-2">
+              <Volume2 size={32} className="text-[#18181B]" />
+           </div>
+           {data.source ? (
+             <audio src={data.source} controls className="w-full max-w-[250px]" autoPlay={data.autoplay === 'On'} loop={data.loop === 'On'} />
+           ) : (
+             <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Audio Source</span>
+           )}
+        </div>
+      );
+
     case 'Mascot Feedback':
       const mascotType = data.mascot_type || 'Happy';
       return (
@@ -308,6 +322,23 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
           ></div>
         </div>
       );
+
+    case 'Reflection': {
+      return (
+        <div className="w-full px-6 py-4 flex flex-col gap-4">
+           {data.question && <p className="font-black text-center text-sm mb-2">{data.question}</p>}
+           <div className="w-full bg-white border-[3px] border-[#18181B] rounded-xl p-4 shadow-[4px_4px_0_#18181B] min-h-[100px] flex items-start text-gray-400 font-bold text-sm">
+              Type your thoughts here...
+           </div>
+           {data.model_answer && (
+             <div className="mt-4 p-4 rounded-xl border-[2px] border-dashed border-[#00E599] bg-[#00E599]/10">
+                <span className="text-xs font-bold text-[#00E599] uppercase tracking-wider block mb-1">Model Answer</span>
+                <p className="text-sm font-bold text-[#18181B]">{data.model_answer}</p>
+             </div>
+           )}
+        </div>
+      );
+    }
 
     case 'MCQ':
       const correctOptIndex = ['A', 'B', 'C', 'D'].indexOf(data.correct_option || 'A');
@@ -483,26 +514,35 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         </div>
       );
 
-    case 'Drag & Drop':
-    case 'Arrange':
-    case 'Hotspot':
+    case 'Drag & Drop': {
+      const buckets = [];
+      if (data.bucket_1_name) buckets.push(data.bucket_1_name);
+      if (data.bucket_2_name) buckets.push(data.bucket_2_name);
+      if (data.bucket_3_name) buckets.push(data.bucket_3_name);
+      if (buckets.length === 0) buckets.push('Needs', 'Wants');
+
+      let allItems = [];
+      ['bucket_1_items', 'bucket_2_items', 'bucket_3_items'].forEach(k => {
+        if (data[k]) {
+          allItems = allItems.concat(data[k].split(',').map(s => s.trim()).filter(Boolean));
+        }
+      });
+      if (allItems.length === 0) allItems = ['Water', 'Medicine', 'New Phone', 'Ice Cream'];
+      
       return (
         <div className="w-full px-6 py-4 flex flex-col gap-6">
-           <div className="flex gap-4 w-full">
-              {/* Box 1 */}
-              <div className="flex-1 flex flex-col items-center">
-                 <div className="text-xs font-bold mb-2">{data.bucket_1 || 'Needs'}</div>
-                 <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
-              </div>
-              {/* Box 2 */}
-              <div className="flex-1 flex flex-col items-center">
-                 <div className="text-xs font-bold mb-2">{data.bucket_2 || 'Wants'}</div>
-                 <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
-              </div>
+           {data.question && <p className="font-black text-center text-sm mb-2">{data.question}</p>}
+           <div className="flex gap-4 w-full justify-center">
+              {buckets.map((b, i) => (
+                <div key={i} className="flex-1 max-w-[150px] flex flex-col items-center">
+                   <div className="text-xs font-bold mb-2 text-center break-words w-full">{b}</div>
+                   <div className="w-full aspect-square bg-white border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-lg"></div>
+                </div>
+              ))}
            </div>
            
            <div className="flex flex-wrap justify-center gap-3">
-              {['Water', 'Medicine', 'New Phone', 'Ice Cream'].map((pill, i) => (
+              {allItems.map((pill, i) => (
                  <div key={i} className="px-3 py-1.5 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-full text-xs font-bold cursor-pointer hover:-translate-y-0.5 transition-transform">
                     {pill}
                  </div>
@@ -510,9 +550,56 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
            </div>
         </div>
       );
-
-    case 'Match Pairs':
+    }
+    case 'Arrange': {
+      let items = data.items ? data.items.split(',').map(s => s.trim()).filter(Boolean) : ['Item 1', 'Item 2', 'Item 3'];
+      return (
+        <div className="w-full px-6 py-4 flex flex-col gap-4">
+           {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
+           <div className="flex flex-col gap-2 w-full">
+              {items.map((item, i) => (
+                 <div key={i} className="flex items-center gap-3 bg-white border-[3px] border-[#18181B] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-[#18181B] cursor-pointer">
+                    <GripVertical size={20} className="text-gray-400" />
+                    <span>{item}</span>
+                 </div>
+              ))}
+           </div>
+        </div>
+      );
+    }
+    case 'Hotspot': {
+      return (
+        <div className="w-full px-6 py-4 flex flex-col gap-4 items-center">
+           {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
+           <div className="relative w-full max-w-sm aspect-square bg-gray-100 border-[3px] border-[#18181B] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B]">
+              {data.image ? (
+                <img src={data.image} alt="Hotspot area" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold uppercase text-xs tracking-wider">No Image</div>
+              )}
+              {isPreviewMode && (
+                <div 
+                  className="absolute w-8 h-8 -ml-4 -mt-4 border-2 border-red-500 rounded-full bg-red-500/30 flex items-center justify-center animate-pulse"
+                  style={{ left: `${data.hotspot_x || 50}%`, top: `${data.hotspot_y || 50}%` }}
+                >
+                  <div className="w-1 h-1 bg-red-500 rounded-full" />
+                </div>
+              )}
+           </div>
+        </div>
+      );
+    }
+    case 'Match Pairs': {
       const numPairs = parseInt(data.number_of_pairs || '3', 10);
+      let rightItems = [];
+      for (let i = 1; i <= numPairs; i++) {
+        if (data[`pair_${i}_b`]) {
+          rightItems.push(data[`pair_${i}_b`]);
+        } else {
+          rightItems.push(`Pair ${i} B`);
+        }
+      }
+
       return (
         <div className="w-full px-6 py-4">
           <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
@@ -535,9 +622,55 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                 </div>
               ))}
             </div>
+            
+            <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t-[2px] border-dashed border-gray-200">
+               {rightItems.map((item, i) => (
+                 <div key={i} className="px-3 py-1.5 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold cursor-pointer hover:-translate-y-0.5 transition-transform">
+                    {item}
+                 </div>
+               ))}
+            </div>
           </div>
         </div>
       );
+    }
+
+    case 'Table': {
+      const headers = data.headers ? data.headers.split(',').map(s => s.trim()).filter(Boolean) : ['Col 1', 'Col 2'];
+      const rows = [];
+      ['row_1', 'row_2', 'row_3', 'row_4', 'row_5'].forEach(r => {
+        if (data[r]) rows.push(data[r].split(',').map(s => s.trim()));
+      });
+      if (rows.length === 0) rows.push(['Val 1', 'Val 2'], ['Val 3', 'Val 4']);
+      
+      const headerBg = data.header_bg || '#1E293B';
+      const headerText = data.header_text_colour || '#FFFFFF';
+      
+      return (
+        <div className="w-full px-6 py-4 flex flex-col items-center overflow-hidden">
+           <div className="w-full border-[3px] border-[#18181B] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] bg-white">
+              <table className="w-full text-sm font-bold text-left">
+                 <thead style={{ backgroundColor: headerBg, color: headerText }} className="border-b-[3px] border-[#18181B]">
+                    <tr>
+                       {headers.map((h, i) => (
+                         <th key={i} className="p-3 border-r-[3px] border-[#18181B] last:border-r-0">{h}</th>
+                       ))}
+                    </tr>
+                 </thead>
+                 <tbody>
+                    {rows.map((row, i) => (
+                      <tr key={i} className={`border-b-[3px] border-[#18181B] last:border-b-0 ${data.alternate_rows !== 'Off' && i % 2 === 1 ? 'bg-[#F4F4F5]' : 'bg-white'}`}>
+                         {row.map((cell, j) => (
+                           <td key={j} className="p-3 border-r-[3px] border-[#18181B] last:border-r-0 text-[#18181B]">{cell}</td>
+                         ))}
+                      </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
+        </div>
+      );
+    }
 
     case 'Pie Chart':
       const slices = [];
