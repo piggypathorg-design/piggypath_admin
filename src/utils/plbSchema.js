@@ -232,7 +232,7 @@ export const plbSchema = {
   'Fill in the Blank': {
     category: 'Activity', icon: 'Edit3',
     fields: [
-      { name: 'question', label: 'Question (use ___ for blank)', type: 'text', required: true, default: 'A ___ fund should cover 3 to 6 months of essential expenses.' },
+      { name: 'question', label: 'Question (use ___ for a SINGLE blank)', type: 'text', required: true, default: 'A ___ fund should cover 3 to 6 months of essential expenses.' },
       { name: 'answer', label: 'Answer', type: 'text', required: true, default: 'emergency' },
       { name: 'hint', label: 'Hint', type: 'text', default: 'Starts with \'e\' — it\'s the fund you dip into only when something goes wrong.' },
       { name: 'why_correct', label: 'Why correct', type: 'textarea', required: true, default: 'Exactly — an emergency fund is your safety net for the unexpected.' },

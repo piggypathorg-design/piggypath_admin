@@ -36,3 +36,14 @@ ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow anonymous read/write" ON public.users FOR ALL USING (true);
 CREATE POLICY "Allow anonymous read/write" ON public.lessons FOR ALL USING (true);
 CREATE POLICY "Allow anonymous read/write" ON public.activities FOR ALL USING (true);
+
+-- 4. Create the media storage bucket (set to public)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('media', 'media', true) 
+ON CONFLICT (id) DO NOTHING;
+
+-- Set up storage policies to allow anonymous uploads and reads
+CREATE POLICY "Allow anonymous read" ON storage.objects FOR SELECT USING (bucket_id = 'media');
+CREATE POLICY "Allow anonymous insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'media');
+CREATE POLICY "Allow anonymous update" ON storage.objects FOR UPDATE USING (bucket_id = 'media');
+CREATE POLICY "Allow anonymous delete" ON storage.objects FOR DELETE USING (bucket_id = 'media');

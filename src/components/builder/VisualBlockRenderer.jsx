@@ -1078,7 +1078,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     }
 
     case 'Fill in the Blank':
-      const parts = (data.question || 'Fill in the blank ___').split('___');
+      const parts = (data.question || 'A ___ fund should cover 3 to 6 months of essential expenses.').split(/_{2,}/);
       const isFillCorrect = interactionState?.status === 'correct';
       const isFillIncorrect = interactionState?.status === 'incorrect';
       
@@ -1349,9 +1349,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                     </div>
                 );
              })}
-             <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
-
           </div>
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
         </div>
       );
 
@@ -1394,9 +1393,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                    )}
                 </div>
              ))}
-             <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
-
           </div>
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
         </div>
       );
 
@@ -1462,7 +1460,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                 ))}
              </div>
           </div>
-          {data.type === 'Clickable' && <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />}
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
         </div>
       );
     }
