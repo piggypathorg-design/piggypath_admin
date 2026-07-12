@@ -72,7 +72,7 @@ export const plbSchema = {
     category: 'Media', icon: 'ImageIcon',
     fields: [
       { name: 'source', label: 'Image URL', type: 'media', required: true, default: '' },
-      { name: 'object_fit', label: 'Image Fit', type: 'select', options: ['Fill (Cover)', 'Fit (Contain)', 'Original Size'], default: 'Fill (Cover)' },
+      { name: 'object_fit', label: 'Image Fit', type: 'select', options: ['Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span'], default: 'Fill' },
       { name: 'image_scale', label: 'Zoom Scale (%)', type: 'number', default: 100 },
       { name: 'image_x', label: 'Pan X (%)', type: 'number', default: 50 },
       { name: 'image_y', label: 'Pan Y (%)', type: 'number', default: 50 },
@@ -87,7 +87,7 @@ export const plbSchema = {
     category: 'Media', icon: 'Video',
     fields: [
       { name: 'source', label: 'Video URL', type: 'media', required: true, default: '' },
-      { name: 'object_fit', label: 'Video Fit', type: 'select', options: ['Fill (Cover)', 'Fit (Contain)', 'Original Size'], default: 'Fill (Cover)' },
+      { name: 'object_fit', label: 'Video Fit', type: 'select', options: ['Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span'], default: 'Fill' },
       { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
       { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },
@@ -100,7 +100,7 @@ export const plbSchema = {
     category: 'Media', icon: 'Film',
     fields: [
       { name: 'source', label: 'Animation URL', type: 'media', required: true, default: '' },
-      { name: 'object_fit', label: 'Video Fit', type: 'select', options: ['Fill (Cover)', 'Fit (Contain)', 'Original Size'], default: 'Fill (Cover)' },
+      { name: 'object_fit', label: 'Video Fit', type: 'select', options: ['Fill', 'Fit', 'Stretch', 'Tile', 'Center', 'Span'], default: 'Fill' },
       { name: 'frame_roundness', label: 'Corner Roundness (px)', type: 'number', default: 0 },
       { name: 'alignment', label: 'Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' },
       { name: 'frame_shape', label: 'Frame Shape', type: 'select', options: ['Rectangle', 'Square', 'Circle'], default: 'Rectangle' },

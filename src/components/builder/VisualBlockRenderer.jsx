@@ -39,7 +39,19 @@ const getMascotBackgroundPosition = (opt) => {
     'Sleeping': '100% 100%'
   };
 
-  return map[opt] || '0% 0%';
+  return map[opt] || map['Happy'];
+};
+
+const getObjectFit = (fit) => {
+  switch (fit) {
+    case 'Fit': return 'contain';
+    case 'Stretch': return 'fill';
+    case 'Tile': return 'none';
+    case 'Center': return 'none';
+    case 'Span': return 'cover';
+    case 'Fill':
+    default: return 'cover';
+  }
 };
 
 const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
@@ -795,7 +807,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   alt={data.alt_text} 
                   className="w-full h-full"
                   style={{
-                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover',
+                    objectFit: getObjectFit(data.object_fit),
                     objectPosition: `${data.image_x ?? 50}% ${data.image_y ?? 50}%`,
                     transform: `scale(${(data.image_scale ?? 100) / 100})`
                   }}
@@ -805,7 +817,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   src={data.source.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
                   className="w-full h-full"
                   style={{
-                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover'
+                    objectFit: getObjectFit(data.object_fit)
                   }}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -815,7 +827,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                   src={data.source} 
                   className="w-full h-full z-10 relative pointer-events-auto" 
                   style={{
-                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover'
+                    objectFit: getObjectFit(data.object_fit)
                   }}
                   autoPlay={data.autoplay === 'On'} 
                   loop={data.loop === 'On'}
