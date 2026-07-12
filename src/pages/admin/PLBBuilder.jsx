@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { plbSchema } from '../../utils/plbSchema';
+import { starterTemplates } from '../../utils/starterTemplates';
 import VisualBlockRenderer from '../../components/builder/VisualBlockRenderer';
 import { 
   Type, AlignLeft, FileText, Minus, Maximize2, Square, 
@@ -370,6 +371,66 @@ const PLBBuilder = () => {
     }
   };
 
+  const applyTemplate = (template) => {
+    const currentPages = pagesRef.current;
+    const currentActivePage = activePageIdRef.current;
+    
+    let currentY = 20;
+    
+    // Find the max Y of existing blocks on this page to start below them
+    const page = currentPages.find(p => p.id === currentActivePage);
+    if (page && page.blocks && page.blocks.length > 0) {
+      const maxY = Math.max(...page.blocks.map(b => (b.y || b.teen?.y || 20) + (b.height || b.teen?.height || 100)));
+      if (!isNaN(maxY)) currentY = maxY + 40;
+    }
+
+    const newBlocks = template.blocks.map((b, idx) => {
+      const type = b.type;
+      const schema = plbSchema[type];
+      const newBlock = {
+        id: `block_${Date.now()}_${idx}`,
+        type: type,
+        teen: {},
+        adult: {}
+      };
+      
+      schema.fields.forEach(field => {
+        newBlock.teen[field.name] = field.default;
+        newBlock.adult[field.name] = field.default;
+      });
+      
+      newBlock.teen.x = 20;
+      newBlock.teen.y = currentY;
+      newBlock.teen.width = 300;
+      newBlock.teen.height = 'auto';
+      
+      newBlock.adult.x = 20;
+      newBlock.adult.y = currentY;
+      newBlock.adult.width = 300;
+      newBlock.adult.height = 'auto';
+
+      if (b.overrides) {
+        Object.keys(b.overrides).forEach(key => {
+          newBlock.teen[key] = b.overrides[key];
+          newBlock.adult[key] = b.overrides[key];
+        });
+      }
+      
+      currentY += (b.height || 150) + 20;
+      return newBlock;
+    });
+
+    const newPages = currentPages.map(page => {
+      if (page.id === currentActivePage) {
+        return { ...page, blocks: [...page.blocks, ...newBlocks] };
+      }
+      return page;
+    });
+
+    setPages(newPages);
+    saveLesson(newPages);
+  };
+
   const updatePagesWithActiveBlocks = (blockMutator) => {
     const newPages = pages.map(page => {
       if (page.id === activePageId) {
@@ -507,7 +568,7 @@ const PLBBuilder = () => {
   const selectedBlock = activeBlocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  const categories = ['ALL', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'NAVIGATION'];
+  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'NAVIGATION'];
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
@@ -610,23 +671,46 @@ const PLBBuilder = () => {
                 ))}
               </div>
               
-              <div className="grid grid-cols-2 gap-2 overflow-y-auto pb-10 custom-scrollbar pr-2">
-                {filteredTypes.map(type => {
-                  const Icon = iconMap[plbSchema[type].icon] || Type;
-                  return (
-                    <button 
-                      key={type}
-                      onClick={() => addBlock(type)}
-                      className="flex flex-col items-center justify-center gap-2 p-3 bg-white border-[2px] border-[#18181B] rounded-xl hover:-translate-y-1 hover:shadow-[4px_4px_0_#18181B] transition-all aspect-square shadow-[2px_2px_0_#18181B] group"
-                    >
-                      <div className="w-10 h-10 bg-white rounded-full border-[2px] border-[#18181B] flex items-center justify-center group-hover:border-[#00E599] transition-colors">
-                        <Icon size={18} className="text-[#00E599]" strokeWidth={2} />
-                      </div>
-                      <div className="font-bold text-xs text-[#18181B] text-center leading-tight group-hover:text-[#18181B]">{type}</div>
-                    </button>
-                  )
-                })}
-              </div>
+              {activeCategory === 'TEMPLATES' ? (
+                <div className="grid grid-cols-1 gap-3 overflow-y-auto pb-10 custom-scrollbar pr-2">
+                  {starterTemplates.map(template => {
+                    const Icon = iconMap[template.icon] || Layers;
+                    return (
+                      <button 
+                        key={template.id}
+                        onClick={() => applyTemplate(template)}
+                        className="flex items-center gap-3 p-3 bg-white border-[2px] border-[#18181B] rounded-xl hover:-translate-y-1 hover:shadow-[4px_4px_0_#18181B] transition-all shadow-[2px_2px_0_#18181B] group text-left"
+                      >
+                        <div className="w-10 h-10 bg-white rounded-full border-[2px] border-[#18181B] flex items-center justify-center shrink-0 group-hover:border-[#8B5CF6] transition-colors">
+                          <Icon size={18} className="text-[#8B5CF6]" strokeWidth={2} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm text-[#18181B] leading-tight">{template.name}</span>
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">{template.blocks.length} Blocks</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 overflow-y-auto pb-10 custom-scrollbar pr-2">
+                  {filteredTypes.map(type => {
+                    const Icon = iconMap[plbSchema[type].icon] || Type;
+                    return (
+                      <button 
+                        key={type}
+                        onClick={() => addBlock(type)}
+                        className="flex flex-col items-center justify-center gap-2 p-3 bg-white border-[2px] border-[#18181B] rounded-xl hover:-translate-y-1 hover:shadow-[4px_4px_0_#18181B] transition-all aspect-square shadow-[2px_2px_0_#18181B] group"
+                      >
+                        <div className="w-10 h-10 bg-white rounded-full border-[2px] border-[#18181B] flex items-center justify-center group-hover:border-[#00E599] transition-colors">
+                          <Icon size={18} className="text-[#00E599]" strokeWidth={2} />
+                        </div>
+                        <div className="font-bold text-xs text-[#18181B] text-center leading-tight group-hover:text-[#18181B]">{type}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </aside>
         )}
