@@ -638,18 +638,20 @@ const PLBBuilder = () => {
             <button 
               onClick={handleUndo} 
               disabled={historyIndexRef.current <= 0}
-              className="p-2 rounded-lg hover:bg-[#F4F4F5] transition-colors disabled:opacity-30 disabled:hover:bg-transparent text-[#18181B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-all border-[2px] bg-white text-[#18181B] border-transparent hover:border-[#18181B] hover:shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 disabled:opacity-30 disabled:pointer-events-none"
               title="Undo (Ctrl+Z)"
             >
-              <Undo2 size={18} strokeWidth={2.5} />
+              <Undo2 size={16} strokeWidth={3} />
+              Undo
             </button>
             <button 
               onClick={handleRedo} 
               disabled={historyIndexRef.current >= historyRef.current.length - 1}
-              className="p-2 rounded-lg hover:bg-[#F4F4F5] transition-colors disabled:opacity-30 disabled:hover:bg-transparent text-[#18181B]"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-all border-[2px] bg-white text-[#18181B] border-transparent hover:border-[#18181B] hover:shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 disabled:opacity-30 disabled:pointer-events-none"
               title="Redo (Ctrl+Shift+Z)"
             >
-              <Redo2 size={18} strokeWidth={2.5} />
+              <Redo2 size={16} strokeWidth={3} />
+              Redo
             </button>
           </div>
           
