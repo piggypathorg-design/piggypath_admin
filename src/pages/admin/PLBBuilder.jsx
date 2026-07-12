@@ -157,6 +157,9 @@ const PLBBuilder = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [previewDevice, setPreviewDevice] = useState('mobile'); // mobile | tablet | laptop
 
+  const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
+  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -306,9 +309,6 @@ const PLBBuilder = () => {
       supabase.removeChannel(channel);
     };
   }, [id]);
-
-  const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
-  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
 
   const saveLesson = async (currentPages, bypassHistory = false) => {
     setIsSaving(true);
