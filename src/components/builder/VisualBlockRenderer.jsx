@@ -1489,13 +1489,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       const FBIcon = block.type === 'Badge' ? Award : Trophy;
       return (
         <div className="w-full px-6 py-6 flex justify-center">
-          <div className="w-full flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] border-[4px] border-[#18181B] rounded-[32px] shadow-[12px_12px_0_#18181B] p-8 text-white text-center transform hover:scale-105 transition-all">
-            <div className="w-24 h-24 bg-[#FFD100] rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] animate-mascot-wiggle mb-2 relative">
-              <div className="absolute w-full h-full border-[4px] border-dashed border-[#F97316] rounded-full animate-spin-slow opacity-50"></div>
-              <FBIcon size={48} strokeWidth={3} className="text-[#18181B] z-10" />
+          <div className="w-full flex flex-col items-center justify-center gap-2 bg-white border-[4px] border-[#18181B] rounded-[32px] shadow-[8px_8px_0_#18181B] p-8 text-[#18181B] text-center">
+            <div className="w-24 h-24 bg-[#FFD100] rounded-full border-[4px] border-[#18181B] flex items-center justify-center shadow-[6px_6px_0_#18181B] mb-4 relative z-10">
+              <div className="absolute w-[130%] h-[130%] border-[4px] border-dashed border-[#18181B] rounded-full animate-spin-slow opacity-20 -z-10"></div>
+              <FBIcon size={48} strokeWidth={3} className="text-[#18181B]" />
             </div>
-            <h2 className="text-3xl font-black drop-shadow-[0_3px_0_#18181B]">{data.title || data.badge_name || 'Achievement!'}</h2>
-            {(data.body || data.label) && <p className="text-sm font-bold opacity-100 bg-[#18181B]/20 px-4 py-2 rounded-xl mt-1 border-[2px] border-white/10">{data.body || data.label}</p>}
+            <h2 className="text-2xl font-black uppercase tracking-wide leading-tight">{data.title || data.badge_name || 'Achievement!'}</h2>
+            {(data.body || data.label) && <p className="text-sm font-bold text-gray-500 mt-2">{data.body || data.label}</p>}
           </div>
         </div>
       );
