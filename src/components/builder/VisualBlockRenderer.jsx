@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
-  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, GripVertical
+  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, GripVertical, Volume2
 } from 'lucide-react';
 import {
   DndContext, 
