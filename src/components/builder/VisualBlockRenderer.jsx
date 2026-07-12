@@ -803,14 +803,20 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
               ) : (data.source.includes('youtube.com') || data.source.includes('youtu.be')) ? (
                 <iframe
                   src={data.source.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  style={{
+                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover'
+                  }}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               ) : (
                 <video 
                   src={data.source} 
-                  className="w-full h-full object-cover z-10 relative pointer-events-auto" 
+                  className="w-full h-full z-10 relative pointer-events-auto" 
+                  style={{
+                    objectFit: data.object_fit === 'Fit (Contain)' ? 'contain' : data.object_fit === 'Original Size' ? 'none' : 'cover'
+                  }}
                   autoPlay={data.autoplay === 'On'} 
                   loop={data.loop === 'On'}
                   controls={block.type === 'Video' || block.type === 'Animation'} 
