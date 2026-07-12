@@ -530,16 +530,14 @@ const PLBBuilder = () => {
               ) : (
                 <div className={`mx-auto h-[3000px] relative overflow-hidden bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
                   {activeBlocks.map((block) => {
-                    const canvasWidth = previewDevice === 'mobile' ? 375 : 600;
                     const blockWidth = block[version]?.width || 320;
                     const safeWidth = typeof blockWidth === 'string' ? parseInt(blockWidth, 10) : blockWidth;
-                    const centeredX = (canvasWidth - safeWidth) / 2;
 
                     return (
                     <Rnd
                       key={`${block.id}-${version}-${previewDevice}`}
                       default={{
-                        x: centeredX,
+                        x: 0,
                         y: block[version]?.y || 20,
                         width: safeWidth,
                         height: block[version]?.height || 'auto',
@@ -560,7 +558,7 @@ const PLBBuilder = () => {
                         e.stopPropagation();
                         if (!isPreviewMode) setSelectedBlockId(block.id);
                       }}
-                      className={`group transition-none ${selectedBlockId === block.id && !isPreviewMode ? 'ring-2 ring-offset-2 ring-[#8B5CF6] z-50' : 'hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 z-10'} ${isPreviewMode ? '' : 'cursor-move'}`}
+                      className={`left-0 right-0 mx-auto group transition-none ${selectedBlockId === block.id && !isPreviewMode ? 'ring-2 ring-offset-2 ring-[#8B5CF6] z-50' : 'hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 z-10'} ${isPreviewMode ? '' : 'cursor-move'}`}
                       style={{ position: 'absolute' }}
                     >
                       {!isPreviewMode && selectedBlockId === block.id && (
