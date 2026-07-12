@@ -1015,9 +1015,11 @@ const PLBBuilder = () => {
 
                       return (
                         <div key={field.name} className="flex flex-col gap-2">
-                          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            {field.label} {field.required && <span className="text-red-500">*</span>}
-                          </label>
+                          {field.type !== 'media' && (
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                              {field.label} {field.required && <span className="text-red-500">*</span>}
+                            </label>
+                          )}
                           
                           {field.type === 'text' || field.type === 'number' ? (
                             <input 

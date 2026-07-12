@@ -113,6 +113,7 @@ export const plbSchema = {
     category: 'Media', icon: 'Volume2',
     fields: [
       { name: 'source', label: 'Audio URL', type: 'media', required: true, default: '' },
+      { name: 'show_icon', label: 'Show Speaker Icon', type: 'select', options: ['On', 'Off'], default: 'On' },
       { name: 'visibility', label: 'Volume level', type: 'number', default: 100 },
       { name: 'autoplay', label: 'Autoplay', type: 'select', options: ['On', 'Off'], default: 'Off' },
       { name: 'loop', label: 'Loop', type: 'select', options: ['On', 'Off'], default: 'Off' },

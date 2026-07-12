@@ -54,6 +54,52 @@ const getObjectFit = (fit) => {
   }
 };
 
+const AudioBlock = ({ data, isPreviewMode }) => {
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const audioRef = React.useRef(null);
+  const showIcon = data.show_icon !== 'Off';
+
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handlePause);
+
+    return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handlePause);
+    };
+  }, [data.source]);
+
+  return (
+    <div className={`w-full flex flex-col items-center justify-center py-4 px-6 gap-2`}>
+       {showIcon && (
+         <div className={`w-16 h-16 bg-[#00E599] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] mb-2 transition-all duration-300 ${isPlaying ? 'animate-pulse scale-110 shadow-[8px_8px_0_#18181B]' : ''}`}>
+            <Volume2 size={32} className="text-[#18181B]" />
+         </div>
+       )}
+       {data.source ? (
+         <audio 
+           ref={audioRef}
+           src={data.source} 
+           controls={data.show_controls !== 'Off'} 
+           className={`w-full max-w-[250px] ${data.show_controls === 'Off' ? 'hidden' : ''}`} 
+           autoPlay={data.autoplay === 'On' && isPreviewMode} 
+           loop={data.loop === 'On'} 
+         />
+       ) : (
+         <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Audio Source</span>
+       )}
+    </div>
+  );
+};
+
 const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
   const [shuffledOptions, setShuffledOptions] = React.useState([]);
   
@@ -849,18 +895,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Audio':
-      return (
-        <div className={`w-full flex flex-col items-center justify-center py-4 px-6 gap-2`}>
-           <div className="w-16 h-16 bg-[#00E599] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] mb-2">
-              <Volume2 size={32} className="text-[#18181B]" />
-           </div>
-           {data.source ? (
-             <audio src={data.source} controls className="w-full max-w-[250px]" autoPlay={data.autoplay === 'On'} loop={data.loop === 'On'} />
-           ) : (
-             <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Audio Source</span>
-           )}
-        </div>
-      );
+      return <AudioBlock data={data} isPreviewMode={isPreviewMode} />;
 
     case 'Mascot Feedback':
       const mascotType = data.mascot_type || 'Happy';
