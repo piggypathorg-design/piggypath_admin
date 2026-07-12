@@ -360,7 +360,12 @@ export const plbSchema = {
   'Line Graph': {
     category: 'Visualisation', icon: 'TrendingUp',
     fields: [
+      { name: 'type', label: 'Type', type: 'select', options: ['Visual', 'Clickable'], required: true, default: 'Visual' },
       { name: 'title', label: 'Title', type: 'text', default: '' },
+      { name: 'show_trend_label', label: 'Show Trend Label', type: 'select', options: ['On', 'Off'], default: 'Off' },
+      { name: 'line_colour', label: 'Line Colour', type: 'color', default: '#3B82F6' },
+      { name: 'point_colour', label: 'Point Colour', type: 'color', default: '#1E293B' },
+      { name: 'number_of_points', label: 'Number of Points', type: 'select', options: ['1','2','3','4','5','6','7','8','9','10'], default: '5' },
       { name: 'point_1_label', label: 'Point 1 X-Label', type: 'text', required: true, default: '' },
       { name: 'point_1_value', label: 'Point 1 Y-Value', type: 'number', required: true, default: 0 },
       { name: 'point_2_label', label: 'Point 2 X-Label', type: 'text', required: true, default: '' },
@@ -371,7 +376,26 @@ export const plbSchema = {
       { name: 'point_4_value', label: 'Point 4 Y-Value', type: 'number', default: 0 },
       { name: 'point_5_label', label: 'Point 5 X-Label', type: 'text', default: '' },
       { name: 'point_5_value', label: 'Point 5 Y-Value', type: 'number', default: 0 },
-      { name: 'y_axis_label', label: 'Y-Axis Label', type: 'text', default: '' }
+      { name: 'point_6_label', label: 'Point 6 X-Label', type: 'text', default: '' },
+      { name: 'point_6_value', label: 'Point 6 Y-Value', type: 'number', default: 0 },
+      { name: 'point_7_label', label: 'Point 7 X-Label', type: 'text', default: '' },
+      { name: 'point_7_value', label: 'Point 7 Y-Value', type: 'number', default: 0 },
+      { name: 'point_8_label', label: 'Point 8 X-Label', type: 'text', default: '' },
+      { name: 'point_8_value', label: 'Point 8 Y-Value', type: 'number', default: 0 },
+      { name: 'point_9_label', label: 'Point 9 X-Label', type: 'text', default: '' },
+      { name: 'point_9_value', label: 'Point 9 Y-Value', type: 'number', default: 0 },
+      { name: 'point_10_label', label: 'Point 10 X-Label', type: 'text', default: '' },
+      { name: 'point_10_value', label: 'Point 10 Y-Value', type: 'number', default: 0 },
+      { name: 'y_axis_label', label: 'Y-Axis Label', type: 'text', default: '' },
+      { name: 'quiz_question', label: 'Quiz Question', type: 'textarea', required: true, default: '' },
+      { name: 'quiz_option_a', label: 'Option A', type: 'text', required: true, default: '' },
+      { name: 'quiz_option_b', label: 'Option B', type: 'text', required: true, default: '' },
+      { name: 'quiz_option_c', label: 'Option C', type: 'text', required: true, default: '' },
+      { name: 'quiz_option_d', label: 'Option D', type: 'text', required: true, default: '' },
+      { name: 'quiz_correct_option', label: 'Correct Option', type: 'select', options: ['A','B','C','D'], required: true, default: 'A' },
+      { name: 'quiz_why_correct', label: 'Why it is correct', type: 'textarea', required: true, default: '' },
+      { name: 'quiz_why_incorrect', label: 'Why it is incorrect', type: 'textarea', required: true, default: '' },
+      { name: 'quiz_xp_reward', label: 'XP Reward', type: 'number', default: 10 }
     ]
   },
   Table: {

@@ -792,8 +792,9 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       );
 
     case 'Line Graph': {
+      const numPoints = parseInt(data.number_of_points || '5', 10);
       const points = [];
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= numPoints; i++) {
         if (data[`point_${i}_label`] && data[`point_${i}_value`] !== undefined && data[`point_${i}_value`] !== '') {
           points.push({ 
             id: String(i),
@@ -819,14 +820,27 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       });
       
       const pathData = coordinates.length > 0 ? `M ${coordinates.map(c => `${c.x},${c.y}`).join(' L ')}` : '';
+      
+      const firstPoint = points[0]?.value || 0;
+      const lastPoint = points[points.length - 1]?.value || 0;
+      const trend = lastPoint >= firstPoint ? '↑ Growing' : '↓ Shrinking';
+      const trendColor = lastPoint >= firstPoint ? 'text-[#00E599] bg-[#00E599]/10' : 'text-[#FF6B6B] bg-[#FF6B6B]/10';
 
       return (
         <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-          {data.title && <p className="font-black text-center text-sm text-[#18181B]">{data.title}</p>}
+          <div className="flex items-center justify-between w-full max-w-[250px]">
+            {data.title ? <p className="font-black text-center text-sm text-[#18181B] flex-1">{data.title}</p> : <div className="flex-1" />}
+            {data.show_trend_label === 'On' && (
+               <div className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border-[2px] ${trendColor.replace('text-', 'border-').split(' ')[0]} ${trendColor}`}>
+                 {trend}
+               </div>
+            )}
+          </div>
           
           <div className="w-full max-w-[250px] flex flex-col relative bg-white border-l-4 border-b-4 border-[#18181B] pt-4 pr-4">
+             {data.y_axis_label && <span className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider">{data.y_axis_label}</span>}
              <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
-                <path d={pathData} fill="none" stroke={data.line_colour || '#00E599'} strokeWidth="4" strokeLinejoin="round" />
+                <path d={pathData} fill="none" stroke={data.line_colour || '#3B82F6'} strokeWidth="4" strokeLinejoin="round" />
                 {coordinates.map((c, i) => (
                   <circle key={i} cx={c.x} cy={c.y} r="6" fill={data.point_colour || '#18181B'} />
                 ))}
@@ -839,7 +853,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                 ))}
              </div>
           </div>
-          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
+          {data.type === 'Clickable' && <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />}
         </div>
       );
     }
