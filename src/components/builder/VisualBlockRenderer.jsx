@@ -1501,15 +1501,15 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
       const showBubble = block.type === 'Mascot Character' ? (data.show_bubble !== 'Off') : false;
 
       const mAlignClass = {
-        'Left': 'self-start',
-        'Center': 'self-center',
-        'Right': 'self-end'
+        'Left': 'mr-auto',
+        'Center': 'mx-auto',
+        'Right': 'ml-auto'
       }[data.mascot_alignment || data.alignment || 'Center'];
 
       const bAlignClass = {
-        'Left': 'self-start',
-        'Center': 'self-center',
-        'Right': 'self-end'
+        'Left': 'mr-auto',
+        'Center': 'mx-auto',
+        'Right': 'ml-auto'
       }[data.bubble_alignment || data.alignment || 'Center'];
 
       const tAlignClass = {
@@ -1517,6 +1517,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
         'Center': 'text-center',
         'Right': 'text-right'
       }[data.text_alignment || data.alignment || 'Center'];
+
+      const tailClass = {
+        'Left': 'left-8',
+        'Center': 'left-1/2 -translate-x-1/2',
+        'Right': 'right-8'
+      }[data.mascot_alignment || data.alignment || 'Center'];
 
       return (
         <div className={`w-full flex flex-col py-4 px-6 gap-2`}>
@@ -1536,7 +1542,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode }) => {
                 {data.text || 'Mascot says...'}
               </div>
               <div 
-                className={`absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0`}
+                className={`absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0 ${tailClass}`}
                 style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
               ></div>
             </div>
