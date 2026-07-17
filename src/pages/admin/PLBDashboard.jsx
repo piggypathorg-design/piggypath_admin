@@ -6,7 +6,7 @@ import {
   Users, FolderOpen, Trash2, AlertTriangle, Activity, Loader2, Save, Edit3, Trash, UserPlus, Lock
 } from 'lucide-react';
 import Logo from '../../components/common/Logo';
-import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities, createUser } from '../../utils/api';
+import { getLessons, createLesson, deleteLesson, getActivities, getUsers, updateUser, clearActivities, createUser, updateLesson } from '../../utils/api';
 
 const PLBDashboard = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -46,7 +46,7 @@ const PLBDashboard = () => {
 
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('plb_user_v2') || '{}'));
-  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath';
+  const isAdmin = user.role === 'Admin' || user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath';
 
   useEffect(() => {
     if(user && user.name) setProfileName(user.name);
@@ -69,6 +69,15 @@ const PLBDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('plb_user_v2');
     navigate('/login');
+  };
+
+  const handleApprove = async (lessonId) => {
+    const updated = await updateLesson(lessonId, { status: 'Published' }, user.username || 'Admin');
+    if (updated) {
+      setLessons(prev => prev.map(l => l.id === lessonId ? { ...l, status: 'Published' } : l));
+      const acts = await getActivities();
+      setActivities(acts);
+    }
   };
 
   const confirmDelete = (lesson) => {
@@ -327,8 +336,8 @@ const PLBDashboard = () => {
                   
                   {/* Table Header Controls */}
                   <div className="p-5 border-b-[3px] border-black flex items-center justify-between bg-white relative z-10">
-                    <div className="flex bg-gray-100 p-1 rounded-xl border-[3px] border-black shadow-[2px_2px_0_0_#000]">
-                      {['All', 'Published', 'Draft'].map(tab => (
+                    <div className="flex bg-white rounded-xl p-1.5 border-[3px] border-black shadow-[4px_4px_0_0_#000]">
+                      {['All', 'Pending Approval', 'Published', 'Draft'].map(tab => (
                         <button
                           key={tab}
                           onClick={() => setActiveTab(tab)}
@@ -405,14 +414,24 @@ const PLBDashboard = () => {
                               <td className="p-5">
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-[2px] border-black text-xs font-black uppercase tracking-widest shadow-[2px_2px_0_0_#000] ${
                                   lesson.status === 'Draft' 
-                                    ? 'bg-[#FFD100] text-black' 
+                                    ? 'bg-gray-200 text-black' 
+                                    : lesson.status === 'Pending Approval'
+                                    ? 'bg-[#FFD100] text-black'
                                     : 'bg-[#00E599] text-black'
                                 }`}>
-                                  {lesson.status === 'Draft' ? <Clock size={14} strokeWidth={3} /> : <CheckCircle size={14} strokeWidth={3} />}
+                                  {lesson.status === 'Draft' ? <Edit3 size={14} strokeWidth={3} /> : lesson.status === 'Pending Approval' ? <Clock size={14} strokeWidth={3} /> : <CheckCircle size={14} strokeWidth={3} />}
                                   {lesson.status}
                                 </span>
                               </td>
                               <td className="p-5 text-right flex items-center justify-end gap-3">
+                                {isAdmin && lesson.status === 'Pending Approval' && (
+                                  <button 
+                                    onClick={() => handleApprove(lesson.id)}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#8B5CF6] text-white text-xs font-black rounded-lg border-[3px] border-black shadow-[2px_2px_0_0_#000] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_#000] hover:bg-[#7C3AED] transition-all duration-200"
+                                  >
+                                    <CheckCircle size={16} strokeWidth={3} /> Approve
+                                  </button>
+                                )}
                                 <button 
                                   onClick={() => openBuilder(lesson.id)}
                                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black text-xs font-black rounded-lg border-[3px] border-black shadow-[2px_2px_0_0_#000] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_0_#000] hover:bg-[#8B5CF6] hover:text-white transition-all duration-200"

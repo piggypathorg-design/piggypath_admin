@@ -238,16 +238,16 @@ export const getUsers = async () => {
   return data;
 };
 
-export const createUser = async (username, name, password, creatorName = 'Admin') => {
+export const createUser = async (username, name, password, creatorName = 'Admin', role = 'Creator') => {
   // First try with password (if the column was added)
   let { data, error } = await supabase
     .from('users')
-    .insert([{ username, name, password }])
+    .insert([{ username, name, password, role }])
     .select()
     .single();
     
   if (error) {
-    console.warn('Insert with password failed, falling back to no password (schema missing column).', error);
+    console.warn('Insert with password/role failed, falling back to minimal (schema missing column).', error);
     const retry = await supabase
       .from('users')
       .insert([{ username, name }])

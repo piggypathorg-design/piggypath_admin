@@ -163,6 +163,9 @@ const PLBBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
+  const userStr = localStorage.getItem('plb_user_v2');
+  const user = userStr ? JSON.parse(userStr) : { role: 'Creator' };
+  
   const [lesson, setLesson] = useState(null);
   const [pages, setPages] = useState([{ id: 'page_1', title: 'Page 1', blocks: [] }]);
   const [activePageId, setActivePageId] = useState('page_1');
@@ -201,9 +204,6 @@ const PLBBuilder = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [previewDevice, setPreviewDevice] = useState('mobile'); // mobile | tablet | laptop
-
-  const user = JSON.parse(localStorage.getItem('plb_user_v2') || '{}');
-  const isAdmin = user.username === 'admin' || user.username === 'shabnam' || user.username === 'piggypath'; // Allow a few obvious admin usernames
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -368,14 +368,18 @@ const PLBBuilder = () => {
     setTimeout(() => setIsSaving(false), 500);
   };
 
-  const handlePublish = async () => {
-    if (!isAdmin) {
-      alert("Only the Admin is allowed to publish lessons!");
-      return;
-    }
+  const handlePublishToggle = async () => {
     setIsSaving(true);
-    const newLessonData = await updateLesson(id, { status: 'Published' }, user.name || user.username || 'Admin');
-    if (newLessonData) setLesson(newLessonData);
+    let newStatus;
+    
+    if (user.role === 'Admin') {
+      newStatus = lesson.status === 'Published' ? 'Draft' : 'Published';
+    } else {
+      newStatus = lesson.status === 'Pending Approval' ? 'Draft' : 'Pending Approval';
+    }
+    
+    await updateLesson(id, { status: newStatus }, user.username || 'Admin');
+    setLesson(prev => ({ ...prev, status: newStatus }));
     setIsSaving(false);
   };
 
@@ -707,14 +711,20 @@ const PLBBuilder = () => {
             <Eye size={16} strokeWidth={2} /> {isPreviewMode ? 'Exit Preview' : 'Preview'}
           </button>
           
-          <button 
-            onClick={handlePublish}
-            disabled={!isAdmin}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all ${isAdmin ? 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-[#18181B] border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B] cursor-pointer' : 'bg-gray-200 text-gray-500 border-[2px] border-gray-300 cursor-not-allowed opacity-50'}`}
-            title={isAdmin ? "Publish this lesson" : "Only Admin can publish"}
-          >
-            <Rocket size={16} strokeWidth={2} /> Publish
-          </button>
+          <button
+              onClick={handlePublishToggle}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-sm transition-all border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B] ${
+                lesson?.status === 'Published' || lesson?.status === 'Pending Approval'
+                  ? 'bg-red-500 text-white border-transparent shadow-none hover:bg-red-600'
+                  : user.role === 'Admin' ? 'bg-[#8B5CF6] text-white' : 'bg-blue-500 text-white'
+              }`}
+            >
+              {user.role === 'Admin' ? (
+                lesson?.status === 'Published' ? 'Unpublish' : <><Rocket size={16} strokeWidth={2} /> Publish</>
+              ) : (
+                lesson?.status === 'Pending Approval' ? 'Cancel Submission' : <><Check size={16} strokeWidth={2} /> Submit for Approval</>
+              )}
+            </button>
         </div>
       </header>
 
