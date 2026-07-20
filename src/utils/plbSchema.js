@@ -497,7 +497,18 @@ export const plbSchema = {
     ]
   },
 
-  // 7 Navigation Buttons
+  // 7 Icons
+  Icon: {
+    category: 'Icons', icon: 'Smile',
+    fields: [
+      { name: 'icon_name', label: 'Icon', type: 'icon_select', required: true, default: 'Activity' },
+      { name: 'size', label: 'Size (px)', type: 'number', required: true, default: 48 },
+      { name: 'color', label: 'Color', type: 'color', default: '#18181B' },
+      { name: 'align', label: 'Alignment', type: 'select', options: ['left', 'center', 'right'], default: 'center' }
+    ]
+  },
+
+  // 8 Navigation Buttons
   'Continue Button': {
     category: 'Navigation', icon: 'ArrowRight',
     fields: []

@@ -3,6 +3,7 @@ import {
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
   PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, GripVertical, Volume2
 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import {
   DndContext, 
   closestCenter,
@@ -778,6 +779,15 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
   const font = data.font || 'Arial';
 
   switch (block.type) {
+    case 'Icon': {
+      const IconComponent = LucideIcons[data.icon_name] || LucideIcons.HelpCircle;
+      const alignClass = data.align === 'left' ? 'justify-start' : data.align === 'right' ? 'justify-end' : 'justify-center';
+      return (
+        <div className={`flex w-full ${alignClass} py-4`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
+          <IconComponent size={data.size || 48} color={data.color || '#18181B'} />
+        </div>
+      );
+    }
     case 'Title':
       return (
         <div className={`w-full flex ${alignClass} py-4 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>

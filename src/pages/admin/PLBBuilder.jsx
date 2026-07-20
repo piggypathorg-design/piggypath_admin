@@ -29,9 +29,12 @@ import {
   Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus,
   Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search, Copy, Undo2, Redo2
 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { getLesson, updateLesson } from '../../utils/api';
 import { supabase } from '../../utils/supabaseClient';
 import mascotGridImg from '../../assets/mascot_grid.png';
+
+const allIconNames = Object.keys(LucideIcons).filter(name => /^[A-Z]/.test(name) && name !== 'LucideProps' && name !== 'Icon');
 
 const iconMap = {
   'Type': Type, 'AlignLeft': AlignLeft, 'FileText': FileText, 'Minus': Minus, 'Maximize2': Maximize2, 'Square': Square, 
@@ -1128,6 +1131,17 @@ const PLBBuilder = () => {
                                 className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
                               >
                                 {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              </select>
+                              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                            </div>
+                          ) : field.type === 'icon_select' ? (
+                            <div className="relative">
+                              <select
+                                value={value}
+                                onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
+                                className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
+                              >
+                                {allIconNames.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                               </select>
                               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
