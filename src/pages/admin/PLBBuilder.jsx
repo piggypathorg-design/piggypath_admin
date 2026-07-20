@@ -34,7 +34,72 @@ import { getLesson, updateLesson } from '../../utils/api';
 import { supabase } from '../../utils/supabaseClient';
 import mascotGridImg from '../../assets/mascot_grid.png';
 
-const allIconNames = Object.keys(LucideIcons).filter(name => /^[A-Z]/.test(name) && name !== 'LucideProps' && name !== 'Icon');
+const allIconNames = Object.keys(LucideIcons).filter(name => /^[A-Z]/.test(name) && !name.endsWith('Icon') && name !== 'LucideProps' && name !== 'LucideProvider');
+
+const IconSelectField = ({ value, onChange }) => {
+  const [isOpen, React_useState] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  
+  const filtered = React.useMemo(() => {
+    return allIconNames.filter(name => name.toLowerCase().includes(search.toLowerCase())).slice(0, 100);
+  }, [search]);
+
+  const CurrentIcon = LucideIcons[value] || LucideIcons.Activity;
+
+  return (
+    <div className="relative">
+      <div 
+        onClick={() => React_useState(!isOpen)}
+        className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] shadow-[2px_2px_0_#18181B] flex items-center justify-between cursor-pointer hover:-translate-y-0.5 transition-all"
+      >
+        <div className="flex items-center gap-3">
+          <CurrentIcon size={18} />
+          <span className="text-sm font-bold text-[#18181B] truncate">{value}</span>
+        </div>
+        <LucideIcons.ChevronDown size={14} className="text-gray-500" />
+      </div>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => React_useState(false)}></div>
+          <div className="absolute z-50 mt-2 w-full bg-white border-[3px] border-[#18181B] shadow-[4px_4px_0_0_#000] rounded-xl max-h-64 overflow-hidden flex flex-col">
+            <div className="p-3 border-b-[3px] border-[#18181B] bg-gray-50 shrink-0">
+              <div className="relative">
+                <LucideIcons.Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input 
+                  type="text"
+                  autoFocus
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search icons..."
+                  className="w-full pl-8 pr-3 py-1.5 text-sm font-bold border-[2px] border-[#18181B] rounded-lg focus:outline-none focus:border-[#00E599]"
+                />
+              </div>
+            </div>
+            <div className="overflow-y-auto flex-1 p-2 flex flex-col gap-1">
+              {filtered.map(name => {
+                const IconComp = LucideIcons[name];
+                return (
+                  <div 
+                    key={name}
+                    onClick={() => { onChange(name); React_useState(false); setSearch(''); }}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${value === name ? 'bg-[#00E599] text-black font-black' : 'hover:bg-gray-100 font-bold text-gray-600 hover:text-black'}`}
+                  >
+                    <IconComp size={18} />
+                    <span className="text-sm">{name}</span>
+                  </div>
+                );
+              })}
+              {filtered.length === 0 && (
+                <div className="p-4 text-center text-sm font-bold text-gray-500">No icons found.</div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const iconMap = {
   'Type': Type, 'AlignLeft': AlignLeft, 'FileText': FileText, 'Minus': Minus, 'Maximize2': Maximize2, 'Square': Square, 
@@ -1135,16 +1200,10 @@ const PLBBuilder = () => {
                               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
                           ) : field.type === 'icon_select' ? (
-                            <div className="relative">
-                              <select
-                                value={value}
-                                onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
-                              >
-                                {allIconNames.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                              </select>
-                              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                            </div>
+                            <IconSelectField 
+                              value={value}
+                              onChange={(newVal) => updateBlockData(selectedBlock.id, field.name, newVal)}
+                            />
                           ) : field.type === 'media' ? (
                             <MediaUploadField
                               value={value}
