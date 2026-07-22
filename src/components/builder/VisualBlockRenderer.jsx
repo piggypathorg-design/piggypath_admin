@@ -1487,7 +1487,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             )}
             <div className="flex flex-col items-center">
               <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
-              <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
+              <div className="flex items-center gap-2">
+                <img src="/assets/components/XP Icon.png" alt="XP" className="w-10 h-10 drop-shadow-sm" />
+                <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
+              </div>
             </div>
           </div>
           
@@ -1563,13 +1566,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Coin Reward':
       return (
         <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce">
-            <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
-            <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
-            <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
-            <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-            <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-          </svg>
+          <img src="/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />
           <span className="font-black text-[32px] text-[#18181B]">{data.coins_amount ?? 0}</span>
         </div>
       );
@@ -1577,12 +1574,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Gem Reward':
       return (
         <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-float">
-            <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
-            <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
-            <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
-            <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <img src="/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />
           <span className="font-black text-[32px] text-[#18181B]">{data.gems_amount ?? 0}</span>
         </div>
       );
@@ -1757,32 +1749,19 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             
             {/* XP */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 text-[#8B5CF6] shrink-0" fill="currentColor">
-                <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
-              </svg>
+              <img src="/assets/components/XP Icon.png" alt="XP" className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 drop-shadow-sm" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.xp_amount ?? 0}</span>
             </div>
 
             {/* Coins */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <svg viewBox="0 0 40 40" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0">
-                <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
-                <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
-                <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
-                <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-                <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-              </svg>
+              <img src="/assets/components/Coins.png" alt="Coins" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.coins_amount ?? 0}</span>
             </div>
 
             {/* Gems */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <svg viewBox="0 0 40 40" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0">
-                <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
-                <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
-                <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
-                <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <img src="/assets/components/gems.png" alt="Gems" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.gems_amount ?? 0}</span>
             </div>
 
@@ -1793,31 +1772,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Reward Icon':
       const renderIcon = () => {
         if (data.icon_type === 'Gold Coin') {
-          return (
-            <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce">
-              <circle cx="20" cy="20" r="16" fill="#F59E0B" stroke="#18181B" strokeWidth="3" />
-              <circle cx="20" cy="18.5" r="14.5" fill="#FDE047" />
-              <circle cx="20" cy="18.5" r="10" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.5" />
-              <circle cx="16.5" cy="15.5" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-              <circle cx="22" cy="19" r="4.5" fill="#FBBF24" stroke="#18181B" strokeWidth="2" />
-            </svg>
-          );
+          return <img src="/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />;
         } else if (data.icon_type === 'Green Gem') {
-          return (
-            <svg viewBox="0 0 40 40" className="w-14 h-14 drop-shadow-sm animate-mascot-float">
-              <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="#10B981" stroke="#18181B" strokeWidth="3" strokeLinejoin="round" />
-              <polygon points="20,6.5 31.5,13 31.5,27 20,33.5 8.5,27 8.5,13" fill="#34D399" />
-              <polygon points="8.5,22 31.5,10 31.5,15 8.5,27" fill="#ffffff" opacity="0.3" />
-              <polyline points="11,17 11,25 20,30 29,25 29,17" fill="none" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          );
+          return <img src="/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />;
         } else {
           // XP Sparkle
-          return (
-            <svg viewBox="0 0 24 24" className="w-14 h-14 text-[#8B5CF6] animate-mascot-pulse" fill="currentColor">
-              <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
-            </svg>
-          );
+          return <img src="/assets/components/XP Icon.png" alt="XP" className="w-14 h-14 drop-shadow-sm animate-mascot-pulse" />;
         }
       };
 
