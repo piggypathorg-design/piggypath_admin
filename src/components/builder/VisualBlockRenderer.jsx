@@ -1593,19 +1593,19 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
           {isPreviewMode && <Confetti score={90} />}
           <div className="relative flex flex-col items-center">
             {/* Starburst rays */}
-            <div className="absolute w-56 h-56 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMEw1NSAzNUw5MCAxMEw2NSA0NUwxMDAgNTBMNjUgNTVMOTAgOTBMNTUgNjVMNTAgMTAwTDQ1IDY1TDEwIDkwTDM1IDU1TDAgNTBMMzUgNDVMMTAgMTBMNDUgMzVaIiBmaWxsPSIjRkZEODREIiBvcGFjaXR5PSIwLjI1Ii8+PC9zdmc+')] bg-center bg-no-repeat bg-contain animate-spin-slow -z-10"></div>
+            <div className="absolute w-56 h-56 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMEw1NSAzNUw5MCAxMEw2NSA0NUwxMDAgNTBMNjUgNTVMOTAgOTBMNTUgNjVMNTAgMTAwTDQ1IDY1TDEwIDkwTDM1IDU1TDAgNTBMMzUgNDVMMTAgMTBMNDUgMzVaIiBmaWxsPSIjMThGMThCIiBvcGFjaXR5PSIwLjA1Ii8+PC9zdmc+')] bg-center bg-no-repeat bg-contain animate-spin-slow -z-10"></div>
             
-            <div className="w-32 h-32 bg-gradient-to-b from-[#806BFF] to-[#3F43BF] rounded-full border-[6px] border-white shadow-[0_12px_24px_rgba(128,107,255,0.4)] flex flex-col items-center justify-center mb-6 relative overflow-hidden">
+            <div className="w-32 h-32 bg-[#806BFF] rounded-full border-[6px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center mb-6 relative overflow-hidden">
                {/* Shine reflection */}
-               <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-white opacity-20 skew-x-[-20deg] animate-[shine_3s_ease-in-out_infinite]"></div>
-               <Award size={52} strokeWidth={2.5} className="text-white drop-shadow-md" />
+               <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-white opacity-40 skew-x-[-20deg] animate-[shine_3s_ease-in-out_infinite]"></div>
+               <Award size={52} strokeWidth={3} className="text-[#18181B]" />
             </div>
             
-            <div className="bg-white px-6 py-3 rounded-full border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-10 relative z-10 text-center flex items-center justify-center">
+            <div className="bg-[#01EF8E] px-6 py-3 rounded-full border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-10 relative z-10 text-center flex items-center justify-center">
               <span className="font-black text-[14px] tracking-wide text-[#18181B] uppercase leading-none whitespace-nowrap">{data.badge_name || 'Badge Unlocked!'}</span>
             </div>
             
-            {data.caption && <div className="mt-4 text-sm font-bold text-gray-500 text-center max-w-[220px] leading-snug">{data.caption}</div>}
+            {data.caption && <div className="mt-4 text-sm font-bold text-gray-600 text-center max-w-[220px] leading-snug">{data.caption}</div>}
           </div>
           
           <style>{`
@@ -1622,16 +1622,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return (
         <div className="w-full px-4 py-6 flex justify-center relative">
           {isPreviewMode && <Confetti score={100} />}
-          <div className="w-full max-w-[320px] flex flex-col items-center justify-center bg-gradient-to-br from-[#191A2E] to-[#2A2350] border-[2px] border-[#2C2C4D] rounded-3xl p-8 text-white text-center relative overflow-hidden shadow-2xl hover:scale-[1.02] transition-transform">
-            {/* Glow effects */}
-            <div className="absolute w-40 h-40 bg-[#01EF8E] opacity-20 rounded-full top-[-40px] right-[-20px] blur-[30px] pointer-events-none"></div>
-            <div className="absolute w-32 h-32 bg-[#FF73B5] opacity-20 rounded-full bottom-[-30px] left-[-30px] blur-[30px] pointer-events-none"></div>
-            
-            <div className="w-20 h-20 bg-gradient-to-br from-[#FFD84D] to-[#FF7A1A] rounded-[20px] flex items-center justify-center mb-5 relative z-10 shadow-[0_8px_16px_rgba(255,216,77,0.3)] border-[2px] border-[#FFE9A8]">
-              <Trophy size={36} strokeWidth={2.5} className="text-[#191A2E]" />
+          <div className="w-full max-w-[320px] flex flex-col items-center justify-center bg-white border-[4px] border-[#18181B] rounded-[32px] p-8 text-center relative overflow-hidden shadow-[8px_8px_0_#18181B] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_#18181B] transition-all">
+            <div className="w-24 h-24 bg-[#FFD100] rounded-full flex items-center justify-center mb-5 relative z-10 border-[4px] border-[#18181B] shadow-[6px_6px_0_#18181B]">
+              <div className="absolute w-[130%] h-[130%] border-[4px] border-dashed border-[#18181B] rounded-full animate-spin-slow opacity-20 -z-10"></div>
+              <Trophy size={48} strokeWidth={3} className="text-[#18181B]" />
             </div>
-            <h2 className="text-2xl font-black mb-3 relative z-10 drop-shadow-md leading-tight text-white">{data.title || 'Achievement Unlocked'}</h2>
-            <p className="text-[14px] font-semibold text-[#C9C9DE] relative z-10 leading-relaxed">{data.content || data.body || 'You finished the chapter!'}</p>
+            <h2 className="text-2xl font-black uppercase tracking-wide leading-tight text-[#18181B] mb-2">{data.title || 'Achievement Unlocked'}</h2>
+            <p className="text-[14px] font-bold text-gray-600 relative z-10 leading-relaxed">{data.content || data.body || 'You finished the chapter!'}</p>
           </div>
         </div>
       );
