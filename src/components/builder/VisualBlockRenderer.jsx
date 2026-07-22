@@ -1488,7 +1488,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             <div className="flex flex-col items-center">
               <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
               <div className="flex items-center gap-2">
-                <img src="/assets/components/XP Icon.png" alt="XP" className="w-10 h-10 drop-shadow-sm" />
+                <img src="/piggypath_admin/assets/components/XP Icon.png" alt="XP" className="w-10 h-10 drop-shadow-sm" />
                 <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
               </div>
             </div>
@@ -1566,7 +1566,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Coin Reward':
       return (
         <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <img src="/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />
+          <img src="/piggypath_admin/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />
           <span className="font-black text-[32px] text-[#18181B]">{data.coins_amount ?? 0}</span>
         </div>
       );
@@ -1574,7 +1574,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Gem Reward':
       return (
         <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <img src="/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />
+          <img src="/piggypath_admin/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />
           <span className="font-black text-[32px] text-[#18181B]">{data.gems_amount ?? 0}</span>
         </div>
       );
@@ -1749,19 +1749,19 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
             
             {/* XP */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src="/assets/components/XP Icon.png" alt="XP" className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 drop-shadow-sm" />
+              <img src="/piggypath_admin/assets/components/XP Icon.png" alt="XP" className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 drop-shadow-sm" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.xp_amount ?? 0}</span>
             </div>
 
             {/* Coins */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src="/assets/components/Coins.png" alt="Coins" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
+              <img src="/piggypath_admin/assets/components/Coins.png" alt="Coins" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.coins_amount ?? 0}</span>
             </div>
 
             {/* Gems */}
             <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src="/assets/components/gems.png" alt="Gems" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
+              <img src="/piggypath_admin/assets/components/gems.png" alt="Gems" className="w-7 h-7 sm:w-9 sm:h-9 drop-shadow-sm shrink-0" />
               <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.gems_amount ?? 0}</span>
             </div>
 
@@ -1772,12 +1772,12 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     case 'Reward Icon':
       const renderIcon = () => {
         if (data.icon_type === 'Gold Coin') {
-          return <img src="/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />;
+          return <img src="/piggypath_admin/assets/components/Coins.png" alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />;
         } else if (data.icon_type === 'Green Gem') {
-          return <img src="/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />;
+          return <img src="/piggypath_admin/assets/components/gems.png" alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />;
         } else {
           // XP Sparkle
-          return <img src="/assets/components/XP Icon.png" alt="XP" className="w-14 h-14 drop-shadow-sm animate-mascot-pulse" />;
+          return <img src="/piggypath_admin/assets/components/XP Icon.png" alt="XP" className="w-14 h-14 drop-shadow-sm animate-mascot-pulse" />;
         }
       };
 
