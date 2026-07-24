@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { plbSchema } from '../../utils/plbSchema';
 import { starterTemplates } from '../../utils/starterTemplates';
 import VisualBlockRenderer from '../../components/builder/VisualBlockRenderer';
+import LessonPlayerPreview from '../../components/builder/LessonPlayerPreview';
 import { SortablePageItem } from '../../components/builder/SortablePageItem';
 import {
   DndContext, 
@@ -720,7 +721,7 @@ const PLBBuilder = () => {
   const selectedBlock = activeBlocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'NAVIGATION'];
+  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK'];
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
@@ -965,65 +966,56 @@ const PLBBuilder = () => {
                   <h3 className="text-lg font-black text-gray-800 mb-1">Blank Canvas</h3>
                   <p className="text-xs font-bold text-gray-400">Click components on the left to add them here.</p>
                 </div>
-              ) : (
-                <div className={`mx-auto h-[3000px] relative overflow-hidden bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
-                  {activeBlocks.map((block) => {
-                    const blockWidth = block[version]?.width || 320;
-                    const safeWidth = typeof blockWidth === 'string' ? parseInt(blockWidth, 10) : blockWidth;
-
-                    return (
-                    <Rnd
-                      key={`${block.id}-${version}-${previewDevice}`}
-                      default={{
-                        x: 0,
-                        y: block[version]?.y || 20,
-                        width: safeWidth,
-                        height: block[version]?.height || 'auto',
-                      }}
-                      dragAxis="y"
-                      onDragStop={(e, d) => {
-                        updateBlockData(block.id, 'y', d.y);
-                      }}
-                      onResizeStop={(e, direction, ref, delta, position) => {
-                        updateBlockData(block.id, 'width', parseInt(ref.style.width, 10));
-                        updateBlockData(block.id, 'height', parseInt(ref.style.height, 10));
-                        updateBlockData(block.id, 'y', position.y);
-                      }}
-                      disableDragging={isPreviewMode}
-                      enableResizing={!isPreviewMode}
-                      bounds="parent"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isPreviewMode) setSelectedBlockId(block.id);
-                      }}
-                      className={`left-0 right-0 mx-auto group transition-none ${selectedBlockId === block.id && !isPreviewMode ? 'ring-2 ring-offset-2 ring-[#8B5CF6] z-50' : 'hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 z-10'} ${isPreviewMode ? '' : 'cursor-move'}`}
-                      style={{ position: 'absolute' }}
-                    >
-                      {!isPreviewMode && selectedBlockId === block.id && (
-                        <div className="absolute -top-8 right-0 flex gap-1 z-50">
-                          <button 
-                            onPointerDown={(e) => { e.stopPropagation(); duplicateBlock(block.id); }} 
-                            className="bg-white text-[#18181B] border-2 border-[#18181B] p-1.5 rounded-md shadow-md hover:bg-gray-100 transition-colors pointer-events-auto"
-                            title="Duplicate (Ctrl+D)"
-                          >
-                            <Copy size={12} strokeWidth={3} />
-                          </button>
-                          <button 
-                            onPointerDown={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
-                            className="bg-red-500 text-[#18181B] p-1.5 rounded-md shadow-md hover:bg-red-600 transition-colors pointer-events-auto"
-                          >
-                            <Trash2 size={12} strokeWidth={3} />
-                          </button>
+              ) : isPreviewMode ? (
+                  <LessonPlayerPreview 
+                    pages={pages}
+                    initialPageIndex={Math.max(0, pages.findIndex(p => p.id === activePageId))}
+                    version={version} 
+                    previewDevice={previewDevice} 
+                    progressValues={progressValues}
+                    onClose={() => setIsPreviewMode(false)}
+                  />
+                ) : (
+                  <div className={`mx-auto min-h-screen relative overflow-y-auto overflow-x-hidden flex flex-col gap-6 pt-10 pb-32 bg-white shadow-sm rounded-lg sm:rounded-none sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
+                    {activeBlocks.map((block) => {
+                      const blockWidth = block[version]?.width || 320;
+                      const safeWidth = typeof blockWidth === 'string' ? parseInt(blockWidth, 10) : blockWidth;
+  
+                      return (
+                      <div
+                        key={`${block.id}-${version}-${previewDevice}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isPreviewMode) setSelectedBlockId(block.id);
+                        }}
+                        className={`mx-auto relative group transition-none w-full ${selectedBlockId === block.id && !isPreviewMode ? 'ring-2 ring-offset-2 ring-[#8B5CF6] z-50' : 'hover:ring-2 hover:ring-offset-2 hover:ring-gray-300 z-10'}`}
+                        style={{ maxWidth: `${safeWidth}px` }}
+                      >
+                        {!isPreviewMode && selectedBlockId === block.id && (
+                          <div className="absolute -top-8 right-0 flex gap-1 z-50">
+                            <button 
+                              onPointerDown={(e) => { e.stopPropagation(); duplicateBlock(block.id); }} 
+                              className="bg-white text-[#18181B] border-2 border-[#18181B] p-1.5 rounded-md shadow-md hover:bg-gray-100 transition-colors pointer-events-auto"
+                              title="Duplicate (Ctrl+D)"
+                            >
+                              <Copy size={12} strokeWidth={3} />
+                            </button>
+                            <button 
+                              onPointerDown={(e) => { e.stopPropagation(); deleteBlock(block.id); }} 
+                              className="bg-white text-red-500 border-2 border-red-500 p-1.5 rounded-md shadow-md hover:bg-red-50 transition-colors pointer-events-auto"
+                              title="Delete (Del)"
+                            >
+                              <Trash2 size={12} strokeWidth={3} />
+                            </button>
+                          </div>
+                        )}
+                        <div className={`w-full h-full relative ${isPreviewMode ? '' : 'pointer-events-none'}`}>
+                           <VisualBlockRenderer block={block} version={version} isPreviewMode={false} progressValue={progressValues[block.id]} />
                         </div>
-                      )}
-                      
-                      {/* Render block inline */}
-                      <div className={`w-full h-full relative z-0 ${!isPreviewMode ? 'pointer-events-none' : ''}`}>
-                         <VisualBlockRenderer block={block} version={version} isPreviewMode={isPreviewMode} progressValue={progressValues[block.id]} />
                       </div>
-                    </Rnd>
-                  )})}
-                </div>
+                      );
+                    })}
+                  </div>
               )}
             </div>
           </div>

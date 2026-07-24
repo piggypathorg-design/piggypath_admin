@@ -1,0 +1,522 @@
+{
+  "title": "What Is Money, and Why Do We Use It?",
+  "course": "Personal Finance",
+  "milestone": "Milestone 1: The Foundations of Money",
+  "level": "Level 1: What Is Money?",
+  "lessonNo": "Lesson 1 of 5",
+  "duration": "4 to 5 min",
+  "pages": [
+    {
+      "progress": 11,
+      "cta": "Let us find out",
+      "comps": [
+        {
+          "t": "title",
+          "text": "The Day Money Vanished"
+        },
+        {
+          "t": "image",
+          "src": "assets/lesson/canteen.svg",
+          "alt": "School canteen with an empty cash counter"
+        },
+        {
+          "t": "mascot",
+          "expr": "think",
+          "text": "Imagine you walk into your canteen tomorrow and every rupee on Earth has vanished. You are hungry. All you have in your bag is three mangoes."
+        },
+        {
+          "t": "para",
+          "text": "No cash. No UPI. No cards. If you want that samosa, you have to convince the canteen uncle to take your mangoes instead."
+        },
+        {
+          "t": "rich",
+          "text": "Sounds simple? It is not. And the reason why is exactly why humans invented money."
+        }
+      ]
+    },
+    {
+      "progress": 22,
+      "cta": "So what is the fix?",
+      "comps": [
+        {
+          "t": "title",
+          "text": "Try Trading Without Money"
+        },
+        {
+          "t": "para",
+          "text": "Four friends each have something to trade, and each wants something else. Match every person to the friend who has exactly what they want."
+        },
+        {
+          "t": "match",
+          "instruction": "Match each person to the friend who has what they want.",
+          "left": [
+            {
+              "id": "aarav",
+              "name": "Aarav",
+              "sub": "has mangoes, wants a samosa",
+              "icon": "mango"
+            },
+            {
+              "id": "meera",
+              "name": "Meera",
+              "sub": "has samosas, wants a notebook",
+              "icon": "samosa"
+            },
+            {
+              "id": "kabir",
+              "name": "Kabir",
+              "sub": "has a notebook, wants a pencil box",
+              "icon": "notebook"
+            },
+            {
+              "id": "diya",
+              "name": "Diya",
+              "sub": "has a pencil box, wants mangoes",
+              "icon": "pencilbox"
+            }
+          ],
+          "right": [
+            {
+              "id": "r_kabir",
+              "name": "Kabir",
+              "sub": "has a notebook",
+              "icon": "notebook"
+            },
+            {
+              "id": "r_aarav",
+              "name": "Aarav",
+              "sub": "has mangoes",
+              "icon": "mango"
+            },
+            {
+              "id": "r_diya",
+              "name": "Diya",
+              "sub": "has a pencil box",
+              "icon": "pencilbox"
+            },
+            {
+              "id": "r_meera",
+              "name": "Meera",
+              "sub": "has samosas",
+              "icon": "samosa"
+            }
+          ],
+          "correct": {
+            "aarav": "r_meera",
+            "meera": "r_kabir",
+            "kabir": "r_diya",
+            "diya": "r_aarav"
+          },
+          "okFb": "You did it, all four trades worked!",
+          "badFb": "Not quite. Look at what each person wants, then find who is holding it."
+        },
+        {
+          "t": "mascot",
+          "expr": "think",
+          "text": "You solved it. But notice something. This only worked because all four wanted exactly what the other person had. In real life that almost never happens. Imagine finding a perfect match for every single thing you buy."
+        }
+      ]
+    },
+    {
+      "progress": 33,
+      "cta": "Continue",
+      "comps": [
+        {
+          "t": "title",
+          "text": "One Simple Idea Changed Everything"
+        },
+        {
+          "t": "para",
+          "text": "People realised they did not need a perfect match. They just needed one thing that everybody agreed to accept. Then anyone could trade with anyone."
+        },
+        {
+          "t": "card",
+          "h": "Money = The Middle Step",
+          "b": "Instead of mangoes to samosa, you go mangoes to money to samosa. Sell what you have to anyone. Buy what you want from anyone. No perfect match needed.",
+          "flow": true
+        },
+        {
+          "t": "rich",
+          "text": "Money is not wealth itself. It is a tool that makes exchanging value easy."
+        },
+        {
+          "t": "mascot",
+          "expr": "idea",
+          "text": "That is it. That is the whole invention. Money is just something everyone agrees to accept, so nobody has to hunt for a perfect trade ever again."
+        },
+        {
+          "t": "divider"
+        }
+      ]
+    },
+    {
+      "progress": 44,
+      "cta": "Continue",
+      "comps": [
+        {
+          "t": "title",
+          "text": "Money Does Three Jobs"
+        },
+        {
+          "t": "card3",
+          "cards": [
+            {
+              "h": "1. It Gets You Things",
+              "b": "Everyone accepts it, so you can buy from anyone.",
+              "tag": "Medium of exchange",
+              "c": "green"
+            },
+            {
+              "h": "2. It Waits For You",
+              "b": "Mangoes rot in a week. 100 rupees still buys something next month. Money lets you save value for later.",
+              "tag": "Store of value",
+              "c": "purple"
+            },
+            {
+              "h": "3. It Compares Things",
+              "b": "A price tag lets you compare a 40 rupee samosa with a 4,000 rupee pair of shoes instantly.",
+              "tag": "Unit of account",
+              "c": "yellow"
+            }
+          ]
+        },
+        {
+          "t": "divider"
+        },
+        {
+          "t": "mcq",
+          "q": "Riya sells her old cycle for 2,000 rupees and keeps the money for six months to buy a laptop. Which job of money is she leaning on most?",
+          "options": [
+            {
+              "k": "a",
+              "text": "It gets you things",
+              "correct": false,
+              "fb": "Close. She did use money to sell the cycle. But the important part here is that she is holding it for six months."
+            },
+            {
+              "k": "b",
+              "text": "It waits for you",
+              "correct": true,
+              "fb": "Exactly. She is parking value for later, that is money's storage job. A cycle would rust, the 2,000 rupees waits patiently."
+            },
+            {
+              "k": "c",
+              "text": "It compares things",
+              "correct": false,
+              "fb": "Comparing is about price tags. Riya is not comparing anything, she is waiting."
+            },
+            {
+              "k": "d",
+              "text": "None of these",
+              "correct": false,
+              "fb": "Money is definitely doing something here. Look at what happens during those six months."
+            }
+          ]
+        },
+        {
+          "t": "mascot",
+          "expr": "happy",
+          "text": "Three jobs. Remember them, almost every money decision you will ever make uses at least one."
+        }
+      ]
+    },
+    {
+      "progress": 56,
+      "skip": true,
+      "cta": "Continue",
+      "comps": [
+        {
+          "t": "title",
+          "text": "Count How Often Money Touches Your Day"
+        },
+        {
+          "t": "para",
+          "text": "You might think you barely use money. Tap each moment in this school day and see what is really going on."
+        },
+        {
+          "t": "hotspot",
+          "src": "assets/lesson/schoolday.svg",
+          "points": [
+            {
+              "x": 10,
+              "y": 62,
+              "label": "Bus ride",
+              "text": "15 rupees fare. Someone paid for the bus, the fuel, and the driver's salary, all with money."
+            },
+            {
+              "x": 30,
+              "y": 62,
+              "label": "Canteen samosa",
+              "text": "40 rupees. The canteen used your money to buy flour, potatoes and oil from someone else."
+            },
+            {
+              "x": 50,
+              "y": 62,
+              "label": "New pen",
+              "text": "20 rupees. That pen crossed a factory, a truck and a shop. Money moved at every step."
+            },
+            {
+              "x": 70,
+              "y": 62,
+              "label": "Dinner at home",
+              "text": "Groceries, gas, electricity. Money quietly paid for all of it before you sat down."
+            },
+            {
+              "x": 89,
+              "y": 62,
+              "label": "Game app",
+              "text": "Even free apps earn money from ads. Nothing is truly free."
+            }
+          ]
+        },
+        {
+          "t": "bars",
+          "title": "A typical student's week in rupees",
+          "labels": [
+            "Food",
+            "Transport",
+            "Stationery",
+            "Fun",
+            "Savings"
+          ],
+          "values": [
+            180,
+            90,
+            60,
+            120,
+            50
+          ],
+          "q": "Which bar surprised you most?"
+        },
+        {
+          "t": "mascot",
+          "expr": "giggle",
+          "text": "Money touched your day at least ten times before you even noticed. That is how good a tool it is, it disappears into the background."
+        }
+      ]
+    },
+    {
+      "progress": 67,
+      "skip": true,
+      "cta": "Continue",
+      "comps": [
+        {
+          "t": "title",
+          "text": "So What Is Currency?"
+        },
+        {
+          "t": "para",
+          "text": "Every country issues its own official money. That official money is called its currency. In India our currency is the Indian Rupee, issued by the Reserve Bank of India."
+        },
+        {
+          "t": "image",
+          "src": "assets/lesson/worldmap.svg",
+          "alt": "World map with rupee, dollar, yen and euro"
+        },
+        {
+          "t": "dnd",
+          "instruction": "Tap a currency, then tap its home country.",
+          "items": [
+            {
+              "id": "inr",
+              "sym": "₹",
+              "name": "Rupee"
+            },
+            {
+              "id": "usd",
+              "sym": "$",
+              "name": "Dollar"
+            },
+            {
+              "id": "jpy",
+              "sym": "¥",
+              "name": "Yen"
+            },
+            {
+              "id": "eur",
+              "sym": "€",
+              "name": "Euro"
+            }
+          ],
+          "buckets": [
+            {
+              "id": "india",
+              "name": "India"
+            },
+            {
+              "id": "usa",
+              "name": "United States"
+            },
+            {
+              "id": "japan",
+              "name": "Japan"
+            },
+            {
+              "id": "europe",
+              "name": "Europe"
+            }
+          ],
+          "correct": {
+            "inr": "india",
+            "usd": "usa",
+            "jpy": "japan",
+            "eur": "europe"
+          },
+          "okFb": "Spot on. Same idea, different name and symbol.",
+          "badFb": "Check the symbol carefully. The rupee sign is used only in India."
+        },
+        {
+          "t": "rich",
+          "text": "Different countries, different currencies, but every single one does the same three jobs."
+        },
+        {
+          "t": "mascot",
+          "expr": "cool",
+          "text": "Travel anywhere and the notes look different. What they do never changes."
+        }
+      ]
+    },
+    {
+      "progress": 78,
+      "cta": "Continue",
+      "comps": [
+        {
+          "t": "title",
+          "text": "Pause and Think"
+        },
+        {
+          "t": "mascot",
+          "expr": "happy",
+          "text": "No right answer here. I am just curious about you."
+        },
+        {
+          "t": "reflect",
+          "prompt": "Think of the last thing you bought. If money did not exist, what would you have had to trade to get it, and would that trade have actually worked?",
+          "placeholder": "Type your answer...",
+          "min": 10
+        },
+        {
+          "t": "para",
+          "text": "Most learners realise the trade would have failed. That tiny realisation is the whole point of this lesson."
+        }
+      ]
+    },
+    {
+      "progress": 89,
+      "cta": "Finish lesson",
+      "comps": [
+        {
+          "t": "title",
+          "text": "Challenge: One Hour Without Money"
+        },
+        {
+          "t": "para",
+          "text": "At the school fair, money is banned for one hour. You have a football. You want a plate of chaat. The chaat stall owner does not want a football, he wants a phone charger."
+        },
+        {
+          "t": "table",
+          "cols": [
+            "You have",
+            "You want",
+            "They want"
+          ],
+          "rows": [
+            [
+              "Football",
+              "Chaat",
+              "Phone charger"
+            ]
+          ],
+          "icons": [
+            "football",
+            "chaat",
+            "charger"
+          ]
+        },
+        {
+          "t": "arrange",
+          "instruction": "Put these steps in the order that actually gets you the chaat.",
+          "cards": [
+            {
+              "id": "c4",
+              "text": "Trade the charger for chaat"
+            },
+            {
+              "id": "c1",
+              "text": "Find someone who wants a football"
+            },
+            {
+              "id": "c2",
+              "text": "Check if they have a phone charger"
+            },
+            {
+              "id": "c3",
+              "text": "Trade the football for the charger"
+            }
+          ],
+          "correct": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "okFb": "Four steps, and you needed to get lucky twice.",
+          "badFb": "Work backwards. What must you be holding right before you get the chaat?"
+        },
+        {
+          "t": "mascot",
+          "expr": "think",
+          "text": "Four steps. Two lucky matches. With money? One step: pay 40 rupees. That is why we use it."
+        },
+        {
+          "t": "blank",
+          "sentence": "Money works because everyone ______ that it will be accepted.",
+          "answers": [
+            "trusts",
+            "agrees",
+            "believes",
+            "knows",
+            "trust",
+            "agree",
+            "believe",
+            "know"
+          ],
+          "hint": "It starts with the letter t",
+          "okFb": "Trust. That is the invisible thing holding the whole system up.",
+          "badFb": "Think about why the canteen uncle takes a paper note instead of mangoes."
+        }
+      ]
+    },
+    {
+      "progress": 100,
+      "cta": "Next lesson",
+      "comps": [
+        {
+          "t": "complete",
+          "title": "Lesson Complete!",
+          "subtitle": "What Is Money, and Why Do We Use It?",
+          "takeaways": [
+            {
+              "h": "Money solves a matching problem",
+              "b": "Without it, every trade needs two people who want exactly what the other has."
+            },
+            {
+              "h": "It does three jobs",
+              "b": "Gets you things. Waits for you. Compares things."
+            },
+            {
+              "h": "Currency is a country's official money",
+              "b": "Rupee in India, dollar in the USA. Different names, same three jobs."
+            }
+          ],
+          "xp": 100,
+          "coins": 50,
+          "badge": "Money Decoder",
+          "badgeCaption": "You figured out what money really is.",
+          "achievement": "First lesson of your PiggyPath journey complete. 1 of 5 in this level.",
+          "teaser": "Next time I will show you what people actually used as money before coins existed. Salt. Shells. Even cattle. Some of it gets weird."
+        }
+      ]
+    }
+  ]
+}

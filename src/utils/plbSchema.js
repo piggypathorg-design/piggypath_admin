@@ -506,31 +506,5 @@ export const plbSchema = {
       { name: 'color', label: 'Color', type: 'color', default: '#18181B' },
       { name: 'align', label: 'Alignment', type: 'select', options: ['left', 'center', 'right'], default: 'center' }
     ]
-  },
-
-  // 8 Navigation Buttons
-  'Continue Button': {
-    category: 'Navigation', icon: 'ArrowRight',
-    fields: []
-  },
-  'Back Button': {
-    category: 'Navigation', icon: 'ArrowLeft',
-    fields: []
-  },
-  'Skip Button': {
-    category: 'Navigation', icon: 'FastForward',
-    fields: []
-  },
-  'Next Lesson Button': {
-    category: 'Navigation', icon: 'ArrowRight',
-    fields: [
-      { name: 'label', label: 'Button Text', type: 'text', default: 'Next lesson' }
-    ]
-  },
-  'Back to Courses Button': {
-    category: 'Navigation', icon: 'ArrowLeft',
-    fields: [
-      { name: 'label', label: 'Button Text', type: 'text', default: 'Back to courses' }
-    ]
   }
 };

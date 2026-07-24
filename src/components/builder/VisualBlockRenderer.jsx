@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
-  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, GripVertical, Volume2
+  PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, CheckCircle, GripVertical, Volume2
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import {
@@ -120,7 +120,7 @@ const useShuffledOptions = (blockId, optionsArray) => {
   return shuffled;
 };
 
-const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete, isChecking }) => {
   const shuffledOptions = useShuffledOptions(blockId, [
     { key: 'A', text: data.quiz_option_a },
     { key: 'B', text: data.quiz_option_b },
@@ -133,7 +133,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
   const hasSelection = selectedKey !== undefined;
   const isCorrectSelection = hasSelection && selectedKey === correctOptKey;
 
-  if (!data.quiz_question && !data.quiz_option_a) return null; // Fallback if quiz isn't configured
+  if (!data.quiz_question && !data.quiz_option_a) return null;
 
   return (
     <div className="w-full mt-6 flex flex-col gap-3">
@@ -143,31 +143,41 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
         const isSelected = selectedKey === opt.key;
         let bgClass = "bg-white text-[#18181B]";
         let animClass = "";
+        
         if (isSelected) {
-          if (opt.key === correctOptKey) {
-            bgClass = "bg-[#00E599] text-[#18181B]";
-            animClass = "animate-mascot-bounce";
+          if (isChecking) {
+            if (opt.key === correctOptKey) {
+              bgClass = "bg-[#00E599] text-[#18181B]";
+              animClass = "animate-mascot-bounce";
+            } else {
+              bgClass = "bg-[#FF6B6B] text-white";
+              animClass = "animate-mascot-shake";
+            }
           } else {
-            bgClass = "bg-[#FF6B6B] text-white";
-            animClass = "animate-mascot-shake";
+            bgClass = "bg-blue-100 border-blue-500 text-blue-900";
+            animClass = "scale-95";
           }
+        } else if (isChecking && opt.key === correctOptKey && hasSelection) {
+           // Show the correct one even if not selected
+           bgClass = "bg-[#00E599]/30 text-[#18181B] border-[#00E599]";
         }
+        
         return (
           <div 
             key={opt.key} 
             onClick={() => {
-              if (isPreviewMode && !hasSelection) {
-                setInteractionState({ ...interactionState, chartQuizSelectedKey: opt.key, chartQuizStatus: opt.key === correctOptKey ? 'correct' : 'incorrect' });
+              if (isPreviewMode && !isChecking) {
+                setInteractionState({ ...interactionState, chartQuizSelectedKey: opt.key });
               }
             }}
-            className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode && !hasSelection ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
+            className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95' : 'cursor-default'} ${bgClass} ${animClass}`}
           >
             {opt.text}
           </div>
         );
       })}
       
-      {hasSelection && (
+      {hasSelection && isChecking && (
         <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
           <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
           {isCorrectSelection ? (data.quiz_why_correct || 'Correct!') : (data.quiz_why_incorrect || 'Incorrect, please try again.')}
@@ -177,7 +187,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
   );
 };
 
-const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
   const numPairs = parseInt(data.number_of_pairs || '3', 10);
   
   const [shuffledRightItems, setShuffledRightItems] = React.useState([]);
@@ -225,14 +235,18 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
     const isMatch = state.leftSelected === id;
     
     if (isMatch) {
+      const newMatched = [...state.matchedPairs, id];
       setInteractionState({
         ...interactionState,
         [blockId]: {
           ...state,
           leftSelected: null,
-          matchedPairs: [...state.matchedPairs, id]
+          matchedPairs: newMatched
         }
       });
+      if (newMatched.length === numPairs && onComplete) {
+        onComplete();
+      }
     } else {
       const leftSelected = state.leftSelected;
       setInteractionState({
@@ -337,7 +351,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   );
 };
 
-const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
   const state = (interactionState && interactionState[blockId]) || { status: 'idle', clickX: null, clickY: null };
 
   const handleImageClick = (e) => {
@@ -363,7 +377,9 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
       }
     });
 
-    if (!isCorrect) {
+    if (isCorrect) {
+      if (onComplete) onComplete();
+    } else {
       setTimeout(() => {
         setInteractionState(prev => {
           if (prev[blockId]?.status === 'error') {
@@ -379,7 +395,7 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
     <div className="w-full px-6 py-4 flex flex-col gap-4 items-center">
        {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
        <div 
-         className={`relative w-full max-w-sm aspect-square bg-gray-100 border-[3px] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}
+         className={`relative w-full max-w-sm ${data.image ? 'aspect-square' : 'py-8'} bg-gray-100 border-[3px] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}
          onClick={handleImageClick}
        >
           {data.image ? (
@@ -471,7 +487,7 @@ const ArrangeSortableItem = ({ id, text, isPreviewMode }) => {
   );
 };
 
-const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -530,7 +546,9 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
         [blockId]: { status: isCorrect ? 'correct' : 'error' }
       });
       
-      if (!isCorrect) {
+      if (isCorrect) {
+        if (onComplete) onComplete();
+      } else {
         setTimeout(() => {
           setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
         }, 1000);
@@ -624,7 +642,7 @@ const DroppableBucket = ({ id, label, items, isCorrectState }) => {
   );
 };
 
-const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode }) => {
+const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
   const [bankItems, setBankItems] = React.useState([]);
   const [bucketItems, setBucketItems] = React.useState({ b1: [], b2: [], b3: [] });
   
@@ -699,7 +717,9 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
         [blockId]: { status: isCorrect ? 'correct' : 'error' }
       });
       
-      if (!isCorrect) {
+      if (isCorrect) {
+        if (onComplete) onComplete();
+      } else {
         setTimeout(() => {
           setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
         }, 1000);
@@ -768,9 +788,12 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onComplete, externalInteractionState, setExternalInteractionState, isChecking }) => {
   const data = block[version] || {};
-  const [interactionState, setInteractionState] = React.useState({});
+  const [localInteractionState, setLocalInteractionState] = React.useState({});
+  
+  const interactionState = externalInteractionState || localInteractionState;
+  const setInteractionState = setExternalInteractionState || setLocalInteractionState;
   
   const getAlign = (align) => {
     if (align === 'Center') return 'text-center justify-center';
@@ -809,16 +832,17 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return (
         <div className={`w-full flex ${alignClass} py-2 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
           <p 
-            className="break-words leading-relaxed"
+            className="break-words leading-relaxed whitespace-pre-wrap"
             style={{ 
               color, 
               fontFamily: font, 
               fontSize: `${data.font_size || 16}px`,
               fontWeight: data.bold === 'On' ? 'bold' : 'normal',
               fontStyle: data.italic === 'On' ? 'italic' : 'normal',
+              textDecoration: data.underline === 'On' ? 'underline' : 'none',
             }}
           >
-            {data.text || 'Enter your text here...'}
+            {((data.content || data.text) || 'Enter text here...').replace(/\\n/g, '\n')}
           </p>
         </div>
       );
@@ -887,10 +911,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return (
         <div className={`w-full flex flex-col ${alignClass} py-4 px-6`}>
           <div 
-            className="bg-transparent flex items-center justify-center overflow-hidden w-full relative"
+            className={`bg-transparent flex items-center justify-center overflow-hidden w-full relative ${!data.source ? 'py-8 border-2 border-dashed border-gray-300 rounded-xl' : ''}`}
             style={{
-              borderRadius: data.frame_shape === 'Circle' ? '50%' : `${data.frame_roundness || 16}px`,
-              aspectRatio: data.frame_shape === 'Square' || data.frame_shape === 'Circle' ? '1/1' : '16/9'
+              borderRadius: data.source ? (data.frame_shape === 'Circle' ? '50%' : `${data.frame_roundness || 16}px`) : undefined,
+              aspectRatio: data.source ? (data.frame_shape === 'Square' || data.frame_shape === 'Circle' ? '1/1' : '16/9') : undefined
             }}
           >
             {data.source ? (
@@ -978,7 +1002,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return (
         <div className="w-full px-6 py-4 relative flex justify-center">
           <div 
-            className="w-[80%] p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex items-center justify-center relative z-10"
+            className="w-[80%] p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex items-center justify-center relative z-10 whitespace-pre-wrap"
             style={{
               backgroundColor: data.bubble_colour || '#FFFFFF',
               color: data.text_colour || '#18181B',
@@ -988,12 +1012,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
               fontStyle: data.font_style === 'Italic' ? 'italic' : 'normal',
             }}
           >
-            {data.text || 'Mascot says...'}
+            {(data.text || 'Mascot says...').replace(/\\n/g, '\n')}
           </div>
-          <div 
-            className="absolute -bottom-2 left-12 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0"
-            style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
-          ></div>
         </div>
       );
 
@@ -1039,7 +1059,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
     }
 
     case 'MCQ': {
-      const mcqShuffled = useShuffledOptions(blockId, [
+      const mcqShuffled = useShuffledOptions(block.id, [
         { key: 'A', text: data.option_a },
         { key: 'B', text: data.option_b },
         { key: 'C', text: data.option_c },
@@ -1071,7 +1091,10 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                 <div 
                   key={opt.key} 
                   onClick={() => {
-                    if (isPreviewMode && !hasSelection) setInteractionState({ selectedKey: opt.key });
+                      if (isPreviewMode && !hasSelection) {
+                        setInteractionState({ selectedKey: opt.key });
+                        if (opt.key === correctOptKey && onComplete) onComplete();
+                      }
                   }}
                   className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode && !hasSelection ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
                 >
@@ -1129,12 +1152,14 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
                           if (e.key === 'Enter') {
                             const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
                             setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                            if (correct && onComplete) onComplete();
                           }
                         }}
                         onBlur={(e) => {
                           if (e.target.value) {
                             const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
                             setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
+                            if (correct && onComplete) onComplete();
                           }
                         }}
                       />
@@ -1254,6 +1279,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
       return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
     case 'Arrange':
       return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+    case 'Chart Quiz':
+      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onComplete={onComplete} isChecking={isChecking} />;
     case 'Hotspot':
       return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
     case 'Match Pairs':
@@ -1588,7 +1615,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
           {isPreviewMode && <Confetti score={90} />}
           <div className="relative flex flex-col items-center">
             {/* Starburst rays */}
-            <div className="absolute w-56 h-56 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMEw1NSAzNUw5MCAxMEw2NSA0NUwxMDAgNTBMNjUgNTVMOTAgOTBMNTUgNjVMNTAgMTAwTDQ1IDY1TDEwIDkwTDM1IDU1TDAgNTBMMzUgNDVMMTAgMTBMNDUgMzVaIiBmaWxsPSIjRkZEODREIiBvcGFjaXR5PSIwLjI1Ii8+PC9zdmc+')] bg-center bg-no-repeat bg-contain animate-spin-slow -z-10"></div>
+            <div className="absolute w-56 h-56 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMEw1NSAzNSw5MCAxMEw2NSA0NUwxMDAgNTBMNjUgNTVMOTAgOTBMNTUgNjVMNTAgMTAwTDQ1IDY1TDEwIDkwTDM1IDU1TDAgNTBMMzUgNDVMMTAgMTBMNDUgMzVaIiBmaWxsPSIjRkZEODREIiBvcGFjaXR5PSIwLjI1Ii8+PC9zdmc+')] bg-center bg-no-repeat bg-contain animate-spin-slow -z-10"></div>
             
             <div className="w-32 h-32 bg-gradient-to-b from-[#806BFF] to-[#3F43BF] rounded-full border-[5px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center mb-6 relative overflow-hidden">
                {/* Shine reflection */}
@@ -1723,6 +1750,9 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
         <div className="w-full px-6 py-4">
           <button 
             type="button"
+            onClick={() => {
+              if (isPreviewMode && onComplete) onComplete();
+            }}
             className="w-full px-6 py-3 flex items-center justify-center gap-3 border-[2px] border-[#18181B] rounded-lg font-bold text-sm shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
             style={{ backgroundColor: navConf.color }}
           >
@@ -1798,6 +1828,9 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue }) =
         <div className="w-full px-6 py-4">
           <button 
             type="button" 
+            onClick={() => {
+              if (isPreviewMode && onComplete) onComplete();
+            }}
             className="w-full px-4 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-base hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all whitespace-nowrap"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />
