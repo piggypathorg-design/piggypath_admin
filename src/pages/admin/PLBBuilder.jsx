@@ -725,7 +725,8 @@ const PLBBuilder = () => {
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
-    return matchesSearch && matchesCategory;
+    const isLegacy = plbSchema[type].category === 'Legacy Navigation';
+    return matchesSearch && matchesCategory && !isLegacy;
   });
 
   return (

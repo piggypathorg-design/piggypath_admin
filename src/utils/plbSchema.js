@@ -140,6 +140,17 @@ export const plbSchema = {
       { name: 'bubble_colour', label: 'Bubble Colour', type: 'color', default: '#FFFFFF' }
     ]
   },
+  'Mascot Bubble': {
+    category: 'Mascot', icon: 'MessageSquare',
+    fields: [
+      { name: 'text', label: 'Text', type: 'textarea', default: 'Mascot says...' },
+      { name: 'font', label: 'Font', type: 'select', options: ['Montserrat', 'Arial', 'Inter', 'Outfit', 'Quicksand', 'Poppins', 'Fredoka One', 'Comic Sans MS'], default: 'Montserrat' },
+      { name: 'font_size', label: 'Font Size (px)', type: 'number', default: 16 },
+      { name: 'font_style', label: 'Font Style', type: 'select', options: ['Normal', 'Bold', 'Italic'], default: 'Bold' },
+      { name: 'text_colour', label: 'Text Colour', type: 'color', default: '#18181B' },
+      { name: 'bubble_colour', label: 'Bubble Colour', type: 'color', default: '#FFFFFF' }
+    ]
+  },
 
   // 4 Activity
   MCQ: {
@@ -506,5 +517,27 @@ export const plbSchema = {
       { name: 'color', label: 'Color', type: 'color', default: '#18181B' },
       { name: 'align', label: 'Alignment', type: 'select', options: ['left', 'center', 'right'], default: 'center' }
     ]
+  },
+
+  // 8 Legacy Navigation (Hidden from builder, here to prevent existing lessons from crashing)
+  'Continue Button': {
+    category: 'Legacy Navigation', icon: 'ArrowRight',
+    fields: [{ name: 'text', label: 'Button Text', type: 'text', default: 'Continue' }]
+  },
+  'Skip Button': {
+    category: 'Legacy Navigation', icon: 'FastForward',
+    fields: [{ name: 'text', label: 'Button Text', type: 'text', default: 'Skip' }]
+  },
+  'Back Button': {
+    category: 'Legacy Navigation', icon: 'ArrowLeft',
+    fields: [{ name: 'text', label: 'Button Text', type: 'text', default: 'Back' }]
+  },
+  'Next Lesson Button': {
+    category: 'Legacy Navigation', icon: 'ArrowRight',
+    fields: [{ name: 'text', label: 'Button Text', type: 'text', default: 'Next Lesson' }]
+  },
+  'Back to Courses Button': {
+    category: 'Legacy Navigation', icon: 'ArrowLeft',
+    fields: [{ name: 'text', label: 'Button Text', type: 'text', default: 'Back to Courses' }]
   }
 };
