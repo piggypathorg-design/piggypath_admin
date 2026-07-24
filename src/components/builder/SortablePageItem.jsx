@@ -14,7 +14,8 @@ export const SortablePageItem = ({
   duplicateBlock, 
   deleteBlock,
   selectedBlockId,
-  setSelectedBlockId
+  setSelectedBlockId,
+  onToggleSkip
 }) => {
   const {
     attributes,
@@ -66,7 +67,14 @@ export const SortablePageItem = ({
       </div>
       
       {isActive && (
-        <div className="p-1 flex flex-col gap-1 min-h-[50px] max-h-[300px] overflow-y-auto custom-scrollbar">
+        <div className="flex flex-col border-t border-[#18181B]/10">
+          <div className="px-3 py-2 flex justify-end bg-gray-50/50">
+             <label className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:text-[#18181B] transition-colors" onClick={(e) => e.stopPropagation()}>
+               <input type="checkbox" checked={!!page.skippable} onChange={onToggleSkip} className="accent-[#00E599] w-3.5 h-3.5 cursor-pointer" />
+               Skippable Page
+             </label>
+          </div>
+          <div className="p-1 flex flex-col gap-1 min-h-[50px] max-h-[300px] overflow-y-auto custom-scrollbar">
           {page.blocks.length === 0 ? (
             <div className="text-xs font-bold text-gray-500 p-3 text-center">Empty Page</div>
           ) : (
@@ -96,6 +104,7 @@ export const SortablePageItem = ({
               </div>
             ))
           )}
+          </div>
         </div>
       )}
     </div>

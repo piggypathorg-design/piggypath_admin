@@ -77,6 +77,15 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
     }
   };
 
+  const handleRestart = () => {
+    setCurrentPageIndex(0);
+    setLives(5);
+    setIsCompleted(false);
+    setInteractionState({});
+    setIsChecking(false);
+    setBlockAnswerState({ isAnswered: false, isCorrect: false });
+  };
+
   // correctness is now purely handled via blockAnswerState
 
   if (isCompleted || lives === 0) {
@@ -89,7 +98,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
           <h2 className="text-3xl font-black text-[#18181B] mb-4">{lives === 0 ? 'Out of Lives!' : 'Lesson Complete!'}</h2>
           <p className="text-gray-500 font-bold mb-8">{lives === 0 ? "You've run out of hearts. Try again!" : "You've successfully finished this lesson."}</p>
           <button 
-            onClick={onClose}
+            onClick={lives === 0 ? handleRestart : onClose}
             className="w-full py-4 bg-[#00E599] text-[#18181B] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl font-black text-xl hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95 transition-all"
           >
             {lives === 0 ? 'Restart' : 'Continue'}

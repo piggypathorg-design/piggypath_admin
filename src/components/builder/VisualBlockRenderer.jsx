@@ -214,7 +214,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   };
 
   const handleLeftClick = (id) => {
-    if (!isPreviewMode) return;
+    if (!isPreviewMode || isChecking) return;
     if (state.matchedPairs.includes(id)) return;
     
     setInteractionState({
@@ -229,7 +229,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   };
 
   const handleRightClick = (id) => {
-    if (!isPreviewMode) return;
+    if (!isPreviewMode || isChecking) return;
     if (state.matchedPairs.includes(id)) return;
     if (!state.leftSelected) return;
 
@@ -356,7 +356,7 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
   const state = (interactionState && interactionState[blockId]) || { status: 'idle', clickX: null, clickY: null };
 
   const handleImageClick = (e) => {
-    if (!isPreviewMode) return;
+    if (!isPreviewMode || isChecking) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -452,7 +452,7 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
   );
 };
 
-const ArrangeSortableItem = ({ id, text, isPreviewMode }) => {
+const ArrangeSortableItem = ({ id, text, isPreviewMode, isChecking }) => {
   const {
     attributes,
     listeners,
@@ -460,7 +460,7 @@ const ArrangeSortableItem = ({ id, text, isPreviewMode }) => {
     transform,
     transition,
     isDragging
-  } = useSortable({ id: id, disabled: !isPreviewMode });
+  } = useSortable({ id: id, disabled: !isPreviewMode || isChecking });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -513,11 +513,6 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       setItems(shuffled);
-      if (onAnswered) {
-        const currentOrder = shuffled.map(i => i.id).join(',');
-        const correctOrder = objects.map(i => i.id).join(',');
-        onAnswered({ isAnswered: true, isCorrect: currentOrder === correctOrder });
-      }
     } else {
       setItems(objects);
     }
@@ -526,7 +521,7 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
   const state = (interactionState && interactionState[blockId]) || { status: 'idle' };
 
   const handleDragEnd = (event) => {
-    if (!isPreviewMode) return;
+    if (!isPreviewMode || isChecking) return;
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setItems((items) => {
@@ -571,7 +566,7 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
               strategy={verticalListSortingStrategy}
             >
               {items.map((item) => (
-                <ArrangeSortableItem key={item.id} id={item.id} text={item.text} isPreviewMode={isPreviewMode} />
+                <ArrangeSortableItem key={item.id} id={item.id} text={item.text} isPreviewMode={isPreviewMode} isChecking={isChecking} />
               ))}
             </SortableContext>
           </DndContext>
@@ -665,7 +660,7 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
   const state = (interactionState && interactionState[blockId]) || { status: 'idle' };
 
   const handleDragEnd = (event) => {
-    if (!isPreviewMode) return;
+    if (!isPreviewMode || isChecking) return;
     const { active, over } = event;
     
     if (over) {
@@ -734,7 +729,7 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
               <div className="text-gray-400 font-bold text-sm">All items sorted!</div>
             ) : (
               bankItems.map(item => (
-                <DraggablePill key={item.id} id={item.id} text={item.text} disabled={!isPreviewMode} />
+                <DraggablePill key={item.id} id={item.id} text={item.text} disabled={!isPreviewMode || isChecking} />
               ))
             )}
           </div>
@@ -1727,9 +1722,6 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
         <div className="w-full px-6 py-4">
           <button 
             type="button"
-            onClick={() => {
-              if (isPreviewMode && onComplete) onComplete();
-            }}
             className="w-full px-6 py-3 flex items-center justify-center gap-3 border-[2px] border-[#18181B] rounded-lg font-bold text-sm shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
             style={{ backgroundColor: navConf.color }}
           >
@@ -1805,9 +1797,6 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
         <div className="w-full px-6 py-4">
           <button 
             type="button" 
-            onClick={() => {
-              if (isPreviewMode && onComplete) onComplete();
-            }}
             className="w-full px-4 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-base hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all whitespace-nowrap"
           >
             <ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />

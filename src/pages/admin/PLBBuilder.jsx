@@ -914,6 +914,14 @@ const PLBBuilder = () => {
                       deleteBlock={deleteBlock}
                       selectedBlockId={selectedBlockId}
                       setSelectedBlockId={setSelectedBlockId}
+                      onToggleSkip={() => {
+                        const newPages = pages.map(p => {
+                          if (p.id === page.id) return { ...p, skippable: !p.skippable };
+                          return p;
+                        });
+                        setPages(newPages);
+                        saveLesson(newPages);
+                      }}
                     />
                   ))}
                 </SortableContext>
