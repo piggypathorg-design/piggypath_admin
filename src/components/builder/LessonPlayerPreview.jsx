@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Heart, CheckCircle, XCircle } from 'lucide-react';
+import { X, Heart, CheckCircle, XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import VisualBlockRenderer from './VisualBlockRenderer';
 
 const INTERACTIVE_TYPES = [
@@ -17,6 +17,9 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const [interactionState, setInteractionState] = useState({});
   const [isChecking, setIsChecking] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [lives, setLives] = useState(5);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [blockAnswerState, setBlockAnswerState] = useState({ isAnswered: false, isCorrect: false });
   
   const containerRef = useRef(null);
 
@@ -29,6 +32,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   useEffect(() => {
     setInteractionState({});
     setIsChecking(false);
+    setBlockAnswerState({ isAnswered: false, isCorrect: false });
     
     if (containerRef.current) {
       containerRef.current.scrollTo(0, 0);
@@ -38,12 +42,8 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   // Determine if the current page has an interactive block
   const interactiveBlock = blocks.find(b => INTERACTIVE_TYPES.includes(b.type));
   
-  // Determine if the user has made a selection (very basic check for Chart Quiz for now)
-  // We can expand this to check other interactive block states
-  const hasSelection = interactiveBlock 
-    ? (interactionState.chartQuizSelectedKey !== undefined || 
-       Object.values(interactionState).some(state => state && typeof state === 'object' && Object.keys(state).length > 0))
-    : true; // If no interactive block, always allow continue
+  const hasSelection = interactiveBlock ? blockAnswerState.isAnswered : true;
+  const isAnswerCorrect = interactiveBlock ? blockAnswerState.isCorrect : true;
 
   const handleActionClick = () => {
     if (!interactiveBlock) {
@@ -53,11 +53,20 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
       if (!isChecking) {
         // Evaluate the answer
         setIsChecking(true);
+        if (!blockAnswerState.isCorrect) {
+          setLives(prev => Math.max(0, prev - 1));
+        }
       } else {
         // Already checked, move to next
         advancePage();
       }
     }
+  };
+
+  const handleExitRequest = () => setShowExitConfirm(true);
+
+  const goBack = () => {
+    if (currentIndex > 0) setCurrentPageIndex(prev => prev - 1);
   };
 
   const advancePage = () => {
@@ -68,47 +77,45 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
     }
   };
 
-  // Compute if the checked answer is correct (for Chart Quiz specifically, or fallback to default correct)
-  // To make this fully robust, we'd need interactionState to store a standard `isCorrect` flag.
-  let isAnswerCorrect = true;
-  if (isChecking && interactiveBlock) {
-    if (interactiveBlock.type === 'Chart Quiz') {
-      const data = interactiveBlock[version] || {};
-      const correctOptKey = data.quiz_correct_option || 'A';
-      isAnswerCorrect = interactionState.chartQuizSelectedKey === correctOptKey;
-    }
-  }
+  // correctness is now purely handled via blockAnswerState
 
-  if (isCompleted) {
+  if (isCompleted || lives === 0) {
     return (
       <div className={`mx-auto flex flex-col h-full bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
           <div className="w-32 h-32 mb-6">
              <img src="/piggypath_admin/assets/mascots/Happy.png?v=clean4" alt="Happy Mascot" className="w-full h-full object-contain animate-mascot-bounce" />
           </div>
-          <h2 className="text-3xl font-black text-[#18181B] mb-4">Lesson Complete!</h2>
-          <p className="text-gray-500 font-bold mb-8">You've successfully finished this lesson.</p>
+          <h2 className="text-3xl font-black text-[#18181B] mb-4">{lives === 0 ? 'Out of Lives!' : 'Lesson Complete!'}</h2>
+          <p className="text-gray-500 font-bold mb-8">{lives === 0 ? "You've run out of hearts. Try again!" : "You've successfully finished this lesson."}</p>
           <button 
             onClick={onClose}
             className="w-full py-4 bg-[#00E599] text-[#18181B] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl font-black text-xl hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95 transition-all"
           >
-            Continue
+            {lives === 0 ? 'Restart' : 'Continue'}
           </button>
         </div>
       </div>
     );
   }
 
-  const progressPercent = pages.length > 0 ? ((currentIndex) / pages.length) * 100 : 0;
+  const progressPercent = pages.length > 0 ? ((currentIndex + 1) / pages.length) * 100 : 0;
 
   return (
     <div className={`mx-auto flex flex-col h-[100dvh] overflow-hidden bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
       
       {/* Top Header */}
       <div className="w-full px-4 py-4 flex items-center gap-4 bg-white z-20 shrink-0">
-        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
-          <X size={24} className="text-gray-400" />
-        </button>
+        <div className="flex items-center">
+          {currentIndex > 0 && (
+            <button onClick={goBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
+              <ArrowLeft size={24} className="text-gray-400" />
+            </button>
+          )}
+          <button onClick={handleExitRequest} className="p-2 hover:bg-gray-100 rounded-full transition-colors active:scale-95">
+            <X size={24} className="text-gray-400" />
+          </button>
+        </div>
         
         <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border-[2px] border-gray-300">
           <div 
@@ -119,7 +126,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
         
         <div className="flex items-center gap-1 text-[#FF4B4B] font-black">
           <Heart size={24} fill="currentColor" />
-          <span>5</span>
+          <span>{lives}</span>
         </div>
       </div>
 
@@ -139,6 +146,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
                 externalInteractionState={interactionState}
                 setExternalInteractionState={setInteractionState}
                 isChecking={isChecking}
+                onAnswered={setBlockAnswerState}
               />
             </div>
           ))}
@@ -162,23 +170,47 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
           </div>
         )}
 
-        <button 
-          onClick={handleActionClick}
-          disabled={!hasSelection}
-          className={`w-full py-4 rounded-2xl font-black text-xl transition-all border-[3px] 
-            ${!hasSelection 
-              ? 'bg-gray-200 text-gray-400 border-transparent cursor-not-allowed' 
-              : isChecking
-                ? isAnswerCorrect 
-                  ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
-                  : 'bg-[#FF6B6B] text-white border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
-                : 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
-            }`}
-        >
-          {!interactiveBlock ? 'Continue' : isChecking ? 'Continue' : 'Check'}
-        </button>
+        <div className="flex flex-col gap-2">
+          <button 
+            onClick={handleActionClick}
+            disabled={!hasSelection}
+            className={`w-full py-4 rounded-2xl font-black text-xl transition-all border-[3px] 
+              ${!hasSelection 
+                ? 'bg-gray-200 text-gray-400 border-transparent cursor-not-allowed' 
+                : isChecking
+                  ? isAnswerCorrect 
+                    ? 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
+                    : 'bg-[#FF6B6B] text-white border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
+                  : 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
+              }`}
+          >
+            {!interactiveBlock ? 'Continue' : isChecking ? 'Continue' : 'Check'}
+          </button>
+          
+          {currentPage.skippable && !isChecking && (
+            <button onClick={advancePage} className="w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors">
+              Skip
+            </button>
+          )}
+        </div>
       </div>
 
+      {showExitConfirm && (
+        <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] p-6 w-full max-w-sm flex flex-col gap-4 border-[4px] border-[#18181B] shadow-[8px_8px_0_#18181B]">
+            <h3 className="text-xl font-black text-[#18181B]">Are you sure you want to exit?</h3>
+            <p className="text-gray-500 font-bold">Your progress won't be saved.</p>
+            <div className="flex flex-col gap-2 mt-2">
+              <button onClick={onClose} className="w-full py-3 bg-[#FF6B6B] text-white border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-xl font-black text-lg active:translate-y-1 active:shadow-none transition-all">
+                Yes, exit
+              </button>
+              <button onClick={() => setShowExitConfirm(false)} className="w-full py-3 bg-white text-[#18181B] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-xl font-black text-lg active:translate-y-1 active:shadow-none transition-all">
+                Keep learning
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

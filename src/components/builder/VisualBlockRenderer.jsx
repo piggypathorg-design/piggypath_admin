@@ -120,7 +120,7 @@ const useShuffledOptions = (blockId, optionsArray) => {
   return shuffled;
 };
 
-const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete, isChecking }) => {
+const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const shuffledOptions = useShuffledOptions(blockId, [
     { key: 'A', text: data.quiz_option_a },
     { key: 'B', text: data.quiz_option_b },
@@ -168,6 +168,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
             onClick={() => {
               if (isPreviewMode && !isChecking) {
                 setInteractionState({ ...interactionState, chartQuizSelectedKey: opt.key });
+                if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
               }
             }}
             className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95' : 'cursor-default'} ${bgClass} ${animClass}`}
@@ -187,7 +188,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
   );
 };
 
-const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
+const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const numPairs = parseInt(data.number_of_pairs || '3', 10);
   
   const [shuffledRightItems, setShuffledRightItems] = React.useState([]);
@@ -244,8 +245,8 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
           matchedPairs: newMatched
         }
       });
-      if (newMatched.length === numPairs && onComplete) {
-        onComplete();
+      if (onAnswered) {
+        onAnswered({ isAnswered: newMatched.length === numPairs, isCorrect: true });
       }
     } else {
       const leftSelected = state.leftSelected;
@@ -351,7 +352,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   );
 };
 
-const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
+const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const state = (interactionState && interactionState[blockId]) || { status: 'idle', clickX: null, clickY: null };
 
   const handleImageClick = (e) => {
@@ -377,9 +378,9 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
       }
     });
 
-    if (isCorrect) {
-      if (onComplete) onComplete();
-    } else {
+    if (onAnswered) onAnswered({ isAnswered: true, isCorrect });
+
+    if (!isCorrect) {
       setTimeout(() => {
         setInteractionState(prev => {
           if (prev[blockId]?.status === 'error') {
@@ -487,7 +488,7 @@ const ArrangeSortableItem = ({ id, text, isPreviewMode }) => {
   );
 };
 
-const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
+const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -512,6 +513,11 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       setItems(shuffled);
+      if (onAnswered) {
+        const currentOrder = shuffled.map(i => i.id).join(',');
+        const correctOrder = objects.map(i => i.id).join(',');
+        onAnswered({ isAnswered: true, isCorrect: currentOrder === correctOrder });
+      }
     } else {
       setItems(objects);
     }
@@ -526,7 +532,15 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
       setItems((items) => {
         const oldIndex = items.findIndex(p => p.id === active.id);
         const newIndex = items.findIndex(p => p.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        
+        if (onAnswered) {
+          const currentOrder = newItems.map(i => i.id).join(',');
+          const correctOrder = originalItems.join(',');
+          onAnswered({ isAnswered: true, isCorrect: currentOrder === correctOrder });
+        }
+        
+        return newItems;
       });
       if (interactionState) {
         setInteractionState({ ...interactionState, [blockId]: { status: 'idle' } });
@@ -534,31 +548,11 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
     }
   };
 
-  const handleCheck = () => {
-    if (!isPreviewMode) return;
-    const currentOrder = items.map(i => i.id).join(',');
-    const correctOrder = originalItems.join(',');
-    const isCorrect = currentOrder === correctOrder;
-    
-    if (interactionState) {
-      setInteractionState({
-        ...interactionState,
-        [blockId]: { status: isCorrect ? 'correct' : 'error' }
-      });
-      
-      if (isCorrect) {
-        if (onComplete) onComplete();
-      } else {
-        setTimeout(() => {
-          setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
-        }, 1000);
-      }
-    }
-  };
+  const isCorrectState = isChecking && originalItems.join(',') === items.map(i => i.id).join(',');
 
   return (
     <div className="w-full px-6 py-4">
-      <div className={`w-full flex flex-col gap-4 bg-white border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}>
+      <div className={`w-full flex flex-col gap-4 bg-white border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${isChecking ? (isCorrectState ? 'border-[#00E599]' : 'border-[#FF6B6B]') : 'border-[#18181B]'}`}>
         <div className="flex items-start gap-3 mb-2">
           <div className="w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
             <ListOrdered className="text-[#18181B]" size={20} strokeWidth={3} />
@@ -583,14 +577,6 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
           </DndContext>
         </div>
         
-        {isPreviewMode && (
-          <button 
-            onClick={handleCheck}
-            className={`mt-4 w-full py-3 rounded-xl font-black text-lg transition-all border-[3px] shadow-[4px_4px_0_#18181B] ${state.status === 'correct' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-[#18181B] text-white border-[#18181B] hover:bg-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]'}`}
-          >
-            {state.status === 'correct' ? 'Correct!' : 'Check Answer'}
-          </button>
-        )}
       </div>
     </div>
   );
@@ -642,7 +628,7 @@ const DroppableBucket = ({ id, label, items, isCorrectState }) => {
   );
 };
 
-const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onComplete }) => {
+const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const [bankItems, setBankItems] = React.useState([]);
   const [bucketItems, setBucketItems] = React.useState({ b1: [], b2: [], b3: [] });
   
@@ -669,6 +655,7 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
       const shuffled = [...allItems].sort(() => Math.random() - 0.5);
       setBankItems(shuffled);
       setBucketItems({ b1: [], b2: [], b3: [] });
+      if (onAnswered) onAnswered({ isAnswered: false, isCorrect: false });
     } else {
       setBankItems(allItems);
       setBucketItems({ b1: [], b2: [], b3: [] });
@@ -684,48 +671,44 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
     if (over) {
       const draggedItem = bankItems.find(i => i.id === active.id);
       if (draggedItem) {
-        setBankItems(prev => prev.filter(i => i.id !== active.id));
-        setBucketItems(prev => ({
-          ...prev,
-          [over.id]: [...prev[over.id], draggedItem]
-        }));
-        
-        if (interactionState) {
-          setInteractionState({ ...interactionState, [blockId]: { status: 'idle' } });
-        }
+        setBankItems(prev => {
+          const newBank = prev.filter(i => i.id !== active.id);
+          setBucketItems(prevBuckets => {
+            const newBuckets = {
+              ...prevBuckets,
+              [over.id]: [...prevBuckets[over.id], draggedItem]
+            };
+            
+            // Check correctness
+            const allPlaced = newBank.length === 0;
+            let isCorrect = allPlaced;
+            if (isCorrect) {
+              ['b1', 'b2', 'b3'].forEach(bId => {
+                newBuckets[bId].forEach(item => {
+                  if (item.bucket !== bId) isCorrect = false;
+                });
+              });
+            }
+            if (onAnswered) onAnswered({ isAnswered: allPlaced, isCorrect });
+            
+            return newBuckets;
+          });
+          return newBank;
+        });
       }
     }
   };
   
-  const handleCheck = () => {
-    if (!isPreviewMode) return;
-    
-    const allPlaced = bankItems.length === 0;
-    
-    let isCorrect = allPlaced;
-    if (isCorrect) {
-      ['b1', 'b2', 'b3'].forEach(bId => {
-        bucketItems[bId].forEach(item => {
-          if (item.bucket !== bId) isCorrect = false;
-        });
+  const allPlaced = bankItems.length === 0;
+  let isCorrectState = false;
+  if (allPlaced) {
+    isCorrectState = true;
+    ['b1', 'b2', 'b3'].forEach(bId => {
+      bucketItems[bId].forEach(item => {
+        if (item.bucket !== bId) isCorrectState = false;
       });
-    }
-
-    if (interactionState) {
-      setInteractionState({
-        ...interactionState,
-        [blockId]: { status: isCorrect ? 'correct' : 'error' }
-      });
-      
-      if (isCorrect) {
-        if (onComplete) onComplete();
-      } else {
-        setTimeout(() => {
-          setInteractionState(prev => ({ ...prev, [blockId]: { status: 'idle' } }));
-        }, 1000);
-      }
-    }
-  };
+    });
+  }
 
   const buckets = [];
   if (data.bucket_1_name || (!data.bucket_1_name && !data.bucket_2_name)) buckets.push({ id: 'b1', label: data.bucket_1_name || 'Needs' });
@@ -734,13 +717,13 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
 
   return (
     <div className="w-full px-6 py-4">
-      <div className={`w-full flex flex-col gap-6 bg-[#F4F4F5] border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}>
+      <div className={`w-full flex flex-col gap-6 bg-[#F4F4F5] border-[4px] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B] transition-colors ${isChecking ? (isCorrectState ? 'border-[#00E599]' : 'border-[#FF6B6B]') : 'border-[#18181B]'}`}>
         {data.question && <p className="font-black text-center text-lg leading-tight text-[#18181B]">{data.question}</p>}
         
         <DndContext onDragEnd={handleDragEnd}>
           <div className="flex gap-4 w-full justify-center">
             {buckets.map(b => (
-              <DroppableBucket key={b.id} id={b.id} label={b.label} items={bucketItems[b.id] || []} isCorrectState={state.status} />
+              <DroppableBucket key={b.id} id={b.id} label={b.label} items={bucketItems[b.id] || []} isCorrectState={isChecking ? (isCorrectState ? 'correct' : 'error') : 'idle'} />
             ))}
           </div>
           
@@ -757,13 +740,10 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
           </div>
         </DndContext>
         
-        {isPreviewMode && bankItems.length === 0 && (
-          <button 
-            onClick={handleCheck}
-            className={`w-full py-3 rounded-xl font-black text-lg transition-all border-[3px] shadow-[4px_4px_0_#18181B] ${state.status === 'correct' ? 'bg-[#00E599] text-[#18181B] border-[#18181B]' : 'bg-[#18181B] text-white border-[#18181B] hover:bg-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]'}`}
-          >
-            {state.status === 'correct' ? 'Correct!' : 'Check Answer'}
-          </button>
+        {isPreviewMode && bankItems.length === 0 && isChecking && (
+          <div className={`w-full p-4 rounded-xl text-center font-bold text-[#18181B] ${isCorrectState ? 'bg-[#00E599]' : 'bg-[#FF6B6B] text-white'}`}>
+            {isCorrectState ? 'Excellent sorting!' : 'Some items might be in the wrong bucket!'}
+          </div>
         )}
       </div>
     </div>
@@ -788,7 +768,7 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onComplete, externalInteractionState, setExternalInteractionState, isChecking }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onComplete, externalInteractionState, setExternalInteractionState, isChecking, onAnswered }) => {
   const data = block[version] || {};
   const [localInteractionState, setLocalInteractionState] = React.useState({});
   
@@ -1078,32 +1058,41 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
               const isSelected = interactionState?.selectedKey === opt.key;
               let bgClass = "bg-white text-[#18181B]";
               let animClass = "";
+              
               if (isSelected) {
-                if (opt.key === correctOptKey) {
-                  bgClass = "bg-[#00E599] text-[#18181B]";
-                  animClass = "animate-mascot-bounce";
+                if (isChecking) {
+                  if (opt.key === correctOptKey) {
+                    bgClass = "bg-[#00E599] text-[#18181B]";
+                    animClass = "animate-mascot-bounce";
+                  } else {
+                    bgClass = "bg-[#FF6B6B] text-white";
+                    animClass = "animate-mascot-shake";
+                  }
                 } else {
-                  bgClass = "bg-[#FF6B6B] text-white";
-                  animClass = "animate-mascot-shake";
+                  bgClass = "bg-blue-100 border-blue-500 text-blue-900";
+                  animClass = "scale-95";
                 }
+              } else if (isChecking && opt.key === correctOptKey && hasSelection) {
+                 bgClass = "bg-[#00E599]/30 text-[#18181B] border-[#00E599]";
               }
+
               return (
                 <div 
                   key={opt.key} 
                   onClick={() => {
-                      if (isPreviewMode && !hasSelection) {
+                      if (isPreviewMode && !isChecking) {
                         setInteractionState({ selectedKey: opt.key });
-                        if (opt.key === correctOptKey && onComplete) onComplete();
+                        if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
                       }
                   }}
-                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] border-[#18181B] text-center transition-all ${isPreviewMode && !hasSelection ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B]' : 'cursor-default'} ${bgClass} ${animClass}`}
+                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95' : 'cursor-default'} ${bgClass} ${animClass}`}
                 >
                   {opt.text}
                 </div>
               );
             })}
             
-            {hasSelection && (
+            {hasSelection && isChecking && (
               <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
                 <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
                 {isCorrectSelection ? (data.why_correct || 'That is correct!') : (data.why_incorrect || 'That is incorrect, please try again.')}
@@ -1114,10 +1103,11 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
       );
     }
 
-    case 'Fill in the Blank':
+    case 'Fill in the Blank': {
       const parts = (data.question || 'A ___ fund should cover 3 to 6 months of essential expenses.').split(/_{2,}/);
-      const isFillCorrect = interactionState?.status === 'correct';
-      const isFillIncorrect = interactionState?.status === 'incorrect';
+      const val = interactionState?.value || '';
+      const isFillCorrect = isChecking && val.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
+      const isFillIncorrect = isChecking && !isFillCorrect && val.trim() !== '';
       
       let inputBorder = "border-[#18181B] border-[3px]";
       let inputBg = "bg-[#F4F4F5]";
@@ -1143,24 +1133,15 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                     {index < parts.length - 1 && (
                       <input 
                         type="text"
-                        disabled={!isPreviewMode}
+                        disabled={!isPreviewMode || isChecking}
                         className={`w-20 sm:w-28 px-2 py-1 rounded-xl text-center font-bold text-sm outline-none transition-all shrink ${inputBorder} ${inputBg}`}
                         placeholder="Type..."
-                        value={interactionState?.value || ''}
-                        onChange={(e) => setInteractionState({ ...interactionState, value: e.target.value })}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
-                            setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
-                            if (correct && onComplete) onComplete();
-                          }
-                        }}
-                        onBlur={(e) => {
-                          if (e.target.value) {
-                            const correct = e.target.value.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
-                            setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect' });
-                            if (correct && onComplete) onComplete();
-                          }
+                        value={val}
+                        onChange={(e) => {
+                          const newVal = e.target.value;
+                          setInteractionState({ ...interactionState, value: newVal });
+                          const correct = newVal.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
+                          if (onAnswered) onAnswered({ isAnswered: newVal.trim() !== '', isCorrect: correct });
                         }}
                       />
                     )}
@@ -1184,19 +1165,21 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
           </div>
         </div>
       );
+    }
 
-    case 'Slider':
+    case 'Slider': {
       const min = parseInt(data.min_value || 0, 10);
       const max = parseInt(data.max_value || 100, 10);
       const target = parseInt(data.target_value || 50, 10);
       const tol = parseInt(data.tolerance || 5, 10);
       
       const val = interactionState?.value ?? min;
-      const sliderStatus = interactionState?.status;
+      const isCorrect = Math.abs(val - target) <= tol;
+      const hasAttempted = interactionState?.hasAttempted;
       
       let trackColor = "bg-[#8B5CF6]";
-      if (sliderStatus === 'correct') trackColor = "bg-[#00E599]";
-      if (sliderStatus === 'incorrect') trackColor = "bg-[#FF6B6B]";
+      if (isChecking && isCorrect) trackColor = "bg-[#00E599]";
+      if (isChecking && !isCorrect && hasAttempted) trackColor = "bg-[#FF6B6B]";
 
       return (
         <div className="w-full px-6 py-4">
@@ -1213,7 +1196,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                 <div className={`absolute left-0 right-0 h-3 rounded-full border-[2px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
                 
                 {/* Hint Band */}
-                {interactionState?.hasAttempted && sliderStatus !== 'correct' && (
+                {hasAttempted && isChecking && !isCorrect && (
                   <div 
                     className="absolute h-3 rounded-full bg-[#00E599] opacity-40 pointer-events-none"
                     style={{
@@ -1229,21 +1212,14 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                   min={min}
                   max={max}
                   value={val}
-                  disabled={!isPreviewMode}
+                  disabled={!isPreviewMode || isChecking}
                   className="w-full absolute inset-0 opacity-0 cursor-pointer z-10"
                   onChange={(e) => {
                     if (!isPreviewMode) return;
-                    setInteractionState({ ...interactionState, value: parseInt(e.target.value) });
-                  }}
-                  onMouseUp={() => {
-                    if (!isPreviewMode) return;
-                    const correct = Math.abs(val - target) <= tol;
-                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect', hasAttempted: true });
-                  }}
-                  onTouchEnd={() => {
-                    if (!isPreviewMode) return;
-                    const correct = Math.abs(val - target) <= tol;
-                    setInteractionState({ ...interactionState, status: correct ? 'correct' : 'incorrect', hasAttempted: true });
+                    const newVal = parseInt(e.target.value);
+                    setInteractionState({ ...interactionState, value: newVal, hasAttempted: true });
+                    const correct = Math.abs(newVal - target) <= tol;
+                    if (onAnswered) onAnswered({ isAnswered: true, isCorrect: correct });
                   }}
                 />
                 
@@ -1261,30 +1237,31 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                 <span>{data.currency_symbol || '₹'}{max}{data.unit || ''}</span>
               </div>
 
-              {(sliderStatus === 'correct' || sliderStatus === 'incorrect') && (
-                <div className={`mt-2 w-full max-w-[250px] p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold text-left ${sliderStatus === 'correct' ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+              {isChecking && hasAttempted && (
+                <div className={`mt-2 w-full max-w-[250px] p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold text-left ${isCorrect ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
                   <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-                  {sliderStatus === 'correct' ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
+                  {isCorrect ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
                 </div>
               )}
-              {sliderStatus === 'correct' && data.xp_reward && (
+              {isChecking && isCorrect && data.xp_reward && (
                  <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
               )}
             </div>
           </div>
         </div>
       );
+    }
 
     case 'Drag & Drop':
-      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
     case 'Arrange':
-      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
     case 'Chart Quiz':
-      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onComplete={onComplete} isChecking={isChecking} />;
+      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
     case 'Hotspot':
-      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
     case 'Match Pairs':
-      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />;
+      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
 
     case 'Table': {
       const numCols = parseInt(data.number_of_columns || '2', 10);
