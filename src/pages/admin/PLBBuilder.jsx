@@ -14,6 +14,34 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+
+import MascotAngry from '../../assets/mascots/Angry.png';
+import MascotConfused from '../../assets/mascots/Confused.png';
+import MascotCool from '../../assets/mascots/Cool.png';
+import MascotHappy from '../../assets/mascots/Happy.png';
+import MascotLaughing from '../../assets/mascots/Laughing.png';
+import MascotLove from '../../assets/mascots/Love.png';
+import MascotSad from '../../assets/mascots/Sad.png';
+import MascotSleeping from '../../assets/mascots/Sleeping.png';
+import MascotSmart from '../../assets/mascots/Smart.png';
+import MascotSurprised from '../../assets/mascots/Surprised.png';
+import MascotThinking from '../../assets/mascots/Thinking.png';
+import MascotWinking from '../../assets/mascots/Winking.png';
+
+const MASCOT_IMAGES = {
+  Angry: MascotAngry,
+  Confused: MascotConfused,
+  Cool: MascotCool,
+  Happy: MascotHappy,
+  Laughing: MascotLaughing,
+  Love: MascotLove,
+  Sad: MascotSad,
+  Sleeping: MascotSleeping,
+  Smart: MascotSmart,
+  Surprised: MascotSurprised,
+  Thinking: MascotThinking,
+  Winking: MascotWinking
+};
 import {
   arrayMove,
   SortableContext,
@@ -1105,7 +1133,7 @@ const PLBBuilder = () => {
                                   className={`aspect-square rounded-xl border-2 transition-all flex items-center justify-center overflow-hidden bg-white ${value === opt ? 'border-[#00E599] ring-2 ring-[#00E599]/30' : 'border-transparent hover:border-gray-300'}`}
                                 >
                                   <img 
-                                    src={`/piggypath_admin/assets/mascots/${opt}.png`} 
+                                    src={MASCOT_IMAGES[opt] || MASCOT_IMAGES.Happy} 
                                     alt={opt}
                                     className="w-[36px] h-[36px] object-contain"
                                   />

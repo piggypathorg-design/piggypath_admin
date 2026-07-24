@@ -153,6 +153,19 @@ export const plbSchema = {
   },
 
   // 4 Activity
+  'Chart Quiz': {
+    category: 'Activity', icon: 'BarChart2',
+    fields: [
+      { name: 'quiz_question', label: 'Question', type: 'textarea', required: true, default: 'What does this chart show?' },
+      { name: 'quiz_option_a', label: 'Option A', type: 'text', required: true, default: 'Data A' },
+      { name: 'quiz_option_b', label: 'Option B', type: 'text', required: true, default: 'Data B' },
+      { name: 'quiz_option_c', label: 'Option C', type: 'text', default: '' },
+      { name: 'quiz_option_d', label: 'Option D', type: 'text', default: '' },
+      { name: 'quiz_correct_option', label: 'Correct Option', type: 'select', options: ['A', 'B', 'C', 'D'], required: true, default: 'A' },
+      { name: 'quiz_why_correct', label: 'Why Correct', type: 'textarea', default: 'Exactly!' },
+      { name: 'quiz_why_incorrect', label: 'Why Incorrect', type: 'textarea', default: 'Not quite.' }
+    ]
+  },
   MCQ: {
     category: 'Activity', icon: 'HelpCircle',
     fields: [

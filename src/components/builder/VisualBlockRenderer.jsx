@@ -28,6 +28,34 @@ import coinsImg from '../../assets/components/Coins.png';
 import gemsImg from '../../assets/components/gems.png';
 import xpImg from '../../assets/components/XP Icon.png';
 
+import MascotAngry from '../../assets/mascots/Angry.png';
+import MascotConfused from '../../assets/mascots/Confused.png';
+import MascotCool from '../../assets/mascots/Cool.png';
+import MascotHappy from '../../assets/mascots/Happy.png';
+import MascotLaughing from '../../assets/mascots/Laughing.png';
+import MascotLove from '../../assets/mascots/Love.png';
+import MascotSad from '../../assets/mascots/Sad.png';
+import MascotSleeping from '../../assets/mascots/Sleeping.png';
+import MascotSmart from '../../assets/mascots/Smart.png';
+import MascotSurprised from '../../assets/mascots/Surprised.png';
+import MascotThinking from '../../assets/mascots/Thinking.png';
+import MascotWinking from '../../assets/mascots/Winking.png';
+
+const MASCOT_IMAGES = {
+  Angry: MascotAngry,
+  Confused: MascotConfused,
+  Cool: MascotCool,
+  Happy: MascotHappy,
+  Laughing: MascotLaughing,
+  Love: MascotLove,
+  Sad: MascotSad,
+  Sleeping: MascotSleeping,
+  Smart: MascotSmart,
+  Surprised: MascotSurprised,
+  Thinking: MascotThinking,
+  Winking: MascotWinking
+};
+
 const getMascotBackgroundPosition = (opt) => {
   const map = {
     'Happy': '0% 0%',
@@ -955,7 +983,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
         <div className={`w-full flex ${fbAlignClass} py-4 px-6 gap-4 items-end`}>
           <div className={`w-20 h-20 shrink-0 flex items-center justify-center z-10 ${getMascotAnimation(fbMascotType)}`}>
              <img 
-                src={`/piggypath_admin/assets/mascots/${fbMascotType}.png?v=clean4`}
+                src={MASCOT_IMAGES[fbMascotType] || MASCOT_IMAGES.Happy}
                 alt={fbMascotType}
                 className="w-full h-full object-contain drop-shadow-md"
               />
@@ -1000,19 +1028,21 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
            <textarea 
              className="w-full bg-white border-[3px] border-[#18181B] rounded-xl p-4 shadow-[4px_4px_0_#18181B] min-h-[100px] text-[#18181B] font-bold text-sm outline-none resize-none focus:ring-2 focus:ring-[#8B5CF6]"
              placeholder="Type your thoughts here..."
-             value={interactionState?.reflectionText || ''}
-             disabled={!isPreviewMode || interactionState?.revealedAnswer}
+             value={interactionState?.[block.id]?.reflectionText || ''}
+             disabled={!isPreviewMode || interactionState?.[block.id]?.revealedAnswer || isChecking}
              onChange={(e) => {
                if (!isPreviewMode) return;
-               setInteractionState({ ...interactionState, reflectionText: e.target.value });
+               const text = e.target.value;
+               setInteractionState({ ...interactionState, [block.id]: { ...interactionState?.[block.id], reflectionText: text } });
+               if (onAnswered) onAnswered({ isAnswered: text.trim().length > 0, isCorrect: true });
              }}
            />
 
-           {interactionState?.reflectionText?.trim().length > 0 && !interactionState?.revealedAnswer && (
+           {interactionState?.[block.id]?.reflectionText?.trim().length > 0 && !interactionState?.[block.id]?.revealedAnswer && (
              <button
                onClick={() => {
                  if (!isPreviewMode) return;
-                 setInteractionState({ ...interactionState, revealedAnswer: true });
+                 setInteractionState({ ...interactionState, [block.id]: { ...interactionState?.[block.id], revealedAnswer: true } });
                }}
                className="mx-auto px-6 py-2 bg-[#8B5CF6] text-white font-black text-sm rounded-xl border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] transition-all"
              >
@@ -1020,13 +1050,13 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
              </button>
            )}
 
-           {interactionState?.revealedAnswer && data.model_answer && (
+           {interactionState?.[block.id]?.revealedAnswer && data.model_answer && (
              <div className="mt-2 p-4 rounded-xl border-[2px] border-dashed border-[#00E599] bg-[#00E599]/10">
                 <span className="text-xs font-bold text-[#00E599] uppercase tracking-wider block mb-1">Model Answer</span>
                 <p className="text-sm font-bold text-[#18181B]">{data.model_answer}</p>
              </div>
            )}
-           {interactionState?.revealedAnswer && data.xp_reward && (
+           {interactionState?.[block.id]?.revealedAnswer && data.xp_reward && (
              <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
            )}
         </div>
@@ -1041,8 +1071,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
         { key: 'D', text: data.option_d }
       ]);
       const correctOptKey = data.correct_option || 'A';
-      const hasSelection = interactionState?.selectedKey !== undefined;
-      const isCorrectSelection = hasSelection && interactionState?.selectedKey === correctOptKey;
+      const hasSelection = interactionState?.[block.id]?.selectedKey !== undefined;
+      const isCorrectSelection = hasSelection && interactionState?.[block.id]?.selectedKey === correctOptKey;
       
       return (
         <div className="w-full px-6 py-2">
@@ -1050,7 +1080,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
             <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
             
             {mcqShuffled.map((opt) => {
-              const isSelected = interactionState?.selectedKey === opt.key;
+              const isSelected = interactionState?.[block.id]?.selectedKey === opt.key;
               let bgClass = "bg-white text-[#18181B]";
               let animClass = "";
               
@@ -1076,7 +1106,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                   key={opt.key} 
                   onClick={() => {
                       if (isPreviewMode && !isChecking) {
-                        setInteractionState({ selectedKey: opt.key });
+                        setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
                         if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
                       }
                   }}
@@ -1100,7 +1130,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
 
     case 'Fill in the Blank': {
       const parts = (data.question || 'A ___ fund should cover 3 to 6 months of essential expenses.').split(/_{2,}/);
-      const val = interactionState?.value || '';
+      const val = interactionState?.[block.id]?.value || '';
       const isFillCorrect = isChecking && val.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
       const isFillIncorrect = isChecking && !isFillCorrect && val.trim() !== '';
       
@@ -1134,7 +1164,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                         value={val}
                         onChange={(e) => {
                           const newVal = e.target.value;
-                          setInteractionState({ ...interactionState, value: newVal });
+                          setInteractionState({ ...interactionState, [block.id]: { value: e.target.value } });
                           const correct = newVal.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
                           if (onAnswered) onAnswered({ isAnswered: newVal.trim() !== '', isCorrect: correct });
                         }}
@@ -1168,9 +1198,9 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
       const target = parseInt(data.target_value || 50, 10);
       const tol = parseInt(data.tolerance || 5, 10);
       
-      const val = interactionState?.value ?? min;
+      const val = interactionState?.[block.id]?.value ?? min;
       const isCorrect = Math.abs(val - target) <= tol;
-      const hasAttempted = interactionState?.hasAttempted;
+      const hasAttempted = interactionState?.[block.id]?.hasAttempted;
       
       let trackColor = "bg-[#8B5CF6]";
       if (isChecking && isCorrect) trackColor = "bg-[#00E599]";
@@ -1212,7 +1242,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                   onChange={(e) => {
                     if (!isPreviewMode) return;
                     const newVal = parseInt(e.target.value);
-                    setInteractionState({ ...interactionState, value: newVal, hasAttempted: true });
+                    setInteractionState({ ...interactionState, [block.id]: { value: newVal, hasAttempted: true } });
                     const correct = Math.abs(newVal - target) <= tol;
                     if (onAnswered) onAnswered({ isAnswered: true, isCorrect: correct });
                   }}
@@ -1363,7 +1393,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                 );
              })}
           </div>
-          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
         </div>
       );
 
@@ -1407,7 +1437,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                 </div>
              ))}
           </div>
-          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
         </div>
       );
 
@@ -1473,7 +1503,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
                 ))}
              </div>
           </div>
-          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} />
+          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
         </div>
       );
     }
@@ -1537,7 +1567,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
              {/* Mascot Head */}
              <div className="w-24 h-24 z-10 animate-mascot-float relative drop-shadow-xl">
                <img 
-                 src={`/piggypath_admin/assets/mascots/${mascotIcon}.png?v=clean4`}
+                 src={MASCOT_IMAGES[mascotIcon] || MASCOT_IMAGES.Happy}
                  alt={mascotIcon}
                  className="w-full h-full object-contain"
                />
@@ -1690,7 +1720,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
           )}
            <div className={`${sizeClasses} ${mAlignClass} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
              <img 
-               src={`/piggypath_admin/assets/mascots/${data.mascot_type || 'Happy'}.png?v=clean4`}
+               src={MASCOT_IMAGES[data.mascot_type || 'Happy'] || MASCOT_IMAGES.Happy}
                alt={data.mascot_type || 'Happy'}
                className="w-full h-full object-contain mix-blend-multiply drop-shadow-md"
              />

@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, CheckCircle, XCircle, ArrowLeft, RefreshCw } from 'lucide-react';
 import VisualBlockRenderer from './VisualBlockRenderer';
+import HappyMascot from '../../assets/mascots/Happy.png';
 
 const INTERACTIVE_TYPES = [
   'Chart Quiz',
+  'Pie Chart',
+  'Bar Graph',
+  'Line Graph',
   'MCQ',
   'Fill in the Blank',
   'Match Pairs', 
   'Arrange', 
   'Drag & Drop', 
-  'Hotspot'
+  'Hotspot',
+  'Reflection'
 ];
 
 const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previewDevice, progressValues = {}, onClose }) => {
@@ -19,7 +24,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const [isCompleted, setIsCompleted] = useState(false);
   const [lives, setLives] = useState(5);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [blockAnswerState, setBlockAnswerState] = useState({ isAnswered: false, isCorrect: false });
+  const [blockAnswerState, setBlockAnswerState] = useState({});
   
   const containerRef = useRef(null);
 
@@ -32,28 +37,29 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   useEffect(() => {
     setInteractionState({});
     setIsChecking(false);
-    setBlockAnswerState({ isAnswered: false, isCorrect: false });
+    setBlockAnswerState({});
     
     if (containerRef.current) {
       containerRef.current.scrollTo(0, 0);
     }
   }, [currentIndex]);
 
-  // Determine if the current page has an interactive block
-  const interactiveBlock = blocks.find(b => INTERACTIVE_TYPES.includes(b.type));
+  // Determine if the current page has interactive blocks
+  const interactiveBlocks = blocks.filter(b => INTERACTIVE_TYPES.includes(b.type));
+  const hasInteractive = interactiveBlocks.length > 0;
   
-  const hasSelection = interactiveBlock ? blockAnswerState.isAnswered : true;
-  const isAnswerCorrect = interactiveBlock ? blockAnswerState.isCorrect : true;
+  const hasSelection = !hasInteractive || interactiveBlocks.every(b => blockAnswerState[b.id]?.isAnswered);
+  const isAnswerCorrect = !hasInteractive || interactiveBlocks.every(b => blockAnswerState[b.id]?.isCorrect);
 
   const handleActionClick = () => {
-    if (!interactiveBlock) {
+    if (!hasInteractive) {
       // Just a static page, move to next
       advancePage();
     } else {
       if (!isChecking) {
         // Evaluate the answer
         setIsChecking(true);
-        if (!blockAnswerState.isCorrect) {
+        if (!isAnswerCorrect) {
           setLives(prev => Math.max(0, prev - 1));
         }
       } else {
@@ -83,7 +89,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
     setIsCompleted(false);
     setInteractionState({});
     setIsChecking(false);
-    setBlockAnswerState({ isAnswered: false, isCorrect: false });
+    setBlockAnswerState({});
   };
 
   // correctness is now purely handled via blockAnswerState
@@ -93,7 +99,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
       <div className={`mx-auto flex flex-col h-full bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
           <div className="w-32 h-32 mb-6">
-             <img src="/piggypath_admin/assets/mascots/Happy.png?v=clean4" alt="Happy Mascot" className="w-full h-full object-contain animate-mascot-bounce" />
+             <img src={HappyMascot} alt="Happy Mascot" className="w-full h-full object-contain animate-mascot-bounce" />
           </div>
           <h2 className="text-3xl font-black text-[#18181B] mb-4">{lives === 0 ? 'Out of Lives!' : 'Lesson Complete!'}</h2>
           <p className="text-gray-500 font-bold mb-8">{lives === 0 ? "You've run out of hearts. Try again!" : "You've successfully finished this lesson."}</p>
@@ -155,7 +161,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
                 externalInteractionState={interactionState}
                 setExternalInteractionState={setInteractionState}
                 isChecking={isChecking}
-                onAnswered={setBlockAnswerState}
+                onAnswered={(ans) => setBlockAnswerState(prev => ({ ...prev, [block.id]: ans }))}
               />
             </div>
           ))}
@@ -166,7 +172,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
       <div className="w-full bg-white border-t-[2px] border-gray-100 p-4 shrink-0 relative z-30">
         
         {/* Feedback Banner Overlay */}
-        {isChecking && interactiveBlock && (
+        {isChecking && hasInteractive && (
           <div className={`absolute bottom-full left-0 w-full p-6 animate-in slide-in-from-bottom-4 duration-300 border-t-[3px] border-[#18181B] ${isAnswerCorrect ? 'bg-[#00E599]' : 'bg-[#FF6B6B]'}`}>
              <div className="flex items-center gap-3 mb-4">
                 <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center border-[2px] border-[#18181B]`}>
@@ -193,7 +199,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
                   : 'bg-[#00E599] text-[#18181B] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] active:scale-95'
               }`}
           >
-            {!interactiveBlock ? 'Continue' : isChecking ? 'Continue' : 'Check'}
+            {!hasInteractive ? 'Continue' : isChecking ? 'Continue' : 'Check'}
           </button>
           
           {currentPage.skippable && !isChecking && (
