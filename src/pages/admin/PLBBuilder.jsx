@@ -56,7 +56,7 @@ import {
   Star, Coins, Award, Trophy, Percent, 
   ArrowRight, ArrowLeft, FastForward,
   Save, Download, Trash2, GripVertical, Play, Smartphone, Tablet, Monitor, Home, ChevronLeft, Plus,
-  Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search, Copy, Undo2, Redo2
+  Layers, ArrowUp, ArrowDown, Upload, ChevronDown, Check, Rocket, Eye, Search, Copy, Undo2, Redo2, Info
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { getLesson, updateLesson } from '../../utils/api';
@@ -268,8 +268,16 @@ const PLBBuilder = () => {
   const [activePageId, setActivePageId] = useState('page_1');
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [pageToDelete, setPageToDelete] = useState(null);
   
   const [version, setVersion] = useState('teen');
+
+  const showToast = (message, type = 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const progressValues = useMemo(() => {
     let totalProgressBars = 0;
@@ -342,7 +350,10 @@ const PLBBuilder = () => {
       const previousPages = historyRef.current[historyIndexRef.current];
       setPages(JSON.parse(JSON.stringify(previousPages)));
       setIsSaving(true);
-      updateLesson(id, { components: previousPages, pagesCount: previousPages.length }, user.name || user.username || 'Someone').then(() => setIsSaving(false));
+      setSaveError(false);
+      updateLesson(id, { components: previousPages, pagesCount: previousPages.length }, user.name || user.username || 'Someone')
+        .then(() => setIsSaving(false))
+        .catch(err => { setIsSaving(false); setSaveError(true); showToast(err.message, 'error'); });
       setHistoryTick(t => t + 1);
     }
   }, [id, user]);
@@ -353,7 +364,10 @@ const PLBBuilder = () => {
       const nextPages = historyRef.current[historyIndexRef.current];
       setPages(JSON.parse(JSON.stringify(nextPages)));
       setIsSaving(true);
-      updateLesson(id, { components: nextPages, pagesCount: nextPages.length }, user.name || user.username || 'Someone').then(() => setIsSaving(false));
+      setSaveError(false);
+      updateLesson(id, { components: nextPages, pagesCount: nextPages.length }, user.name || user.username || 'Someone')
+        .then(() => setIsSaving(false))
+        .catch(err => { setIsSaving(false); setSaveError(true); showToast(err.message, 'error'); });
       setHistoryTick(t => t + 1);
     }
   }, [id, user]);
@@ -454,19 +468,28 @@ const PLBBuilder = () => {
 
   const saveLesson = async (currentPages, bypassHistory = false) => {
     setIsSaving(true);
+    setSaveError(false);
     if (!bypassHistory) {
       pushToHistory(currentPages);
     }
-    const newLessonData = await updateLesson(id, { 
-      components: currentPages,
-      pagesCount: currentPages.length
-    }, user.name || user.username || 'Someone');
-    if (newLessonData) setLesson(newLessonData);
-    setTimeout(() => setIsSaving(false), 500);
+    try {
+      const newLessonData = await updateLesson(id, { 
+        components: currentPages,
+        pagesCount: currentPages.length
+      }, user.name || user.username || 'Someone');
+      if (newLessonData) setLesson(newLessonData);
+      setTimeout(() => setIsSaving(false), 500);
+    } catch (err) {
+      console.error(err);
+      setIsSaving(false);
+      setSaveError(true);
+      showToast(err.message || 'Save failed', 'error');
+    }
   };
 
   const handlePublishToggle = async () => {
     setIsSaving(true);
+    setSaveError(false);
     let newStatus;
     
     if (user.role === 'Admin') {
@@ -475,8 +498,13 @@ const PLBBuilder = () => {
       newStatus = lesson.status === 'Pending Approval' ? 'Draft' : 'Pending Approval';
     }
     
-    await updateLesson(id, { status: newStatus }, user.username || 'Admin');
-    setLesson(prev => ({ ...prev, status: newStatus }));
+    try {
+      await updateLesson(id, { status: newStatus }, user.username || 'Admin');
+      setLesson(prev => ({ ...prev, status: newStatus }));
+    } catch (err) {
+      setSaveError(true);
+      showToast(err.message, 'error');
+    }
     setIsSaving(false);
   };
 
@@ -495,16 +523,23 @@ const PLBBuilder = () => {
   const deletePage = (pageId, e) => {
     e.stopPropagation();
     if (pages.length <= 1) {
-      alert("You must have at least one page.");
+      showToast("You must have at least one page.", 'error');
       return;
     }
-    const filteredPages = pages.filter(p => p.id !== pageId);
+    setPageToDelete(pageId);
+  };
+
+  const confirmDeletePage = () => {
+    if (!pageToDelete) return;
+    const filteredPages = pages.filter(p => p.id !== pageToDelete);
     const newPages = filteredPages.map((p, index) => ({ ...p, title: `Page ${index + 1}` }));
     setPages(newPages);
-    if (activePageId === pageId) {
+    setPages(newPages);
+    if (activePageId === pageToDelete) {
       setActivePageId(newPages[newPages.length - 1].id);
     }
     setSelectedBlockId(null);
+    setPageToDelete(null);
     saveLesson(newPages);
   };
 
@@ -703,11 +738,11 @@ const PLBBuilder = () => {
   const handleFileUpload = (blockId, fieldName, file) => {
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert("Security/Performance limit: Please keep images under 2MB.");
+      showToast("Security/Performance limit: Please keep images under 2MB.", 'error');
       return; 
     }
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-       alert("Security limit: Only image and video files are allowed.");
+       showToast("Security limit: Only image and video files are allowed.", 'error');
        return;
     }
 
@@ -749,7 +784,7 @@ const PLBBuilder = () => {
   const selectedBlock = activeBlocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK'];
+  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'ICONS'];
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
@@ -777,7 +812,7 @@ const PLBBuilder = () => {
         
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-xs font-black text-gray-400 mr-4">
-            {isSaving ? <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-400 rounded-full animate-ping"></div> SAVING...</span> : <span className="flex items-center gap-2"><Check size={14} strokeWidth={3}/> SAVED</span>}
+            {isSaving ? <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-400 rounded-full animate-ping"></div> SAVING...</span> : saveError ? <span className="flex items-center gap-2 text-[#FF6B6B]"><XCircle size={14} strokeWidth={3}/> SAVE FAILED</span> : <span className="flex items-center gap-2 text-[#00E599]"><Check size={14} strokeWidth={3}/> SAVED</span>}
           </div>
           
           {/* Undo / Redo Buttons */}
@@ -884,7 +919,7 @@ const PLBBuilder = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 overflow-y-auto pb-10 custom-scrollbar pr-2">
-                  {filteredTypes.map(type => {
+                  {filteredTypes.length > 0 ? filteredTypes.map(type => {
                     const Icon = iconMap[plbSchema[type].icon] || Type;
                     return (
                       <button 
@@ -898,7 +933,18 @@ const PLBBuilder = () => {
                         <div className="font-bold text-xs text-[#18181B] text-center leading-tight group-hover:text-[#18181B]">{type}</div>
                       </button>
                     )
-                  })}
+                  }) : (
+                    <div className="col-span-2 py-10 flex flex-col items-center justify-center text-gray-400 text-center px-4">
+                      <Search size={32} className="mb-3 opacity-50" />
+                      <p className="font-bold text-sm">No blocks found for "{searchQuery}"</p>
+                      {(searchQuery.toLowerCase().includes('continue') || searchQuery.toLowerCase().includes('skip') || searchQuery.toLowerCase().includes('next')) ? (
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-xs font-bold shadow-sm">
+                           <Info size={16} className="inline mr-1 mb-0.5" />
+                           Navigation is now automatic — no need to add these buttons manually!
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1255,6 +1301,40 @@ const PLBBuilder = () => {
           </aside>
         )}
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-6 py-4 rounded-xl border-[3px] border-[#18181B] shadow-[6px_6px_0_#18181B] font-bold text-sm transition-all animate-in slide-in-from-bottom-5 ${toast.type === 'error' ? 'bg-[#FF6B6B] text-white' : 'bg-[#00E599] text-[#18181B]'}`}>
+          <div className="flex items-center gap-3">
+            {toast.type === 'error' ? <XCircle size={20} /> : <CheckCircle size={20} />}
+            {toast.message}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {pageToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl border-[4px] border-[#18181B] shadow-[8px_8px_0_#18181B] p-8 max-w-md w-full animate-in zoom-in-95 duration-200">
+            <h3 className="text-2xl font-black text-[#18181B] mb-2 uppercase tracking-wide">Delete Page?</h3>
+            <p className="text-gray-600 font-bold mb-8">This will permanently delete this page and all its blocks. This action cannot be undone.</p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setPageToDelete(null)}
+                className="flex-1 py-3 px-4 rounded-xl border-[2px] border-[#18181B] bg-white text-[#18181B] font-black text-sm uppercase tracking-wide shadow-[4px_4px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeletePage}
+                className="flex-1 py-3 px-4 rounded-xl border-[2px] border-[#18181B] bg-[#FF6B6B] text-white font-black text-sm uppercase tracking-wide shadow-[4px_4px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

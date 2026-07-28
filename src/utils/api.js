@@ -1,5 +1,13 @@
 import { supabase } from './supabaseClient';
 
+const hashPassword = async (password) => {
+  if (!password) return null;
+  const msgUint8 = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
 export const loginUser = async (username, password) => {
   const { data, error } = await supabase
     .from('users')
@@ -12,8 +20,9 @@ export const loginUser = async (username, password) => {
     return null;
   }
   
-  // We check plain text here because this was migrating from a mock db.
-  if (data.password && data.password !== password) {
+  // Check hashed password (falling back to plaintext for migration)
+  const hashed = await hashPassword(password);
+  if (data.password && data.password !== password && data.password !== hashed) {
     console.error('Login error: Incorrect password');
     return null;
   }
@@ -185,7 +194,7 @@ export const updateLesson = async (id, updates, user = 'Someone') => {
     
   if (error) {
     console.error('Error updating lesson:', error);
-    return null;
+    throw new Error(error.message || 'Failed to update lesson');
   }
   
   if (updates.status) {
@@ -239,10 +248,11 @@ export const getUsers = async () => {
 };
 
 export const createUser = async (username, name, password, creatorName = 'Admin', role = 'Creator') => {
+  const hashedPassword = await hashPassword(password);
   // First try with password (if the column was added)
   let { data, error } = await supabase
     .from('users')
-    .insert([{ username, name, password, role }])
+    .insert([{ username, name, password: hashedPassword, role }])
     .select()
     .single();
     
@@ -267,6 +277,9 @@ export const createUser = async (username, name, password, creatorName = 'Admin'
 };
 
 export const updateUser = async (id, updates, triggerUser = 'Someone') => {
+  if (updates.password) {
+    updates.password = await hashPassword(updates.password);
+  }
   const { data, error } = await supabase
     .from('users')
     .update(updates)

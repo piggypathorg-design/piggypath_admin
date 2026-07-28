@@ -93,6 +93,7 @@ export default {
         'spin-slow': 'spin 8s linear infinite',
       },
       keyframes: {
+        shake: { '0%, 100%': { transform: 'translateX(0)' }, '25%': { transform: 'translateX(-6px)' }, '75%': { transform: 'translateX(6px)' } },
         blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },
         float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } },
         'mascot-bounce': { '0%, 100%': { transform: 'scaleY(1)' }, '50%': { transform: 'scaleY(1.03) translateY(-1%)' } },

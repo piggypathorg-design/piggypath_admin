@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
   PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, CheckCircle, GripVertical, Volume2
@@ -27,6 +27,38 @@ import mascotGridImg from '../../assets/mascot_grid.png';
 import coinsImg from '../../assets/components/Coins.png';
 import gemsImg from '../../assets/components/gems.png';
 import xpImg from '../../assets/components/XP Icon.png';
+
+const TimerBlock = ({ blockId, data, isPreviewMode }) => {
+  const duration = parseInt(data.duration_seconds || '60', 10);
+  const [timeLeft, setTimeLeft] = useState(duration);
+  const isActive = isPreviewMode && (data.auto_start !== 'No');
+
+  useEffect(() => {
+    setTimeLeft(duration);
+  }, [duration]);
+
+  useEffect(() => {
+    if (!isActive || timeLeft <= 0) return;
+    const t = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    return () => clearInterval(t);
+  }, [isActive, timeLeft]);
+
+  const percentage = (timeLeft / duration) * 100;
+  
+  return (
+    <div className="w-full px-6 py-4 flex flex-col items-center">
+       <div className="w-32 h-32 rounded-full border-[6px] border-[#18181B] flex items-center justify-center relative bg-white shadow-[6px_6px_0_#18181B]">
+          <div className="absolute inset-0 rounded-full flex items-center justify-center z-10">
+            <span className="font-mono text-2xl font-black text-[#18181B]">{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+          </div>
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-0" viewBox="0 0 100 100">
+             <circle cx="50" cy="50" r="44" fill="none" stroke="#E5E7EB" strokeWidth="8" />
+             <circle cx="50" cy="50" r="44" fill="none" stroke={timeLeft <= 10 ? '#FF6B6B' : '#00E599'} strokeWidth="8" strokeDasharray={`${percentage * 2.76} 276`} className="transition-all duration-1000 linear" strokeLinecap="round" />
+          </svg>
+       </div>
+    </div>
+  );
+};
 
 import MascotAngry from '../../assets/mascots/Angry.png';
 import MascotConfused from '../../assets/mascots/Confused.png';
@@ -125,6 +157,7 @@ const AudioBlock = ({ data, isPreviewMode }) => {
            className={`w-full max-w-[250px] ${data.show_controls === 'Off' ? 'hidden' : ''}`} 
            autoPlay={data.autoplay === 'On' && isPreviewMode} 
            loop={data.loop === 'On'} 
+           muted={true}
          />
        ) : (
          <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Audio Source</span>
@@ -157,7 +190,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
   ]);
 
   const correctOptKey = data.quiz_correct_option || 'A';
-  const selectedKey = interactionState?.chartQuizSelectedKey;
+  const selectedKey = interactionState?.[blockId]?.chartQuizSelectedKey;
   const hasSelection = selectedKey !== undefined;
   const isCorrectSelection = hasSelection && selectedKey === correctOptKey;
 
@@ -167,7 +200,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
     <div className="w-full mt-6 flex flex-col gap-3">
       {data.quiz_question && <p className="font-black text-center text-sm mb-2">{data.quiz_question}</p>}
       
-      {shuffledOptions.map((opt) => {
+      {shuffledOptions.map((opt, index) => {
         const isSelected = selectedKey === opt.key;
         let bgClass = "bg-white text-[#18181B]";
         let animClass = "";
@@ -193,15 +226,28 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
         return (
           <div 
             key={opt.key} 
-            onClick={() => {
-              if (isPreviewMode && !isChecking) {
-                setInteractionState({ ...interactionState, chartQuizSelectedKey: opt.key });
+            role="button"
+            tabIndex={isPreviewMode && !isChecking ? 0 : -1}
+            onKeyDown={(e) => {
+              if (isPreviewMode && !isChecking && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                setInteractionState({ ...interactionState, [blockId]: { ...interactionState?.[blockId], chartQuizSelectedKey: opt.key } });
                 if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
               }
             }}
-            className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95' : 'cursor-default'} ${bgClass} ${animClass}`}
+            onClick={() => {
+              if (isPreviewMode && !isChecking) {
+                setInteractionState({ ...interactionState, [blockId]: { ...interactionState?.[blockId], chartQuizSelectedKey: opt.key } });
+                if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
+              }
+            }}
+            className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all animate-in fade-in slide-in-from-bottom-2 ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
+            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
           >
-            {opt.text}
+            {isChecking && isSelected && opt.key === correctOptKey && <LucideIcons.CheckCircle size={16} />}
+            {isChecking && isSelected && opt.key !== correctOptKey && <LucideIcons.XCircle size={16} />}
+            {isChecking && !isSelected && opt.key === correctOptKey && hasSelection && <LucideIcons.CheckCircle size={16} />}
+            <span>{opt.text}</span>
           </div>
         );
       })}
@@ -336,8 +382,16 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
             return (
               <div key={id} className="flex gap-4 w-full">
                 <div 
+                  role="button"
+                  tabIndex={isPreviewMode && !isMatched ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (isPreviewMode && !isMatched && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      handleLeftClick(id);
+                    }
+                  }}
                   onClick={() => handleLeftClick(id)}
-                  className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center break-words transition-colors select-none ${isPreviewMode && !isMatched ? 'cursor-pointer hover:-translate-y-0.5' : ''} ${bgClass} ${animClass}`}
+                  className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center break-words transition-colors select-none ${isPreviewMode && !isMatched ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'focus:outline-none'} ${bgClass} ${animClass}`}
                 >
                   {data[`pair_${id}_a`] || `Pair ${id} A`}
                 </div>
@@ -367,8 +421,16 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
              return (
                <div 
                  key={item.id} 
+                 role="button"
+                 tabIndex={isPreviewMode ? 0 : -1}
+                 onKeyDown={(e) => {
+                   if (isPreviewMode && (e.key === 'Enter' || e.key === ' ')) {
+                     e.preventDefault();
+                     handleRightClick(item.id);
+                   }
+                 }}
                  onClick={() => handleRightClick(item.id)}
-                 className={`px-3 py-1.5 border-[2px] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold transition-all select-none ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5' : 'cursor-default'} ${bgClass} ${animClass}`}
+                 className={`px-3 py-1.5 border-[2px] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold transition-all select-none ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
                >
                   {item.text}
                </div>
@@ -427,6 +489,22 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
          className={`relative w-full max-w-sm ${data.image ? 'aspect-square' : 'py-8'} bg-gray-100 border-[3px] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}
          onClick={handleImageClick}
        >
+          {isPreviewMode && !isChecking && (
+            <button 
+              type="button"
+              className="opacity-0 absolute top-0 left-0 w-full h-full cursor-crosshair focus:opacity-100 focus:bg-[#8B5CF6]/20 focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#8B5CF6] transition-all z-10 text-transparent focus:text-[#18181B] font-bold flex items-center justify-center"
+              aria-label="Select hotspot region"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setInteractionState({ ...interactionState, [blockId]: { status: 'correct', clickX: parseFloat(data.hotspot_x || 50), clickY: parseFloat(data.hotspot_y || 50), missCount: 0 }});
+                  if (onAnswered) onAnswered({ isAnswered: true, isCorrect: true });
+                }
+              }}
+            >
+              <span className="sr-only">Activate hotspot region</span>
+            </button>
+          )}
           {data.image ? (
             <img src={data.image} alt="Hotspot area" className={`w-full h-full object-cover transition-opacity ${isPreviewMode && state.status !== 'correct' ? 'cursor-crosshair hover:opacity-90' : ''}`} draggable={false} />
           ) : (
@@ -791,7 +869,146 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onComplete, externalInteractionState, setExternalInteractionState, isChecking, onAnswered }) => {
+const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+  const slices = [];
+  for (let i = 1; i <= 10; i++) {
+    if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
+      slices.push({ 
+        id: String(i),
+        label: data[`slice_label_${i}`], 
+        value: Number(data[`slice_value_${i}`]), 
+        color: data[`slice_color_${i}`] || '#FFD100'
+      });
+    }
+  }
+  if (slices.length === 0) slices.push({ id: '1', label: 'Savings', value: 50, color: '#FFD100' }, { id: '2', label: 'Food', value: 50, color: '#00E599' });
+  
+  const total = Math.max(1, slices.reduce((acc, s) => acc + s.value, 0));
+  
+  const chartStyle = data.chart_style || 'Full Donut';
+  const isVisual = data.type === 'Visual';
+  const legendStyle = data.legend_style || 'Chips';
+  const centerLabel = data.center_label || '';
+  const centerSublabel = data.center_sublabel || '';
+  
+  const [animatedTotal, setAnimatedTotal] = React.useState(0);
+  const [dashOffsetMultiplier, setDashOffsetMultiplier] = React.useState(1);
+  
+  React.useEffect(() => {
+    let start = null;
+    const duration = 800; // ms
+    const finalVal = centerLabel ? (Number(centerLabel) || 0) : total;
+    const canAnimateNumber = !isNaN(finalVal) && centerLabel !== '';
+    
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      setDashOffsetMultiplier(1 - easeProgress);
+      if (canAnimateNumber) {
+        setAnimatedTotal(Math.floor(easeProgress * finalVal));
+      }
+      if (progress < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
+  }, [total, centerLabel]);
+
+  const displayCenterNum = centerLabel ? (isNaN(Number(centerLabel)) ? centerLabel : animatedTotal) : total;
+
+  const isGauge = chartStyle === 'Half Gauge';
+  const isSolid = chartStyle === 'Solid Pie';
+  const r = isSolid ? 25 : 40;
+  const strokeW = isSolid ? 50 : 20;
+  const circumference = 2 * Math.PI * r;
+  const arcLength = isGauge ? circumference / 2 : circumference;
+  const viewBox = isGauge ? "0 0 100 50" : "0 0 100 100";
+  const rotation = isGauge ? "-rotate-180" : "-rotate-90";
+  
+  let cumulativeValue = 0;
+
+  return (
+    <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
+      <p className="font-black text-center text-sm text-[#18181B] uppercase tracking-widest opacity-60">{data.title || 'Pie Chart'}</p>
+      
+      <div className={`relative flex flex-col items-center justify-center mt-2 mb-4 ${isGauge ? 'w-48 h-24 overflow-hidden' : 'w-48 h-48'}`}>
+         <svg viewBox={viewBox} className={`absolute ${isGauge ? 'inset-x-0 bottom-0 h-48 origin-bottom' : 'inset-0 w-full h-full'} transform ${rotation} filter ${isVisual ? 'drop-shadow-lg' : 'drop-shadow-md'}`}>
+            <defs>
+              {slices.map((slice, i) => (
+                <linearGradient key={`grad-${i}`} id={`grad-${blockId}-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor={slice.color} />
+                  <stop offset="100%" stopColor={slice.color} stopOpacity={0.6} />
+                </linearGradient>
+              ))}
+            </defs>
+            <circle r={r} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${arcLength} ${circumference}`}></circle>
+            {slices.map((slice, i) => {
+              if (total === 0) return null;
+              const sliceLength = (slice.value / total) * arcLength;
+              const sliceOffset = (cumulativeValue / total) * arcLength;
+              const animatedOffset = -sliceOffset - (circumference * dashOffsetMultiplier);
+              cumulativeValue += slice.value;
+              return (
+                <circle 
+                  key={i} 
+                  r={r} 
+                  cx="50" 
+                  cy="50" 
+                  fill="transparent" 
+                  stroke={`url(#grad-${blockId}-${i})`} 
+                  strokeWidth={strokeW} 
+                  strokeDasharray={`${sliceLength} ${circumference}`} 
+                  strokeDashoffset={animatedOffset}
+                  className="transition-all duration-300 ease-out"
+                />
+              )
+            })}
+         </svg>
+         {!isSolid && (
+           <div className={`relative z-10 flex flex-col items-center justify-center text-center ${isGauge ? 'mt-auto pb-2' : ''}`}>
+              <span className="text-4xl font-black text-[#18181B] tracking-tighter leading-none">{displayCenterNum}</span>
+              {(centerSublabel || (!centerLabel && !isGauge)) && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{centerSublabel || (centerLabel ? '' : 'Total')}</span>}
+           </div>
+         )}
+      </div>
+      
+      {legendStyle === 'Chips' ? (
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 w-full max-w-[300px]">
+           {slices.map((slice, i) => (
+              <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isVisual ? 'bg-gray-50 border border-gray-200' : 'border-2 border-[#18181B] bg-white'}`}>
+                 <div className="w-3 h-3 rounded-full shadow-inner" style={{ backgroundColor: slice.color }}></div>
+                 <div className="flex flex-col items-start leading-none">
+                    <span className="text-xs font-bold text-gray-600">{slice.label}</span>
+                    <span className="text-[10px] font-black text-[#18181B] mt-0.5">
+                       {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
+                    </span>
+                 </div>
+              </div>
+           ))}
+        </div>
+      ) : (
+        <div className="flex flex-col w-full max-w-[200px] gap-2">
+           {slices.map((slice, i) => (
+              <div key={i} className="flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                   <div className="w-3 h-3 rounded-full shadow-inner" style={{ backgroundColor: slice.color }}></div>
+                   <span className="text-sm font-bold text-gray-600">{slice.label}</span>
+                 </div>
+                 <span className="text-sm font-black text-[#18181B]">
+                    {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
+                 </span>
+              </div>
+           ))}
+        </div>
+      )}
+      
+      {!isVisual && (
+         <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+      )}
+    </div>
+  );
+};
+
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, onAnswered, lives }) => {
   const data = block[version] || {};
   const [localInteractionState, setLocalInteractionState] = React.useState({});
   
@@ -1079,7 +1296,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
           <div className="w-full flex flex-col gap-3">
             <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
             
-            {mcqShuffled.map((opt) => {
+            {mcqShuffled.map((opt, index) => {
               const isSelected = interactionState?.[block.id]?.selectedKey === opt.key;
               let bgClass = "bg-white text-[#18181B]";
               let animClass = "";
@@ -1104,15 +1321,28 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
               return (
                 <div 
                   key={opt.key} 
+                  role="button"
+                  tabIndex={isPreviewMode && !isChecking ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (isPreviewMode && !isChecking && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
+                      if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
+                    }
+                  }}
                   onClick={() => {
                       if (isPreviewMode && !isChecking) {
                         setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
                         if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
                       }
                   }}
-                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95' : 'cursor-default'} ${bgClass} ${animClass}`}
+                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all animate-in fade-in slide-in-from-bottom-2 ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
+                  style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
                 >
-                  {opt.text}
+                  {isChecking && isSelected && opt.key === correctOptKey && <LucideIcons.CheckCircle size={16} />}
+                  {isChecking && isSelected && opt.key !== correctOptKey && <LucideIcons.XCircle size={16} />}
+                  {isChecking && !isSelected && opt.key === correctOptKey && hasSelection && <LucideIcons.CheckCircle size={16} />}
+                  <span>{opt.text}</span>
                 </div>
               );
             })}
@@ -1310,8 +1540,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
       
       return (
         <div className="w-full px-6 py-4 flex flex-col items-center overflow-hidden">
-           <div className="w-full border-[3px] border-[#18181B] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] bg-white">
-              <table className="w-full text-sm font-bold text-left">
+           <div className="w-full border-[3px] border-[#18181B] rounded-2xl overflow-x-auto shadow-[4px_4px_0_#18181B] bg-white">
+              <table className="w-full text-sm font-bold text-left whitespace-nowrap min-w-full">
                  <thead style={{ backgroundColor: headerBg, color: headerText }} className="border-b-[3px] border-[#18181B]">
                     <tr>
                        {headers.map((h, i) => (
@@ -1335,67 +1565,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
     }
 
     case 'Pie Chart':
-      const slices = [];
-      for (let i = 1; i <= 10; i++) {
-        if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
-          slices.push({ 
-            id: String(i),
-            label: data[`slice_label_${i}`], 
-            value: Number(data[`slice_value_${i}`]), 
-            color: data[`slice_color_${i}`] || '#FFD100'
-          });
-        }
-      }
-      if (slices.length === 0) slices.push({ id: '1', label: 'Savings', value: 50, color: '#FFD100' }, { id: '2', label: 'Food', value: 50, color: '#00E599' });
-      
-      const total = slices.reduce((acc, s) => acc + s.value, 0);
-      let cumulativeOffset = 0;
-      const correctAnswer = String(data.correct_slice || '1');
-
-      return (
-        <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-          <p className="font-black text-center text-sm text-[#18181B]">{data.title || 'Pie Chart'}</p>
-          
-          <div className="w-48 h-48 relative">
-             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90 filter drop-shadow-md rounded-full bg-white border-[3px] border-[#18181B]">
-                {slices.map((slice, i) => {
-                  if (total === 0) return null;
-                  const dashLength = (slice.value / total) * 157.08;
-                  const dashOffset = -cumulativeOffset;
-                  cumulativeOffset += dashLength;
-                  return (
-                    <circle key={i} r="25" cx="50" cy="50" fill="transparent" stroke={slice.color} strokeWidth="50" strokeDasharray={`${dashLength} 157.08`} strokeDashoffset={dashOffset}></circle>
-                  )
-                })}
-             </svg>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-3 w-full max-w-[250px]">
-             {slices.map((slice, i) => {
-                const bgColor = slice.color;
-                const textColor = '#18181B';
-                
-                return (
-                  <div 
-                    key={i} 
-                    className="px-4 py-2 flex items-center gap-2 border-[3px] border-[#18181B] rounded-lg shadow-[4px_4px_0_#18181B] text-sm font-black transition-all cursor-default" 
-                    style={{ backgroundColor: bgColor, color: textColor }}
-                  >
-                      <div className="flex flex-col items-center">
-                        <span className="text-[10px] uppercase tracking-wider font-bold opacity-80 leading-tight">
-                          {slice.label}
-                        </span>
-                        <span className="text-sm font-black mt-0.5 leading-tight">
-                          {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
-                        </span>
-                      </div>
-                    </div>
-                );
-             })}
-          </div>
-          <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
-        </div>
-      );
+      return <PieChartBlock blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
 
     case 'Bar Graph':
       const bars = [];
@@ -1411,7 +1581,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
       }
       if (bars.length === 0) bars.push({ id: '1', label: 'Item 1', value: 30, color: '#FFD100' }, { id: '2', label: 'Item 2', value: 80, color: '#00E599' }, { id: '3', label: 'Item 3', value: 50, color: '#8B5CF6' });
       
-      const maxVal = Math.max(...bars.map(b => b.value));
+      const maxVal = Math.max(1, ...bars.map(b => b.value));
       const isVertical = data.orientation !== 'Horizontal';
 
       return (
@@ -1612,25 +1782,170 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
       );
 
     case 'Badge':
+      const badgeType = data.badge_type || 'Achievement Badge';
+      const badgeName = data.badge_name || 'SCHOLAR';
+      const badgeIconName = data.badge_icon || 'Scholar';
+      const showCount = data.show_count === 'Yes';
+      const countValue = Number(data.count_value) || 1;
+      const leagueTier = data.league_tier || 'Bronze';
+
+      const getIcon = (name) => {
+        const iconMap = {
+          'Scholar': LucideIcons.GraduationCap,
+          'Pro': LucideIcons.Rocket,
+          'Horticulturist': LucideIcons.Flower2,
+          'Champion': LucideIcons.Trophy,
+          'Adventurer': LucideIcons.Compass,
+          'Director': LucideIcons.Clapperboard,
+          'Celebrity': LucideIcons.Star,
+          'Magician': LucideIcons.Sparkles,
+          'Scientist': LucideIcons.FlaskConical
+        };
+        const SelectedIcon = iconMap[name] || LucideIcons.Award;
+        return <SelectedIcon size={48} strokeWidth={2.5} className="text-white drop-shadow-md" />;
+      };
+
+      const getAchievementColor = (name) => {
+        const colors = {
+          'Scholar': 'from-[#3B82F6] to-[#1D4ED8]', // Blue
+          'Pro': 'from-[#38BDF8] to-[#0284C7]', // Light Blue
+          'Horticulturist': 'from-[#F43F5E] to-[#BE123C]', // Rose/Red
+          'Champion': 'from-[#F97316] to-[#C2410C]', // Orange
+          'Adventurer': 'from-[#A855F7] to-[#7E22CE]', // Purple
+          'Director': 'from-[#334155] to-[#0F172A]', // Slate
+          'Celebrity': 'from-[#FACC15] to-[#A16207]', // Yellow
+          'Magician': 'from-[#EC4899] to-[#BE185D]', // Pink
+          'Scientist': 'from-[#84CC16] to-[#4D7C0F]', // Lime
+        };
+        return colors[name] || 'from-[#806BFF] to-[#3F43BF]';
+      };
+
+      const renderAchievementBadge = () => {
+        const colorClass = getAchievementColor(badgeIconName);
+        return (
+          <div className="relative flex flex-col items-center animate-in zoom-in duration-500 spring mt-4">
+            <div className={`w-32 h-36 bg-gradient-to-b ${colorClass} rounded-t-[20px] rounded-b-[60px] border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden`}>
+               <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-white opacity-20 skew-x-[-20deg] animate-[shine_3s_ease-in-out_infinite]"></div>
+               <div className="mb-4">{getIcon(badgeIconName)}</div>
+            </div>
+            {showCount && (
+              <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] flex items-center justify-center z-20 animate-bounce">
+                <span className="font-black text-sm">x{countValue}</span>
+              </div>
+            )}
+            <div className="bg-[#FFD100] px-6 py-2 border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-6 relative z-10 text-center flex items-center justify-center">
+              <div className="absolute -left-3 top-2 w-4 h-full bg-[#E5B800] border-[3px] border-[#18181B] -z-10 skew-y-[20deg]"></div>
+              <div className="absolute -right-3 top-2 w-4 h-full bg-[#E5B800] border-[3px] border-[#18181B] -z-10 skew-y-[-20deg]"></div>
+              <span className="font-black text-[12px] tracking-widest text-[#18181B] uppercase whitespace-nowrap">
+                {badgeName}
+              </span>
+            </div>
+          </div>
+        );
+      };
+
+      const renderStreakBadge = () => {
+        return (
+          <div className="relative flex flex-col items-center animate-pulse mt-4">
+            <div className="relative w-36 h-36 flex items-center justify-center">
+              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-0"></div>
+              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-45"></div>
+              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-[22.5deg]"></div>
+              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-[67.5deg]"></div>
+              
+              <div className="absolute w-24 h-24 bg-gradient-to-br from-[#FFD84D] to-[#FF7A1A] rounded-full border-[3px] border-[#18181B] flex flex-col items-center justify-center z-10">
+                 <LucideIcons.Star size={16} className="text-white fill-white absolute top-2" />
+                 <span className="font-black text-4xl text-white drop-shadow-md leading-none mt-2">{countValue}</span>
+                 <span className="font-bold text-[10px] text-white/90 uppercase tracking-widest mt-1">Days</span>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const renderComboBadge = () => {
+        return (
+          <div className="relative flex flex-col items-center animate-bounce mt-4">
+            <div className="w-32 h-32 bg-gradient-to-b from-[#38BDF8] to-[#0284C7] rounded-full border-[4px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden">
+               <div className="absolute top-0 w-full h-[40%] bg-white/20 rounded-b-full"></div>
+               <span className="font-bold text-[10px] text-white uppercase tracking-widest mt-2">Combo</span>
+               <span className="font-black text-4xl text-white drop-shadow-md leading-none mb-1">{countValue}</span>
+               <div className="flex gap-0.5 z-10 mb-2">
+                 {[...Array(5)].map((_, i) => (
+                   <LucideIcons.Star key={i} size={10} className="text-[#FFD100] fill-[#FFD100]" />
+                 ))}
+               </div>
+            </div>
+          </div>
+        );
+      };
+
+      const renderLeagueBadge = () => {
+        const leagueColors = {
+          'Iron': 'from-[#94A3B8] to-[#475569]',
+          'Bronze': 'from-[#FDBA74] to-[#C2410C]',
+          'Silver': 'from-[#E2E8F0] to-[#94A3B8]',
+          'Gold': 'from-[#FDE047] to-[#CA8A04]'
+        };
+        const ribbonColors = {
+          'Iron': 'bg-[#EF4444]', // Red ribbon
+          'Bronze': 'bg-[#8B5CF6]', // Purple ribbon
+          'Silver': 'bg-[#3B82F6]', // Blue ribbon
+          'Gold': 'bg-[#8B5CF6]' // Purple ribbon
+        };
+        const bg = leagueColors[leagueTier] || leagueColors['Bronze'];
+        const rb = ribbonColors[leagueTier] || ribbonColors['Bronze'];
+
+        return (
+          <div className="relative flex flex-col items-center animate-in fade-in spin-in-12 duration-1000 mt-4">
+            <div className={`w-32 h-36 bg-gradient-to-b ${bg} rounded-t-[10px] rounded-b-[50px] border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden z-10`}>
+               <div className="absolute top-0 w-full h-[50%] bg-white/20"></div>
+               <LucideIcons.Crown size={48} className="text-white drop-shadow-md fill-white" />
+            </div>
+            
+            <div className={`${rb} px-6 py-2 border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-6 relative z-20 text-center flex items-center justify-center`}>
+              <div className={`absolute -left-3 top-2 w-4 h-full ${rb} brightness-75 border-[3px] border-[#18181B] -z-10 skew-y-[20deg]`}></div>
+              <div className={`absolute -right-3 top-2 w-4 h-full ${rb} brightness-75 border-[3px] border-[#18181B] -z-10 skew-y-[-20deg]`}></div>
+              <span className="font-black text-[14px] tracking-widest text-white uppercase whitespace-nowrap drop-shadow-sm">
+                {leagueTier}
+              </span>
+            </div>
+          </div>
+        );
+      };
+
+      const renderRankBadge = () => {
+        let medalColor = 'from-[#475569] to-[#1E293B]'; // Dark
+        if (countValue === 1) medalColor = 'from-[#FDE047] to-[#CA8A04]';
+        if (countValue === 2) medalColor = 'from-[#E2E8F0] to-[#94A3B8]';
+        if (countValue === 3) medalColor = 'from-[#FDBA74] to-[#C2410C]';
+
+        return (
+          <div className="relative flex flex-col items-center animate-in slide-in-from-top-10 duration-500 mt-4 pb-8">
+            <div className="absolute -bottom-6 flex gap-2 z-0">
+               <div className="w-6 h-12 bg-[#EF4444] shadow-[0px_4px_0_rgba(0,0,0,0.5)] transform rotate-[15deg] flex" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)' }}></div>
+               <div className="w-6 h-12 bg-[#3B82F6] shadow-[0px_4px_0_rgba(0,0,0,0.5)] transform -rotate-[15deg] flex" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)' }}></div>
+            </div>
+            
+            <div className={`w-28 h-28 bg-gradient-to-b ${medalColor} rounded-full border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative z-10`}>
+               <div className="w-20 h-20 rounded-full border-[2px] border-white/30 flex flex-col items-center justify-center">
+                 <span className="font-black text-4xl text-white drop-shadow-md leading-none">{countValue}</span>
+                 <span className="font-bold text-[8px] text-white/80 uppercase tracking-widest mt-1">TOP</span>
+               </div>
+            </div>
+          </div>
+        );
+      };
+
       return (
         <div className="w-full px-4 py-8 flex flex-col items-center justify-center relative">
-          {isPreviewMode && <Confetti score={90} />}
-          <div className="relative flex flex-col items-center">
-            {/* Starburst rays */}
-            <div className="absolute w-56 h-56 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMEw1NSAzNSw5MCAxMEw2NSA0NUwxMDAgNTBMNjUgNTVMOTAgOTBMNTUgNjVMNTAgMTAwTDQ1IDY1TDEwIDkwTDM1IDU1TDAgNTBMMzUgNDVMMTAgMTBMNDUgMzVaIiBmaWxsPSIjRkZEODREIiBvcGFjaXR5PSIwLjI1Ii8+PC9zdmc+')] bg-center bg-no-repeat bg-contain animate-spin-slow -z-10"></div>
-            
-            <div className="w-32 h-32 bg-gradient-to-b from-[#806BFF] to-[#3F43BF] rounded-full border-[5px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center mb-6 relative overflow-hidden">
-               {/* Shine reflection */}
-               <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-white opacity-40 skew-x-[-20deg] animate-[shine_3s_ease-in-out_infinite]"></div>
-               <Award size={52} strokeWidth={3} className="text-white drop-shadow-md" />
-            </div>
-            
-            <div className="bg-[#01EF8E] px-6 py-3 rounded-full border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-10 relative z-10 text-center flex items-center justify-center">
-              <span className="font-black text-[14px] tracking-wide text-[#18181B] uppercase leading-none whitespace-nowrap">{data.badge_name || 'Badge Unlocked!'}</span>
-            </div>
-            
-            {data.caption && <div className="mt-4 text-sm font-bold text-gray-600 text-center max-w-[220px] leading-snug">{data.caption}</div>}
-          </div>
+          {isPreviewMode && lives !== 0 && badgeType === 'Achievement Badge' && <Confetti score={90} />}
+          
+          {badgeType === 'Achievement Badge' && renderAchievementBadge()}
+          {badgeType === 'Streak Badge' && renderStreakBadge()}
+          {badgeType === 'Combo Badge' && renderComboBadge()}
+          {badgeType === 'League Badge' && renderLeagueBadge()}
+          {badgeType === 'Leaderboard Rank Badge' && renderRankBadge()}
           
           <style>{`
             @keyframes shine {
@@ -1645,7 +1960,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
     case 'Achievement Card':
       return (
         <div className="w-full px-4 py-6 flex justify-center relative">
-          {isPreviewMode && <Confetti score={100} />}
+          {isPreviewMode && lives !== 0 && <Confetti score={100} />}
           <div className="w-full max-w-[320px] flex flex-col items-center justify-center bg-gradient-to-br from-[#191A2E] to-[#2A2350] border-[4px] border-[#18181B] rounded-[32px] p-8 text-white text-center relative overflow-hidden shadow-[8px_8px_0_#18181B] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_#18181B] transition-all">
             {/* Glow effects inside the dark card */}
             <div className="absolute w-40 h-40 bg-[#01EF8E] opacity-20 rounded-full top-[-40px] right-[-20px] blur-[30px] pointer-events-none"></div>
@@ -1819,6 +2134,139 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, onC
           {data.show_value !== 'Off' && (
             <span className="font-black text-[32px] text-[#18181B]">{data.value ?? 0}</span>
           )}
+        </div>
+      );
+
+    case 'Timer':
+      return <TimerBlock blockId={block.id} data={data} isPreviewMode={isPreviewMode} />;
+      
+    case 'Streak Freeze':
+      return (
+        <div className="w-full px-6 py-2">
+          <div className="w-full bg-[#18181B] text-white p-6 rounded-3xl border-[3px] border-white shadow-[0_0_15px_#FFD100] flex flex-col items-center gap-3 text-center">
+             <LucideIcons.Flame size={48} className="text-[#FFD100] animate-pulse" />
+             <h4 className="font-black text-2xl text-[#FFD100] uppercase tracking-wider">{data.title || 'Streak Freeze'}</h4>
+             <p className="font-bold opacity-90">{data.description || 'You kept your streak alive!'}</p>
+             <button className="mt-2 w-full py-3 bg-[#FFD100] text-[#18181B] font-black text-lg rounded-xl border-[3px] border-[#FFD100] hover:bg-transparent hover:text-[#FFD100] transition-colors">
+               Equip for {data.price || 200} Gems
+             </button>
+          </div>
+        </div>
+      );
+      
+    case 'Fact Card':
+      const isDark = data.theme === 'Dark';
+      const isColorful = data.theme === 'Colorful';
+      let cardBgClass = "bg-white text-[#18181B] border-[#18181B]";
+      if (isDark) cardBgClass = "bg-[#18181B] text-white border-[#18181B]";
+      if (isColorful) cardBgClass = "bg-gradient-to-br from-[#8B5CF6] to-[#00E599] text-white border-white shadow-[4px_4px_0_#18181B]";
+      return (
+        <div className="w-full px-6 py-2">
+          <div className={`w-full p-6 border-[3px] shadow-[4px_4px_0_rgba(24,24,27,1)] rounded-3xl flex gap-4 ${cardBgClass}`}>
+            <LucideIcons.Info size={32} className={`shrink-0 ${isDark || isColorful ? 'text-white' : 'text-[#8B5CF6]'}`} />
+            <div className="flex flex-col gap-1">
+               <h4 className="font-black text-lg uppercase tracking-wider">{data.title || 'Did You Know?'}</h4>
+               <p className="font-bold opacity-90 leading-relaxed whitespace-pre-line">{data.fact_text}</p>
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'Audio Button':
+      return (
+        <div className="w-full px-6 py-2">
+          <button 
+            className="w-full flex items-center justify-center gap-3 p-4 bg-[#00E599] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl active:translate-y-1 active:shadow-none transition-all text-[#18181B] font-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]"
+            onClick={() => {
+              if (data.audio_url) {
+                new Audio(data.audio_url).play().catch(() => {});
+              }
+            }}
+          >
+            <LucideIcons.Volume2 size={24} />
+            <span className="text-xl tracking-wide">{data.label || 'Listen'}</span>
+          </button>
+        </div>
+      );
+
+    case 'Comparison':
+      return (
+        <div className="w-full px-6 py-2">
+          <div className="flex gap-4 w-full h-full">
+            <div className={`flex-1 p-5 rounded-3xl border-[3px] border-[#18181B] flex flex-col gap-2 shadow-[4px_4px_0_#18181B] ${data.highlight === 'Left' ? 'bg-[#00E599]' : 'bg-white'}`}>
+              <h4 className="font-black text-lg text-center">{data.title_a || 'Option A'}</h4>
+              <p className="font-bold text-sm text-center opacity-80 whitespace-pre-line">{data.desc_a}</p>
+            </div>
+            <div className="flex items-center justify-center font-black text-gray-400 shrink-0">VS</div>
+            <div className={`flex-1 p-5 rounded-3xl border-[3px] border-[#18181B] flex flex-col gap-2 shadow-[4px_4px_0_#18181B] ${data.highlight === 'Right' ? 'bg-[#00E599]' : 'bg-white'}`}>
+              <h4 className="font-black text-lg text-center">{data.title_b || 'Option B'}</h4>
+              <p className="font-bold text-sm text-center opacity-80 whitespace-pre-line">{data.desc_b}</p>
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'Timeline': {
+      const events = (data.events || '').split('\n').filter(Boolean).map(e => e.split('|'));
+      return (
+        <div className="w-full px-6 py-4">
+           {data.title && <h3 className="font-black text-center mb-6 text-2xl uppercase tracking-wider">{data.title}</h3>}
+           <div className="flex flex-col gap-0 relative pt-2">
+             <div className="absolute left-6 top-4 bottom-4 w-1.5 bg-[#18181B] rounded-full" />
+             {events.map((ev, i) => (
+                <div key={i} className="flex items-start gap-6 py-3 relative z-10 animate-in fade-in slide-in-from-left-4" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
+                   <div className="w-[18px] shrink-0 flex justify-center mt-1">
+                     <div className="w-5 h-5 rounded-full bg-[#00E599] border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 -ml-[5px]" />
+                   </div>
+                   <div className="flex-1 bg-white p-4 rounded-2xl shadow-[4px_4px_0_#18181B] border-[3px] border-[#18181B]">
+                     <span className="font-black text-sm text-[#8B5CF6] block mb-1 uppercase tracking-wider">{ev[0]}</span>
+                     <p className="font-bold text-[#18181B]">{ev[1]}</p>
+                   </div>
+                </div>
+             ))}
+           </div>
+        </div>
+      );
+    }
+    
+    case 'Text Reflection':
+      return (
+        <div className="w-full px-6 py-2 flex flex-col gap-3">
+          <p className="font-black text-center text-sm mb-2">{data.prompt || 'Reflection Prompt'}</p>
+          <textarea 
+            className="w-full p-4 rounded-2xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] font-bold outline-none focus:ring-2 focus:ring-[#8B5CF6] min-h-[120px] resize-none"
+            placeholder={data.placeholder || 'Type your answer here...'}
+            disabled={!isPreviewMode || isChecking}
+            value={interactionState?.[block.id]?.text || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              setInteractionState({ ...interactionState, [block.id]: { text: val } });
+              const minLen = parseInt(data.min_length || '10', 10);
+              if (onAnswered) onAnswered({ isAnswered: val.length >= minLen, isCorrect: true });
+            }}
+          />
+          {interactionState?.[block.id]?.text && interactionState[block.id].text.length > 0 && interactionState[block.id].text.length < parseInt(data.min_length || '10', 10) && (
+            <p className="text-xs text-[#FF6B6B] font-bold text-center">Keep going! Write a bit more.</p>
+          )}
+        </div>
+      );
+
+    case 'Share':
+      return (
+        <div className="w-full px-6 py-2">
+          <div className="w-full bg-[#8B5CF6] text-white p-6 rounded-3xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center gap-3 text-center">
+             <LucideIcons.Share2 size={40} className="text-white" />
+             <h4 className="font-black text-2xl uppercase tracking-wider">{data.title || 'Share your progress!'}</h4>
+             <button 
+                className="mt-2 w-full py-3 bg-white text-[#8B5CF6] font-black text-lg rounded-xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] active:translate-y-1 active:shadow-none hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] transition-all flex items-center justify-center gap-2"
+                onClick={() => {
+                  if (navigator.share) navigator.share({ title: data.title, text: data.share_text });
+                }}
+             >
+               <LucideIcons.Upload size={20} />
+               Share
+             </button>
+          </div>
         </div>
       );
 

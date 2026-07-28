@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&family=Press+Start+2P&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     color: #18181B;
     background-color: #F4F4F5;
   }
@@ -30,5 +30,44 @@
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #A1A1AA;
+  }
+}
+
+@layer utilities {
+  .neo-border {
+    @apply border-[3px] border-[#18181B];
+  }
+  .neo-shadow {
+    @apply shadow-[4px_4px_0_#18181B];
+  }
+  .neo-shadow-lg {
+    @apply shadow-[6px_6px_0_#18181B];
+  }
+  .neo-shadow-xl {
+    @apply shadow-[8px_8px_0_#18181B];
+  }
+  
+  .neo-card {
+    @apply neo-border neo-shadow rounded-2xl bg-white transition-all duration-200;
+  }
+  
+  .neo-btn {
+    @apply neo-border neo-shadow rounded-2xl font-black transition-all active:translate-y-1 active:shadow-none hover:-translate-y-1 hover:neo-shadow-lg;
+  }
+  
+  .neo-btn-primary {
+    @apply neo-btn bg-[#00E599] text-[#18181B];
+  }
+  
+  .neo-btn-warning {
+    @apply neo-btn bg-[#FFD100] text-[#18181B];
+  }
+  
+  .neo-btn-error {
+    @apply neo-btn bg-[#FF6B6B] text-white;
+  }
+  
+  .neo-btn-accent {
+    @apply neo-btn bg-[#8B5CF6] text-white;
   }
 }

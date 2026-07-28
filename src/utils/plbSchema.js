@@ -140,6 +140,14 @@ export const plbSchema = {
       { name: 'bubble_colour', label: 'Bubble Colour', type: 'color', default: '#FFFFFF' }
     ]
   },
+  'Mascot Emotion': {
+    category: 'Mascot', icon: 'Smile',
+    fields: [
+      { name: 'mascot_type', label: 'Mascot Expression', type: 'select', options: ['Happy', 'Winking', 'Laughing', 'Surprised', 'Confused', 'Thinking', 'Angry', 'Sad', 'Smart', 'Love', 'Cool', 'Sleeping'], required: true, default: 'Happy' },
+      { name: 'size', label: 'Size', type: 'select', options: ['Small', 'Medium', 'Large'], default: 'Medium' },
+      { name: 'mascot_alignment', label: 'Mascot Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
+    ]
+  },
   'Mascot Bubble': {
     category: 'Mascot', icon: 'MessageSquare',
     fields: [
@@ -292,9 +300,13 @@ export const plbSchema = {
     category: 'Visualisation', icon: 'PieChart',
     fields: [
       { name: 'type', label: 'Type', type: 'select', options: ['Visual', 'Clickable'], required: true, default: 'Visual' },
-{ name: 'title', label: 'Question Title', type: 'text', default: 'Pie Chart' },
-{ name: 'correct_slice', label: 'Correct Answer', type: 'select', options: ['1', '2', '3', '4', '5', '6'], default: '1' },
-{ name: 'number_of_slices', label: 'Number of Slices', type: 'select', options: ['1','2','3','4','5','6','7','8','9','10'], default: '4' },
+      { name: 'chart_style', label: 'Chart Style', type: 'select', options: ['Solid Pie', 'Full Donut', 'Half Gauge'], default: 'Full Donut' },
+      { name: 'legend_style', label: 'Legend Style', type: 'select', options: ['Chips', 'List'], default: 'Chips' },
+      { name: 'center_label', label: 'Center Metric (Donut/Gauge only)', type: 'text', default: '' },
+      { name: 'center_sublabel', label: 'Center Sub-label', type: 'text', default: '' },
+      { name: 'title', label: 'Question Title', type: 'text', default: 'Pie Chart' },
+      { name: 'correct_slice', label: 'Correct Answer', type: 'select', options: ['1', '2', '3', '4', '5', '6'], default: '1' },
+      { name: 'number_of_slices', label: 'Number of Slices', type: 'select', options: ['1','2','3','4','5','6','7','8','9','10'], default: '4' },
       { name: 'slice_label_1', label: 'Option 1 Label', type: 'text', required: true, default: 'Savings' },
       { name: 'slice_value_1', label: 'Option 1 Value', type: 'number', required: true, default: 50 },
       { name: 'slice_color_1', label: 'Option 1 Color', type: 'color', default: '#00E599' },
@@ -496,9 +508,12 @@ export const plbSchema = {
   Badge: {
     category: 'Feedback', icon: 'Award',
     fields: [
-      { name: 'image', label: 'Badge Image URL', type: 'media', required: true, default: '' },
-      { name: 'badge_name', label: 'Badge Name', type: 'text', required: true, default: '' },
-      { name: 'label', label: 'Label', type: 'text', default: '' }
+      { name: 'badge_type', label: 'Badge Type', type: 'dropdown', options: ['Achievement Badge', 'Streak Badge', 'Combo Badge', 'League Badge', 'Leaderboard Rank Badge'], default: 'Achievement Badge', required: true },
+      { name: 'badge_name', label: 'Badge Label (Bottom Text)', type: 'text', default: 'SCHOLAR' },
+      { name: 'badge_icon', label: 'Achievement Icon (e.g. Scholar, Pro, Champion)', type: 'dropdown', options: ['Scholar', 'Pro', 'Horticulturist', 'Champion', 'Adventurer', 'Director', 'Celebrity', 'Magician', 'Scientist'], default: 'Scholar' },
+      { name: 'show_count', label: 'Show Multiplier Chip?', type: 'dropdown', options: ['No', 'Yes'], default: 'No' },
+      { name: 'count_value', label: 'Value (Multiplier / Days / Combo / Rank)', type: 'number', default: 1 },
+      { name: 'league_tier', label: 'League Tier (For League Badge)', type: 'dropdown', options: ['Iron', 'Bronze', 'Silver', 'Gold'], default: 'Bronze' }
     ]
   },
   'Achievement Card': {
@@ -529,6 +544,71 @@ export const plbSchema = {
       { name: 'size', label: 'Size (px)', type: 'number', required: true, default: 48 },
       { name: 'color', label: 'Color', type: 'color', default: '#18181B' },
       { name: 'align', label: 'Alignment', type: 'select', options: ['left', 'center', 'right'], default: 'center' }
+    ]
+  },
+
+  'Timer': {
+    category: 'Activity', icon: 'Clock',
+    fields: [
+      { name: 'duration_seconds', label: 'Duration (Seconds)', type: 'number', required: true, default: 60 },
+      { name: 'auto_start', label: 'Auto Start', type: 'select', options: ['Yes', 'No'], default: 'Yes' },
+      { name: 'on_complete', label: 'On Complete', type: 'select', options: ['None', 'Auto-advance', 'Show Failure'], default: 'None' }
+    ]
+  },
+  'Streak Freeze': {
+    category: 'Feedback', icon: 'Flame',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Streak Freeze Equipped!' },
+      { name: 'description', label: 'Description', type: 'textarea', default: 'You kept your streak alive even though you missed a day!' },
+      { name: 'price', label: 'Cost (Gems)', type: 'number', default: 200 }
+    ]
+  },
+  'Fact Card': {
+    category: 'Content', icon: 'Info',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Did You Know?' },
+      { name: 'fact_text', label: 'Fact Text', type: 'textarea', required: true, default: 'Compound interest can double your money in 7 years at a 10% return rate.' },
+      { name: 'theme', label: 'Theme', type: 'select', options: ['Light', 'Dark', 'Colorful'], default: 'Light' }
+    ]
+  },
+  'Audio Button': {
+    category: 'Media', icon: 'Volume2',
+    fields: [
+      { name: 'label', label: 'Button Label', type: 'text', default: 'Listen' },
+      { name: 'audio_url', label: 'Audio URL (Optional)', type: 'text', default: '' },
+      { name: 'auto_play', label: 'Auto Play', type: 'select', options: ['Yes', 'No'], default: 'No' }
+    ]
+  },
+  'Comparison': {
+    category: 'Visualisation', icon: 'Columns',
+    fields: [
+      { name: 'title_a', label: 'Left Title', type: 'text', default: 'Option A' },
+      { name: 'desc_a', label: 'Left Description', type: 'textarea', default: 'Lower risk, lower reward.' },
+      { name: 'title_b', label: 'Right Title', type: 'text', default: 'Option B' },
+      { name: 'desc_b', label: 'Right Description', type: 'textarea', default: 'Higher risk, higher reward.' },
+      { name: 'highlight', label: 'Highlight Winner', type: 'select', options: ['None', 'Left', 'Right'], default: 'None' }
+    ]
+  },
+  'Timeline': {
+    category: 'Visualisation', icon: 'GitCommit',
+    fields: [
+      { name: 'title', label: 'Timeline Title', type: 'text', default: 'The History of Money' },
+      { name: 'events', label: 'Events (Year|Event, one per line)', type: 'textarea', default: '9000 BC|Barter System\n600 BC|First Coins\n1661 AD|First Banknotes' }
+    ]
+  },
+  'Text Reflection': {
+    category: 'Activity', icon: 'Edit3',
+    fields: [
+      { name: 'prompt', label: 'Reflection Prompt', type: 'text', required: true, default: 'What is your biggest financial goal this year?' },
+      { name: 'placeholder', label: 'Placeholder Text', type: 'text', default: 'Type your answer here...' },
+      { name: 'min_length', label: 'Minimum Characters', type: 'number', default: 10 }
+    ]
+  },
+  'Share': {
+    category: 'Feedback', icon: 'Share2',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Share your progress!' },
+      { name: 'share_text', label: 'Default Share Text', type: 'textarea', default: 'I just finished a lesson on PiggyPath!' }
     ]
   },
 
