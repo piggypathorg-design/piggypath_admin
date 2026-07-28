@@ -964,7 +964,8 @@ const PLBBuilder = () => {
               </button>
             </div>
             
-            <div className="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 flex flex-col gap-3">
+            <div className="relative flex-1 flex flex-col overflow-hidden">
+              <div className="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 flex flex-col gap-3">
               <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -1000,6 +1001,8 @@ const PLBBuilder = () => {
                   ))}
                 </SortableContext>
               </DndContext>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
             </div>
           </aside>
         )}
@@ -1163,8 +1166,26 @@ const PLBBuilder = () => {
                         if (idx > numRows) return null;
                       }
                       
+                      // Dynamic Badge Logic
+                      let displayLabel = field.label;
+                      if (selectedBlock.type === 'Badge') {
+                        const badgeType = selectedBlock[version]['badge_type'] || 'Achievement Badge';
+                        if (badgeType === 'Streak Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
+                        if (badgeType === 'Combo Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
+                        if (badgeType === 'League Badge' && field.name === 'badge_icon') return null;
+                        if (badgeType === 'Leaderboard Rank Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
+                        if (badgeType === 'Achievement Badge' && (field.name === 'league_tier' || field.name === 'count_value')) return null;
+
+                        if (field.name === 'count_value') {
+                          if (badgeType === 'Streak Badge') displayLabel = 'Days';
+                          else if (badgeType === 'Combo Badge') displayLabel = 'Combo Count';
+                          else if (badgeType === 'Leaderboard Rank Badge') displayLabel = 'Rank #';
+                          else displayLabel = 'Value';
+                        }
+                      }
+
                       // Special handling for the Mascot grid selector
-                      if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion' || selectedBlock.type === 'Mascot Platform') && field.name === 'mascot_type') {
+                      if ((selectedBlock.type === 'Mascot Feedback' || selectedBlock.type === 'Mascot Emotion' || selectedBlock.type === 'Mascot Platform' || selectedBlock.type === 'Mascot Character') && field.name === 'mascot_type') {
                         return (
                           <div key={field.name} className="flex flex-col gap-2">
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -1222,7 +1243,7 @@ const PLBBuilder = () => {
                         <div key={field.name} className="flex flex-col gap-2">
                           {field.type !== 'media' && (
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                              {field.label} {field.required && <span className="text-red-500">*</span>}
+                              {displayLabel} {field.required && <span className="text-red-500">*</span>}
                             </label>
                           )}
                           
@@ -1283,7 +1304,7 @@ const PLBBuilder = () => {
                             <MediaUploadField
                               value={value}
                               onChange={(newVal) => updateBlockData(selectedBlock.id, field.name, newVal)}
-                              label={field.label}
+                              label={displayLabel}
                               required={field.required}
                             />
                           ) : null}

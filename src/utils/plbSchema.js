@@ -148,7 +148,7 @@ export const plbSchema = {
       { name: 'mascot_alignment', label: 'Mascot Alignment', type: 'select', options: ['Left', 'Center', 'Right'], default: 'Center' }
     ]
   },
-  'Mascot Bubble': {
+  'Text Bubble (no mascot)': {
     category: 'Mascot', icon: 'MessageSquare',
     fields: [
       { name: 'text', label: 'Text', type: 'textarea', default: 'Mascot says...' },

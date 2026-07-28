@@ -18,18 +18,18 @@
 
   /* Custom Scrollbar for Builder */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #D4D4D8;
+    background-color: #A1A1AA;
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #A1A1AA;
+    background-color: #71717A;
   }
 }
 

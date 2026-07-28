@@ -18,15 +18,31 @@ import Confetti from '../ui/Confetti';
 import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
+  useSortable,
   verticalListSortingStrategy,
-  useSortable
+  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { plbSchema } from '../../utils/plbSchema';
 import mascotGridImg from '../../assets/mascot_grid.png';
 import coinsImg from '../../assets/components/Coins.png';
 import gemsImg from '../../assets/components/gems.png';
 import xpImg from '../../assets/components/XP Icon.png';
+
+const MASCOT_IMAGES = {
+  Happy: '/assets/mascots/Happy.png',
+  Confused: '/assets/mascots/Confused.png',
+  Surprised: '/assets/mascots/Surprised.png',
+  Sleeping: '/assets/mascots/Sleeping.png',
+  Smart: '/assets/mascots/Smart.png',
+  Love: '/assets/mascots/Love.png',
+  Angry: '/assets/mascots/Angry.png',
+  Cool: '/assets/mascots/Cool.png',
+  Laughing: '/assets/mascots/Laughing.png',
+  Sad: '/assets/mascots/Sad.png',
+  Thinking: '/assets/mascots/Thinking.png',
+  Winking: '/assets/mascots/Winking.png'
+};
 
 const TimerBlock = ({ blockId, data, isPreviewMode }) => {
   const duration = parseInt(data.duration_seconds || '60', 10);
@@ -58,53 +74,6 @@ const TimerBlock = ({ blockId, data, isPreviewMode }) => {
        </div>
     </div>
   );
-};
-
-import MascotAngry from '../../assets/mascots/Angry.png';
-import MascotConfused from '../../assets/mascots/Confused.png';
-import MascotCool from '../../assets/mascots/Cool.png';
-import MascotHappy from '../../assets/mascots/Happy.png';
-import MascotLaughing from '../../assets/mascots/Laughing.png';
-import MascotLove from '../../assets/mascots/Love.png';
-import MascotSad from '../../assets/mascots/Sad.png';
-import MascotSleeping from '../../assets/mascots/Sleeping.png';
-import MascotSmart from '../../assets/mascots/Smart.png';
-import MascotSurprised from '../../assets/mascots/Surprised.png';
-import MascotThinking from '../../assets/mascots/Thinking.png';
-import MascotWinking from '../../assets/mascots/Winking.png';
-
-const MASCOT_IMAGES = {
-  Angry: MascotAngry,
-  Confused: MascotConfused,
-  Cool: MascotCool,
-  Happy: MascotHappy,
-  Laughing: MascotLaughing,
-  Love: MascotLove,
-  Sad: MascotSad,
-  Sleeping: MascotSleeping,
-  Smart: MascotSmart,
-  Surprised: MascotSurprised,
-  Thinking: MascotThinking,
-  Winking: MascotWinking
-};
-
-const getMascotBackgroundPosition = (opt) => {
-  const map = {
-    'Happy': '0% 0%',
-    'Winking': '33.33% 0%',
-    'Laughing': '66.66% 0%',
-    'Surprised': '100% 0%',
-    'Confused': '0% 50%',
-    'Thinking': '33.33% 50%',
-    'Angry': '66.66% 50%',
-    'Sad': '100% 50%',
-    'Smart': '0% 100%',
-    'Love': '33.33% 100%',
-    'Cool': '66.66% 100%',
-    'Sleeping': '100% 100%'
-  };
-
-  return map[opt] || map['Happy'];
 };
 
 const getObjectFit = (fit) => {
@@ -1009,6 +978,10 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
 };
 
 const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, onAnswered, lives }) => {
+  if (plbSchema[block.type]?.category === 'Legacy Navigation') {
+    return null;
+  }
+
   const data = block[version] || {};
   const [localInteractionState, setLocalInteractionState] = React.useState({});
   
@@ -1219,6 +1192,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
       );
 
     case 'Mascot Bubble':
+    case 'Text Bubble (no mascot)':
       return (
         <div className="w-full px-6 py-4 relative flex justify-center">
           <div 
@@ -1928,7 +1902,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
              <img 
                src={MASCOT_IMAGES[data.mascot_type || 'Happy'] || MASCOT_IMAGES.Happy}
                alt={data.mascot_type || 'Happy'}
-               className="w-full h-full object-contain mix-blend-multiply drop-shadow-md"
+               className="w-full h-full object-contain drop-shadow-md"
              />
            </div>
         </div>
