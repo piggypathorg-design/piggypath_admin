@@ -44,12 +44,12 @@ const DailyMissionsCard = () => {
 
               {/* Action Button */}
               {mission.completed ? (
-                <button className="bg-[#18181B] dark:bg-[#F4F4F5] text-[#00E599] dark:text-[#18181B] border-[2px] border-[#18181B] dark:border-transparent font-black text-xs px-3 py-2 flex items-center gap-1 transition-colors">
+                <button onClick={() => alert("Feature coming soon!")} className="bg-[#18181B] dark:bg-[#F4F4F5] text-[#00E599] dark:text-[#18181B] border-[2px] border-[#18181B] dark:border-transparent font-black text-xs px-3 py-2 flex items-center gap-1 transition-colors">
                   <Check size={14} strokeWidth={4} />
                   DONE
                 </button>
               ) : (
-                <button className="bg-[#F4F4F5] dark:bg-[#27272A] text-[#18181B] dark:text-[#F4F4F5] border-[2px] border-[#18181B] dark:border-[#F4F4F5] font-black text-xs px-4 py-2 hover:bg-[#E4E4E7] dark:hover:bg-[#3F3F46] transition-colors">
+                <button onClick={() => alert("Feature coming soon!")} className="bg-[#F4F4F5] dark:bg-[#27272A] text-[#18181B] dark:text-[#F4F4F5] border-[2px] border-[#18181B] dark:border-[#F4F4F5] font-black text-xs px-4 py-2 hover:bg-[#E4E4E7] dark:hover:bg-[#3F3F46] transition-colors">
                   GO
                 </button>
               )}
@@ -59,7 +59,7 @@ const DailyMissionsCard = () => {
       </div>
 
       {/* Claim Button */}
-      <button className="w-full bg-[#00E599] text-[#18181B] font-black text-lg py-3 border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[4px_4px_0_#F4F4F5] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#18181B] dark:hover:shadow-[2px_2px_0_#F4F4F5] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all uppercase">
+      <button onClick={() => alert("Feature coming soon!")} className="w-full bg-[#00E599] text-[#18181B] font-black text-lg py-3 border-[3px] border-[#18181B] dark:border-white shadow-[4px_4px_0_#18181B] dark:shadow-[4px_4px_0_#F4F4F5] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#18181B] dark:hover:shadow-[2px_2px_0_#F4F4F5] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all uppercase">
         Claim All Rewards
       </button>
 

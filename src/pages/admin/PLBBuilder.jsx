@@ -964,7 +964,7 @@ const PLBBuilder = () => {
               </button>
             </div>
             
-            <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3">
+            <div className="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 flex flex-col gap-3">
               <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}

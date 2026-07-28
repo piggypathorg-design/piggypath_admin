@@ -78,6 +78,7 @@ const DailyQuestPanel = () => {
           onMouseDown={() => setPressed(true)}
           onMouseUp={() => setPressed(false)}
           onMouseLeave={() => setPressed(false)}
+          onClick={() => alert("Daily Quest feature coming soon!")}
           className="w-full font-pixel pixel-btn"
           style={{
             padding: '14px 0', fontSize: 10,

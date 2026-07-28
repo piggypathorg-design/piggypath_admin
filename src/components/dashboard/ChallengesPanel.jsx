@@ -104,6 +104,7 @@ const ChallengesPanel = () => {
       </div>
 
       <button
+        onClick={() => alert("Challenges feature coming soon!")}
         className="w-full py-3 font-pixel text-[10px] rounded-lg pixel-btn uppercase"
         style={{ background:'#00D4C8', color:'#0A0A1A', border:'2px solid #004A45', boxShadow:'4px 4px 0 #004A45' }}
       >

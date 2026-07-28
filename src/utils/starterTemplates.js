@@ -65,7 +65,7 @@ export const starterTemplates = [
     description: 'Teach history or sequences using a visual timeline.',
     icon: 'GitCommit',
     blocks: [
-      { type: 'Text Header', overrides: { content: 'History of Money', align: 'center', size: 32 }, height: 100 },
+      { type: 'Title', overrides: { title_text: 'History of Money', align: 'center', font_size: 32 }, height: 100 },
       { type: 'Timeline', overrides: { title: 'How it evolved', events: '9000 BC|Barter System\n600 BC|First Coins\n1661 AD|First Banknotes' }, height: 400 },
       { type: 'Text Reflection', overrides: { prompt: 'Which era do you think saw the biggest jump in financial technology?' }, height: 250 }
     ]
@@ -75,7 +75,7 @@ export const starterTemplates = [
     description: 'Ask users a question and show them a comparison.',
     icon: 'PieChart',
     blocks: [
-      { type: 'Text Header', overrides: { content: 'What would you choose?', align: 'center', size: 28 }, height: 100 },
+      { type: 'Title', overrides: { title_text: 'What would you choose?', align: 'center', font_size: 28 }, height: 100 },
       { type: 'Comparison', overrides: { title_a: 'Save 20%', desc_a: 'Consistent but slow.', title_b: 'Invest 20%', desc_b: 'Riskier but faster growth.' }, height: 250 },
       { type: 'MCQ', overrides: { question: 'Which path fits your current lifestyle better?', option_a: 'Saving', option_b: 'Investing', option_c: 'A bit of both', option_d: 'Neither' }, height: 350 }
     ]

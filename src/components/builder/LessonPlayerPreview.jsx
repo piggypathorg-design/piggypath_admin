@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, CheckCircle, XCircle, ArrowLeft, RefreshCw, Volume2, VolumeX } from 'lucide-react';
 import VisualBlockRenderer from './VisualBlockRenderer';
 import HappyMascot from '../../assets/mascots/Happy.png';
+import Confetti from '../ui/Confetti';
 
 const INTERACTIVE_TYPES = [
   'Chart Quiz',
@@ -178,6 +179,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   if (isCompleted || lives === 0) {
     return (
       <div className={`mx-auto flex flex-col h-full bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
+        {isCompleted && lives > 0 && <Confetti />}
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
           <div className="w-32 h-32 mb-6">
              <img src={HappyMascot} alt="Happy Mascot" className="w-full h-full object-contain animate-mascot-bounce" />

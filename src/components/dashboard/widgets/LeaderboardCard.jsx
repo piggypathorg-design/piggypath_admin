@@ -21,10 +21,9 @@ const LeaderboardCard = () => {
           <Shield 
             size={80} 
             color="#18181B" 
-            fill="#8B5CF6" // Bronze color could be #D97706, but let's make it a nice purple/orange. Let's use Bronze: #D97706
+            fill="#D97706"
             strokeWidth={2}
             className="drop-shadow-[4px_4px_0_rgba(24,24,27,0.5)] dark:drop-shadow-[4px_4px_0_rgba(244,244,245,0.5)] transition-transform group-hover:-translate-y-1"
-            style={{ fill: '#D97706' }} // Bronze League
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <Trophy size={32} color="#FFF" fill="#FFF" strokeWidth={1.5} className="opacity-90 drop-shadow-sm" />
@@ -42,7 +41,10 @@ const LeaderboardCard = () => {
       </div>
 
       {/* Footer Button */}
-      <button className="w-full bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] font-black text-xs px-4 py-3 flex items-center justify-center gap-2 hover:bg-[#27272A] dark:hover:bg-[#E4E4E7] transition-colors border-[3px] border-[#18181B] dark:border-transparent mt-4 shrink-0 shadow-[2px_2px_0_#18181B] dark:shadow-none active:translate-y-[2px] active:translate-x-[2px] active:shadow-none uppercase tracking-widest">
+      <button onClick={() => alert("Feature coming soon!")} 
+        className="w-full bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] font-black text-xs px-4 py-3 flex items-center justify-center gap-2 hover:bg-[#27272A] dark:hover:bg-[#E4E4E7] transition-colors border-[3px] border-[#18181B] dark:border-transparent mt-4 shrink-0 shadow-[2px_2px_0_#18181B] dark:shadow-none active:translate-y-[2px] active:translate-x-[2px] active:shadow-none uppercase tracking-widest"
+        onClick={() => alert("League features coming soon!")}
+      >
         View League
         <ChevronRight size={16} strokeWidth={3} />
       </button>

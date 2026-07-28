@@ -27,8 +27,9 @@ const MilestoneChestsCard = () => {
         {chests.map((chest) => (
           <div 
             key={chest.id} 
+            onClick={() => alert("Chest opening feature coming soon!")}
             className={`
-              min-w-[120px] h-[140px] border-[3px] border-[#18181B] dark:border-white flex flex-col items-center justify-between p-3 relative shrink-0 transition-colors
+              min-w-[120px] h-[140px] border-[3px] border-[#18181B] dark:border-white flex flex-col items-center justify-between p-3 relative shrink-0 transition-colors cursor-pointer hover:-translate-y-1
               ${chest.status === 'ready' ? 'bg-[#FFC107] shadow-[4px_4px_0_#8B5CF6] dark:shadow-[4px_4px_0_#A78BFA]' : 'bg-white dark:bg-[#27272A] shadow-[2px_2px_0_#18181B] dark:shadow-[2px_2px_0_#F4F4F5]'}
             `}
           >
@@ -60,9 +61,14 @@ const MilestoneChestsCard = () => {
 
             {/* Badge for ready state */}
             {chest.badge && (
-              <div className="absolute -top-3 -right-3 bg-[#00E599] border-2 border-[#18181B] dark:border-white text-[#18181B] font-black text-[10px] px-1.5 py-0.5">
+              <div className="absolute -top-3 -right-3 bg-[#00E599] border-2 border-[#18181B] dark:border-white text-[#18181B] font-black text-[10px] px-1.5 py-0.5 z-10">
                 {chest.badge}
               </div>
+            )}
+            
+            {/* Unclaimed Red Dot Indicator */}
+            {chest.status === 'ready' && (
+              <div className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 border border-white rounded-full animate-pulse z-10" />
             )}
           </div>
         ))}

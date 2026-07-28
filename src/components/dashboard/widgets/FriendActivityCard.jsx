@@ -60,7 +60,7 @@ const FriendActivityCard = () => {
       </div>
 
       {/* Footer Link */}
-      <button className="w-full mt-4 font-black text-xs tracking-widest text-[#18181B] dark:text-[#F4F4F5] hover:underline uppercase text-center">
+      <button onClick={() => alert("Feature coming soon!")} className="w-full mt-4 font-black text-xs tracking-widest text-[#18181B] dark:text-[#F4F4F5] hover:underline uppercase text-center">
         View All Friends
       </button>
 
