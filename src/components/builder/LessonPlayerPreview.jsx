@@ -97,12 +97,8 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
 
   if (pages.length === 0) return null;
 
-  // Reset state when page changes
+  // Scroll to top when page changes
   useEffect(() => {
-    setInteractionState({});
-    setIsChecking(false);
-    setBlockAnswerState({});
-    
     if (containerRef.current) {
       containerRef.current.scrollTo(0, 0);
     }
@@ -150,6 +146,9 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const goBack = () => {
     if (currentIndex > 0) {
       playSound('whoosh');
+      setInteractionState({});
+      setIsChecking(false);
+      setBlockAnswerState({});
       setCurrentPageIndex(prev => prev - 1);
     }
   };
@@ -157,6 +156,9 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const advancePage = () => {
     if (currentIndex < pages.length - 1) {
       playSound('whoosh');
+      setInteractionState({});
+      setIsChecking(false);
+      setBlockAnswerState({});
       setCurrentPageIndex(prev => prev + 1);
     } else {
       playSound('complete');

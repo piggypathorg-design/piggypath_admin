@@ -975,10 +975,11 @@ const PLBBuilder = () => {
                   items={pages.map(p => p.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {pages.map((page) => (
+                  {pages.map((page, index) => (
                     <SortablePageItem 
                       key={page.id}
                       page={page}
+                      index={index}
                       isActive={activePageId === page.id}
                       canDelete={pages.length > 1}
                       onSelect={() => { setActivePageId(page.id); setSelectedBlockId(null); }}
@@ -1055,7 +1056,7 @@ const PLBBuilder = () => {
               ) : isPreviewMode ? (
                   <LessonPlayerPreview 
                     pages={pages}
-                    initialPageIndex={Math.max(0, pages.findIndex(p => p.id === activePageId))}
+                    initialPageIndex={0}
                     version={version} 
                     previewDevice={previewDevice} 
                     progressValues={progressValues}

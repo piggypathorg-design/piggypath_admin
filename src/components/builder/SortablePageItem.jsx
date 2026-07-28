@@ -6,6 +6,7 @@ import { plbSchema } from '../../utils/plbSchema';
 
 export const SortablePageItem = ({ 
   page, 
+  index,
   isActive, 
   canDelete,
   onSelect,
@@ -53,7 +54,7 @@ export const SortablePageItem = ({
           </div>
           <div onClick={onSelect} className="cursor-pointer flex-1 flex items-center gap-2 truncate py-1">
             {isActive ? <ChevronDown size={16} strokeWidth={3} /> : <ArrowRight size={16} strokeWidth={3} />} 
-            {page.title}
+            {page.title || `Page ${index + 1}`}
           </div>
         </div>
         {canDelete && (
