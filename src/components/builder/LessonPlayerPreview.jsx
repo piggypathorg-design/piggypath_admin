@@ -3,6 +3,8 @@ import { X, Heart, CheckCircle, XCircle, ArrowLeft, RefreshCw, Volume2, VolumeX 
 import { motion, AnimatePresence } from 'framer-motion';
 import VisualBlockRenderer from './VisualBlockRenderer';
 import HappyMascot from '../../assets/mascots/Happy.png';
+import WinkingMascot from '../../assets/mascots/Winking.png';
+import ConfusedMascot from '../../assets/mascots/Confused.png';
 import Confetti from '../ui/Confetti';
 
 const CountUpNode = ({ value, duration = 1.2, prefix = "", suffix = "" }) => {
@@ -382,6 +384,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
                   externalInteractionState={interactionState}
                   setExternalInteractionState={setInteractionState}
                   isChecking={isChecking}
+                  isAnswerCorrect={isAnswerCorrect}
                   lives={lives}
                   onAnswered={(ans) => setBlockAnswerState(prev => ({ ...prev, [block.id]: ans }))}
                   playSound={playSound}
@@ -400,15 +403,26 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
           <div 
             aria-live="assertive" 
             aria-atomic="true"
-            className={`absolute bottom-full left-0 w-full p-6 animate-in slide-in-from-bottom-4 duration-300 border-t-[3px] border-[#18181B] ${isAnswerCorrect ? 'bg-[#00E599]' : 'bg-[#FF6B6B]'}`}
+            className={`absolute bottom-full left-0 w-full p-5 animate-in slide-in-from-bottom-4 duration-300 border-t-[3px] border-[#18181B] ${isAnswerCorrect ? 'bg-[#00E599]' : 'bg-[#FF6B6B]'}`}
           >
-             <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center border-[2px] border-[#18181B]`}>
-                   {isAnswerCorrect ? <CheckCircle size={24} className="text-[#00E599]" /> : <XCircle size={24} className="text-[#FF6B6B]" />}
-                </div>
-                <h3 className={`font-black text-xl ${isAnswerCorrect ? 'text-[#18181B]' : 'text-white'}`}>
-                  {isAnswerCorrect ? 'Excellent!' : 'Not quite right.'}
-                </h3>
+             <div className="flex items-center justify-between gap-4">
+               <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center border-[2px] border-[#18181B] shrink-0`}>
+                     {isAnswerCorrect ? <CheckCircle size={24} className="text-[#00E599]" /> : <XCircle size={24} className="text-[#FF6B6B]" />}
+                  </div>
+                  <h3 className={`font-black text-xl ${isAnswerCorrect ? 'text-[#18181B]' : 'text-white'} leading-tight`}>
+                    {isAnswerCorrect ? 'Excellent!' : 'Not quite right.'}
+                  </h3>
+               </div>
+               
+               {/* Reaction Mascot */}
+               <div className="w-16 h-16 shrink-0 relative -my-4 animate-mascot-bounce overflow-visible">
+                  <img 
+                    src={isAnswerCorrect ? WinkingMascot : ConfusedMascot} 
+                    alt="Feedback Mascot" 
+                    className="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)]"
+                  />
+               </div>
              </div>
           </div>
         )}

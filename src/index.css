@@ -1,5 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&family=Press+Start+2P&display=swap');
 
+:root {
+  --neo-primary: #00E599;
+  --neo-warning: #FFD100;
+  --neo-error: #FF6B6B;
+  --neo-accent: #8B5CF6;
+  --neo-dark: #18181B;
+  --neo-light: #F4F4F5;
+  --neo-border-color: #18181B;
+  
+  --neo-border-width: 3px;
+  --neo-border-width-lg: 4px;
+  
+  --neo-shadow-offset: 4px;
+  --neo-shadow-offset-lg: 6px;
+  --neo-shadow-offset-xl: 8px;
+  
+  --neo-radius-sm: 0.5rem;    /* 8px */
+  --neo-radius-md: 0.75rem;   /* 12px */
+  --neo-radius-lg: 1rem;      /* 16px */
+  --neo-radius-xl: 1.5rem;    /* 24px */
+  --neo-radius-2xl: 2rem;     /* 32px */
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,13 +30,13 @@
 @layer base {
   body {
     font-family: 'Montserrat', sans-serif;
-    color: #18181B;
-    background-color: #F4F4F5;
+    color: var(--neo-dark);
+    background-color: var(--neo-light);
   }
 
   .dark body {
-    color: #F4F4F5;
-    background-color: #18181B;
+    color: var(--neo-light);
+    background-color: var(--neo-dark);
   }
 
   /* Custom Scrollbar for Builder */
@@ -35,39 +58,65 @@
 
 @layer utilities {
   .neo-border {
-    @apply border-[3px] border-[#18181B];
+    border: var(--neo-border-width) solid var(--neo-border-color);
+  }
+  .neo-border-lg {
+    border: var(--neo-border-width-lg) solid var(--neo-border-color);
   }
   .neo-shadow {
-    @apply shadow-[4px_4px_0_#18181B];
+    box-shadow: var(--neo-shadow-offset) var(--neo-shadow-offset) 0 var(--neo-border-color);
   }
   .neo-shadow-lg {
-    @apply shadow-[6px_6px_0_#18181B];
+    box-shadow: var(--neo-shadow-offset-lg) var(--neo-shadow-offset-lg) 0 var(--neo-border-color);
   }
   .neo-shadow-xl {
-    @apply shadow-[8px_8px_0_#18181B];
+    box-shadow: var(--neo-shadow-offset-xl) var(--neo-shadow-offset-xl) 0 var(--neo-border-color);
   }
   
   .neo-card {
-    @apply neo-border neo-shadow rounded-2xl bg-white transition-all duration-200;
+    @apply bg-white transition-all duration-200;
+    border: var(--neo-border-width) solid var(--neo-border-color);
+    box-shadow: var(--neo-shadow-offset) var(--neo-shadow-offset) 0 var(--neo-border-color);
+    border-radius: var(--neo-radius-xl);
+  }
+  .neo-card-lg {
+    @apply bg-white transition-all duration-200;
+    border: var(--neo-border-width-lg) solid var(--neo-border-color);
+    box-shadow: var(--neo-shadow-offset-xl) var(--neo-shadow-offset-xl) 0 var(--neo-border-color);
+    border-radius: var(--neo-radius-2xl);
   }
   
   .neo-btn {
-    @apply neo-border neo-shadow rounded-2xl font-black transition-all active:translate-y-1 active:shadow-none hover:-translate-y-1 hover:neo-shadow-lg;
+    @apply font-black transition-all active:translate-y-1 active:shadow-none hover:-translate-y-1;
+    border: var(--neo-border-width) solid var(--neo-border-color);
+    box-shadow: var(--neo-shadow-offset) var(--neo-shadow-offset) 0 var(--neo-border-color);
+    border-radius: var(--neo-radius-xl);
+  }
+  .neo-btn:hover {
+    box-shadow: var(--neo-shadow-offset-lg) var(--neo-shadow-offset-lg) 0 var(--neo-border-color);
   }
   
   .neo-btn-primary {
-    @apply neo-btn bg-[#00E599] text-[#18181B];
+    @apply neo-btn;
+    background-color: var(--neo-primary);
+    color: var(--neo-dark);
   }
   
   .neo-btn-warning {
-    @apply neo-btn bg-[#FFD100] text-[#18181B];
+    @apply neo-btn;
+    background-color: var(--neo-warning);
+    color: var(--neo-dark);
   }
   
   .neo-btn-error {
-    @apply neo-btn bg-[#FF6B6B] text-white;
+    @apply neo-btn;
+    background-color: var(--neo-error);
+    color: white;
   }
   
   .neo-btn-accent {
-    @apply neo-btn bg-[#8B5CF6] text-white;
+    @apply neo-btn;
+    background-color: var(--neo-accent);
+    color: white;
   }
 }

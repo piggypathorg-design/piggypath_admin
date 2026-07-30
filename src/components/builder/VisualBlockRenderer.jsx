@@ -115,7 +115,7 @@ const AudioBlock = ({ data, isPreviewMode }) => {
   return (
     <div className={`w-full flex flex-col items-center justify-center py-4 px-6 gap-2`}>
        {showIcon && (
-         <div className={`w-16 h-16 bg-[#00E599] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shadow-[4px_4px_0_#18181B] mb-2 transition-all duration-300 ${isPlaying ? 'animate-pulse scale-110 shadow-[8px_8px_0_#18181B]' : ''}`}>
+         <div className={`w-16 h-16 bg-[#00E599] rounded-full neo-border flex items-center justify-center neo-shadow mb-2 transition-all duration-300 ${isPlaying ? 'animate-pulse scale-110 shadow-[var(--neo-shadow-offset-xl)_var(--neo-shadow-offset-xl)_0_var(--neo-border-color)]' : ''}`}>
             <Volume2 size={32} className="text-[#18181B]" />
          </div>
        )}
@@ -213,7 +213,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
                 if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
               }
             }}
-            className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all animate-in fade-in slide-in-from-bottom-2 ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
+            className={`px-4 py-3 rounded-[var(--neo-radius-xl)] text-sm font-bold shadow-[var(--neo-shadow-offset)_var(--neo-shadow-offset)_0_var(--neo-border-color)] border-[var(--neo-border-width)] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[var(--neo-border-color)]'} text-center transition-all animate-in fade-in slide-in-from-bottom-2 ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--neo-shadow-offset-lg)_var(--neo-shadow-offset-lg)_0_var(--neo-border-color)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
             style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
           >
             {isChecking && isSelected && opt.key === correctOptKey && <LucideIcons.CheckCircle size={16} />}
@@ -225,7 +225,7 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
       })}
       
       {hasSelection && isChecking && (
-        <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+        <div className={`mt-2 p-4 rounded-[var(--neo-radius-lg)] border-[var(--neo-border-width)] border-[var(--neo-border-color)] shadow-[var(--neo-shadow-offset)_var(--neo-shadow-offset)_0_var(--neo-border-color)] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
           <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
           {isCorrectSelection ? (data.quiz_why_correct || 'That is correct!') : (data.quiz_why_incorrect || 'That is incorrect, please try again.')}
         </div>
@@ -360,20 +360,20 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
               <div key={id} className="flex gap-4 w-full">
                 <div 
                   role="button"
-                  tabIndex={isPreviewMode && !isMatched ? 0 : -1}
+                  tabIndex={isPreviewMode && !isChecking && !isMatched ? 0 : -1}
                   onKeyDown={(e) => {
-                    if (isPreviewMode && !isMatched && (e.key === 'Enter' || e.key === ' ')) {
+                    if (isPreviewMode && !isChecking && !isMatched && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
                       handleLeftClick(id);
                     }
                   }}
                   onClick={() => handleLeftClick(id)}
-                  className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center break-words transition-colors select-none ${isPreviewMode && !isMatched ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'focus:outline-none'} ${bgClass} ${animClass}`}
+                  className={`flex-1 neo-border rounded-[var(--neo-radius-xl)] px-4 py-3 neo-shadow font-bold text-sm text-center flex items-center justify-center break-words transition-colors select-none ${isPreviewMode && !isMatched ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'focus:outline-none'} ${bgClass} ${animClass}`}
                 >
                   {data[`pair_${id}_a`] || `Pair ${id} A`}
                 </div>
                 
-                <div className={`flex-1 border-[3px] rounded-2xl px-4 py-3 shadow-[4px_4px_0_#18181B] font-bold text-sm text-center flex items-center justify-center transition-colors select-none ${isMatched ? 'bg-[#00E599] border-[#18181B] text-[#18181B]' : 'bg-[#F4F4F5] border-[#18181B] border-dashed border-gray-400 text-gray-500'}`}>
+                <div className={`flex-1 neo-border rounded-[var(--neo-radius-xl)] px-4 py-3 neo-shadow font-bold text-sm text-center flex items-center justify-center transition-colors select-none ${isMatched ? 'bg-[#00E599] border-[var(--neo-border-color)] text-[#18181B]' : 'bg-[#F4F4F5] border-[var(--neo-border-color)] border-dashed border-gray-400 text-gray-500'}`}>
                   {isMatched ? matchedRightText : (state.leftSelected ? 'Tap below to match' : 'Tap left first')}
                 </div>
               </div>
@@ -407,7 +407,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
                    }
                  }}
                  onClick={() => handleRightClick(item.id)}
-                 className={`px-3 py-1.5 border-[2px] shadow-[3px_3px_0_#18181B] rounded-lg text-xs font-bold transition-all select-none ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
+                 className={`px-3 py-1.5 border-[var(--neo-border-width)] border-[var(--neo-border-color)] shadow-[var(--neo-shadow-offset)_var(--neo-shadow-offset)_0_var(--neo-border-color)] rounded-[var(--neo-radius-md)] text-xs font-bold transition-all select-none ${isPreviewMode ? 'cursor-pointer hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'focus:outline-none'} ${bgClass} ${animClass}`}
                >
                   {item.text}
                </div>
@@ -467,7 +467,7 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
     <div className="w-full px-6 py-4 flex flex-col gap-4 items-center">
        {data.question && <p className="font-black text-center text-lg leading-tight">{data.question}</p>}
        <div 
-         className={`relative w-full max-w-sm ${data.image ? 'aspect-square' : 'py-8'} bg-gray-100 border-[3px] rounded-2xl overflow-hidden shadow-[4px_4px_0_#18181B] transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[#18181B]'}`}
+         className={`relative w-full max-w-sm ${data.image ? 'aspect-square' : 'py-8'} bg-gray-100 neo-border rounded-[var(--neo-radius-xl)] overflow-hidden neo-shadow transition-colors ${state.status === 'correct' ? 'border-[#00E599]' : state.status === 'error' ? 'border-[#FF6B6B] animate-mascot-shake' : 'border-[var(--neo-border-color)]'}`}
          onClick={handleImageClick}
        >
           {isPreviewMode && !isChecking && (
@@ -561,12 +561,12 @@ const ArrangeSortableItem = ({ id, text, isPreviewMode, isChecking }) => {
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`w-full bg-white border-[3px] border-[#18181B] rounded-2xl p-4 flex items-center gap-3 shadow-[4px_4px_0_#18181B] transition-all font-bold text-[#18181B] ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]' : 'cursor-default'}`}
+      className={`w-full bg-white neo-border rounded-[var(--neo-radius-xl)] p-4 flex items-center gap-3 neo-shadow transition-all font-bold text-[#18181B] ${isPreviewMode ? 'cursor-pointer hover:-translate-y-1 hover:shadow-[var(--neo-shadow-offset-lg)_var(--neo-shadow-offset-lg)_0_var(--neo-border-color)]' : 'cursor-default'}`}
     >
       <div 
         {...attributes} 
         {...listeners} 
-        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-[2px] border-[#18181B] bg-[#F4F4F5] ${isPreviewMode ? 'cursor-grab active:cursor-grabbing hover:bg-[#E4E4E7]' : ''}`}
+        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-[var(--neo-border-width)] border-[var(--neo-border-color)] bg-[#F4F4F5] ${isPreviewMode ? 'cursor-grab active:cursor-grabbing hover:bg-[#E4E4E7]' : ''}`}
       >
         <GripVertical size={16} strokeWidth={3} className="text-[#18181B]" />
       </div>
@@ -679,7 +679,7 @@ const DraggablePill = ({ id, text, disabled }) => {
       style={style} 
       {...listeners} 
       {...attributes}
-      className={`px-4 py-2 bg-white border-[2px] border-[#18181B] shadow-[3px_3px_0_#18181B] rounded-full text-xs font-bold transition-transform ${disabled ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#18181B]'}`}
+      className={`px-4 py-2 bg-white border-[var(--neo-border-width)] border-[var(--neo-border-color)] shadow-[var(--neo-shadow-offset)_var(--neo-shadow-offset)_0_var(--neo-border-color)] rounded-full text-xs font-bold transition-transform ${disabled ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[var(--neo-shadow-offset-lg)_var(--neo-shadow-offset-lg)_0_var(--neo-border-color)]'}`}
     >
       {text}
     </div>
@@ -694,10 +694,10 @@ const DroppableBucket = ({ id, label, items, isCorrectState }) => {
       <div className="text-sm font-black mb-2 text-center break-words w-full text-[#18181B]">{label}</div>
       <div 
         ref={setNodeRef}
-        className={`w-full min-h-[120px] bg-white border-[3px] border-[#18181B] rounded-2xl p-2 flex flex-col gap-2 items-center transition-all ${isOver ? 'bg-[#FFD100]/20 scale-105' : ''} ${isCorrectState === 'error' ? 'border-[#FF6B6B] bg-[#FF6B6B]/10' : isCorrectState === 'correct' ? 'border-[#00E599] bg-[#00E599]/10' : ''}`}
+        className={`w-full min-h-[120px] bg-white neo-border rounded-[var(--neo-radius-xl)] p-2 flex flex-col gap-2 items-center transition-all ${isOver ? 'bg-[#FFD100]/20 scale-105' : ''} ${isCorrectState === 'error' ? 'border-[#FF6B6B] bg-[#FF6B6B]/10' : isCorrectState === 'correct' ? 'border-[#00E599] bg-[#00E599]/10' : ''}`}
       >
         {items.map(item => (
-          <div key={item.id} className={`px-3 py-1.5 border-[2px] border-[#18181B] rounded-full text-[10px] font-bold shadow-[2px_2px_0_#18181B] truncate max-w-full ${isCorrectState === 'correct' ? 'bg-[#00E599]' : 'bg-white'}`}>
+          <div key={item.id} className={`px-3 py-1.5 border-[var(--neo-border-width)] border-[var(--neo-border-color)] rounded-full text-[10px] font-bold shadow-[var(--neo-shadow-offset-sm)_var(--neo-shadow-offset-sm)_0_var(--neo-border-color)] truncate max-w-full ${isCorrectState === 'correct' ? 'bg-[#00E599]' : 'bg-white'}`}>
             {item.text}
           </div>
         ))}
@@ -1046,7 +1046,7 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
   );
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, onAnswered, lives, playSound }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, isAnswerCorrect, onAnswered, lives, playSound }) => {
   if (plbSchema[block.type]?.category === 'Legacy Navigation') {
     return null;
   }
@@ -1230,8 +1230,11 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
     case 'Audio':
       return <AudioBlock data={data} isPreviewMode={isPreviewMode} />;
 
-    case 'Mascot Feedback':
-      const fbMascotType = data.mascot_type || 'Happy';
+    case 'Mascot Feedback': {
+      let fbMascotType = data.mascot_type || 'Happy';
+      if (isChecking) {
+        fbMascotType = isAnswerCorrect ? 'Smart' : 'Confused';
+      }
       const fbAlignClass = {
         'Left': 'justify-start',
         'Center': 'justify-center',
@@ -1249,23 +1252,24 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
           </div>
           <div className="relative flex-1 max-w-[75%]">
             <div 
-              className="w-full p-4 border-[4px] border-[#18181B] rounded-3xl shadow-[6px_6px_0_#18181B] bg-white relative z-10 text-left font-bold text-sm text-[#18181B]"
+              className="w-full p-4 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-lg)_var(--neo-shadow-offset-lg)_0_var(--neo-border-color)] bg-white relative z-10 text-left font-bold text-sm text-[#18181B]"
             >
               {data.message || 'Great job!'}
             </div>
             <div 
-              className="absolute -left-2 top-1/2 -translate-y-1/2 w-6 h-6 border-l-[4px] border-b-[4px] border-[#18181B] transform rotate-45 z-0 bg-white"
+              className="absolute -left-2 top-1/2 -translate-y-1/2 w-6 h-6 border-l-[var(--neo-border-width-lg)] border-b-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] transform rotate-45 z-0 bg-white"
             ></div>
           </div>
         </div>
       );
+    }
 
     case 'Mascot Bubble':
     case 'Text Bubble (no mascot)':
       return (
         <div className="w-full px-6 py-4 relative flex justify-center">
           <div 
-            className="w-[80%] p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex items-center justify-center relative z-10 whitespace-pre-wrap"
+            className="w-[80%] p-5 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-xl)_var(--neo-shadow-offset-xl)_0_var(--neo-border-color)] flex items-center justify-center relative z-10 whitespace-pre-wrap"
             style={{
               backgroundColor: data.bubble_colour || '#FFFFFF',
               color: data.text_colour || '#18181B',
@@ -1688,8 +1692,11 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
         </div>
       );
 
-    case 'Mascot Platform':
-      const mascotIcon = data.mascot_type || 'Happy';
+    case 'Mascot Platform': {
+      let mascotIcon = data.mascot_type || 'Happy';
+      if (isChecking) {
+        mascotIcon = isAnswerCorrect ? 'Smart' : 'Confused';
+      }
       return (
         <div className="w-full px-6 py-12 flex flex-col items-center justify-center">
            <div className="relative flex flex-col items-center">
@@ -1723,6 +1730,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
            </div>
         </div>
       );
+    }
       
     case 'Coin Reward':
       return (
@@ -1940,7 +1948,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
       );
 
     case 'Mascot Emotion':
-    case 'Mascot Character':
+    case 'Mascot Character': {
       const fontForMascot = data.font || 'Montserrat';
       const mascotSize = data.size || 'Medium';
       const sizeClasses = {
@@ -1974,12 +1982,17 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
         'Right': 'right-8'
       }[data.mascot_alignment || data.alignment || 'Center'];
 
+      let mascotType = data.mascot_type || 'Happy';
+      if (isChecking) {
+        mascotType = isAnswerCorrect ? 'Smart' : 'Confused';
+      }
+
       return (
         <div className={`w-full flex flex-col py-4 px-6 gap-2`}>
           {showBubble && (
             <div className={`w-[80%] relative flex justify-center mb-2 ${bAlignClass}`}>
               <div 
-                className={`w-full p-5 border-[4px] border-[#18181B] rounded-3xl shadow-[8px_8px_0_#18181B] flex flex-col justify-center relative z-10 ${tAlignClass}`}
+                className={`w-full p-5 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-xl)_var(--neo-shadow-offset-xl)_0_var(--neo-border-color)] flex flex-col justify-center relative z-10 ${tAlignClass}`}
                 style={{
                   backgroundColor: data.bubble_colour || '#FFFFFF',
                   color: data.text_colour || '#18181B',
@@ -1992,20 +2005,21 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
                 {data.text || 'Mascot says...'}
               </div>
               <div 
-                className={`absolute -bottom-2 w-8 h-8 border-b-[4px] border-r-[4px] border-[#18181B] transform rotate-45 z-0 ${tailClass}`}
+                className={`absolute -bottom-2 w-8 h-8 border-b-[var(--neo-border-width-lg)] border-r-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] transform rotate-45 z-0 ${tailClass}`}
                 style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
               ></div>
             </div>
           )}
-           <div className={`${sizeClasses} ${mAlignClass} flex items-center justify-center ${getMascotAnimation(data.mascot_type || 'Happy')}`}>
+           <div className={`${sizeClasses} ${mAlignClass} flex items-center justify-center ${getMascotAnimation(mascotType)}`}>
              <img 
-               src={MASCOT_IMAGES[data.mascot_type || 'Happy'] || MASCOT_IMAGES.Happy}
-               alt={data.mascot_type || 'Happy'}
+               src={MASCOT_IMAGES[mascotType] || MASCOT_IMAGES.Happy}
+               alt={mascotType}
                className="w-full h-full object-contain drop-shadow-md"
              />
            </div>
         </div>
       );
+    }
 
     case 'Progress Bar':
       const finalProgress = progressValue !== undefined ? progressValue : (data.value || 50);
