@@ -27,6 +27,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [blockAnswerState, setBlockAnswerState] = useState({});
   const [stats, setStats] = useState({ correct: 0, total: 0 });
+  const [refillTimeLeft, setRefillTimeLeft] = useState(300); // 5 minutes in seconds
   
   const [isMuted, setIsMuted] = useState(false);
   const [heartShake, setHeartShake] = useState(false);
@@ -93,6 +94,20 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   useEffect(() => {
     localStorage.setItem('piggypath_lives', lives);
   }, [lives]);
+
+  useEffect(() => {
+    let timer;
+    if (lives === 0 && refillTimeLeft > 0) {
+      timer = setInterval(() => {
+        setRefillTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (lives === 0 && refillTimeLeft === 0) {
+      setLives(5);
+      setRefillTimeLeft(300);
+    }
+    return () => clearInterval(timer);
+  }, [lives, refillTimeLeft]);
+
   const blocks = (currentPage.blocks || []).filter(b => !['Continue Button', 'Back Button', 'Skip Button', 'Next Lesson Button', 'Back to Courses Button'].includes(b.type));
 
   if (pages.length === 0) return null;
@@ -169,6 +184,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const handleRestart = () => {
     setCurrentPageIndex(0);
     setLives(5);
+    setRefillTimeLeft(300);
     setIsCompleted(false);
     setInteractionState({});
     setIsChecking(false);
@@ -187,8 +203,20 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
              <img src={HappyMascot} alt="Happy Mascot" className="w-full h-full object-contain animate-mascot-bounce" />
           </div>
           <h2 className="text-3xl font-black text-[#18181B] mb-4">{lives === 0 ? 'Out of Lives!' : 'Lesson Complete!'}</h2>
-          <p className="text-gray-500 font-bold mb-8">{lives === 0 ? "You've run out of hearts. Try again!" : "You've successfully finished this lesson."}</p>
+          <p className="text-gray-500 font-bold mb-6">{lives === 0 ? "You've run out of hearts. Wait for a refill or try again!" : "You've successfully finished this lesson."}</p>
           
+          {lives === 0 && (
+            <div className="flex flex-col items-center gap-2 mb-8 bg-[#FF4B4B]/10 border-2 border-[#FF4B4B] rounded-2xl p-4 w-full max-w-xs shadow-[4px_4px_0_#FF4B4B]">
+               <div className="flex items-center justify-center gap-2 text-[#FF4B4B] font-black text-xl animate-pulse">
+                  <LucideIcons.Heart size={24} className="fill-current" />
+                  <span>Next heart in:</span>
+               </div>
+               <span className="text-3xl font-black text-[#18181B] drop-shadow-[0_2px_0_white]">
+                  {Math.floor(refillTimeLeft / 60).toString().padStart(2, '0')}:{(refillTimeLeft % 60).toString().padStart(2, '0')}
+               </span>
+            </div>
+          )}
+
           {lives > 0 && stats.total > 0 && (() => {
               const accuracy = Math.round((stats.correct / stats.total) * 100);
               const baseXP = stats.correct * 10 + lives * 5;

@@ -2197,16 +2197,177 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
 
     case 'Back to Courses Button':
       return (
-        <div className="w-full px-6 py-4">
-          <button 
-            type="button" 
-            className="w-full px-4 py-2.5 flex items-center justify-center gap-2 border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] bg-white text-[#18181B] font-bold text-base hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all whitespace-nowrap"
-          >
-            <ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />
+        <div className="w-full px-6 py-4 flex justify-center">
+          <button className="w-full neo-btn text-white bg-gray-500 py-3 flex items-center justify-center gap-2">
+            <LucideIcons.ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />
             <span className="truncate">{data.label || 'Back to courses'}</span>
           </button>
         </div>
       );
+
+    case 'Path Map': {
+      const numNodes = Math.min(10, Math.max(1, data.number_of_nodes || 4));
+      
+      const themeColors = {
+        'Forest (Green)': 'bg-[#E8F5E9] border-[#2E7D32]',
+        'Space (Dark Purple)': 'bg-[#191A2E] border-[#4C1D95]',
+        'Desert (Orange)': 'bg-[#FBE9E7] border-[#D84315]',
+        'Ocean (Blue)': 'bg-[#E1F5FE] border-[#0277BD]',
+        'Default': 'bg-transparent border-transparent'
+      };
+      
+      const pathBg = themeColors[data.theme || 'Default'] || themeColors['Default'];
+
+      // Simple pseudo-random x positions for an S-curve look
+      const xPositions = [50, 75, 50, 25, 50, 75, 50, 25, 50, 75];
+
+      return (
+        <div className={`w-full py-8 flex flex-col items-center relative overflow-hidden ${pathBg} border-y-4`}>
+          {/* S-curve path SVG connecting the nodes */}
+          <svg className="absolute top-0 bottom-0 left-0 right-0 w-full h-full pointer-events-none z-0" preserveAspectRatio="none">
+             <path 
+               d={`M ${xPositions[0]}% 40px ${Array.from({length: numNodes - 1}).map((_, i) => `S ${xPositions[i+1] === 50 ? 50 : xPositions[i]}% ${40 + (i * 90) + 45}px ${xPositions[i+1]}% ${40 + ((i+1) * 90)}px`).join(' ')}`}
+               fill="none"
+               stroke="#E4E4E7"
+               strokeWidth="16"
+               strokeLinecap="round"
+             />
+             <path 
+               d={`M ${xPositions[0]}% 40px ${Array.from({length: numNodes - 1}).map((_, i) => `S ${xPositions[i+1] === 50 ? 50 : xPositions[i]}% ${40 + (i * 90) + 45}px ${xPositions[i+1]}% ${40 + ((i+1) * 90)}px`).join(' ')}`}
+               fill="none"
+               stroke="#F4F4F5"
+               strokeWidth="10"
+               strokeLinecap="round"
+             />
+          </svg>
+
+          <div className="relative z-10 flex flex-col items-center w-full" style={{ height: `${numNodes * 90}px` }}>
+            {Array.from({length: numNodes}).map((_, i) => {
+               const state = data[`node_${i+1}_state`] || 'Locked';
+               if (state === 'Hidden') return null;
+
+               const iconName = data[`node_${i+1}_icon`] || 'Book';
+               const IconComp = LucideIcons[iconName] || LucideIcons.Book;
+               const label = data[`node_${i+1}_label`] || `Lesson ${i+1}`;
+               const x = xPositions[i];
+
+               let nodeStyle = 'bg-gray-200 border-gray-400 text-gray-400 scale-90 opacity-80'; // Locked
+               let labelStyle = 'text-gray-400';
+               let animateBounce = false;
+
+               if (state === 'Completed') {
+                 nodeStyle = 'bg-[#00E599] border-[#18181B] text-[#18181B] shadow-[0_4px_0_#18181B] scale-100';
+                 labelStyle = 'text-[#18181B] font-black drop-shadow-[0_1px_0_white]';
+               } else if (state === 'Crown') {
+                 nodeStyle = 'bg-[#FFD100] border-[#18181B] text-[#18181B] shadow-[0_4px_0_#18181B] scale-110 ring-4 ring-yellow-200';
+                 labelStyle = 'text-[#18181B] font-black drop-shadow-[0_1px_0_white]';
+               } else if (state === 'Unlocked') {
+                 nodeStyle = 'bg-[#FF73B5] border-[#18181B] text-white shadow-[0_4px_0_#18181B] scale-110 z-20';
+                 labelStyle = 'text-[#18181B] font-black drop-shadow-[0_1px_0_white]';
+                 animateBounce = true;
+               }
+
+               return (
+                 <div key={i} className="absolute flex flex-col items-center justify-center transition-all duration-300 group" style={{ left: `${x}%`, top: `${i * 90}px`, transform: 'translateX(-50%)' }}>
+                    <button className={`w-14 h-14 rounded-full flex items-center justify-center border-4 relative ${nodeStyle} ${animateBounce ? 'animate-bounce' : 'hover:-translate-y-1 hover:scale-105'} transition-all`}>
+                      <IconComp size={24} strokeWidth={state==='Locked'? 2.5 : 3} className={state === 'Unlocked' ? 'animate-pulse' : ''} />
+                      {state === 'Crown' && <LucideIcons.Crown size={16} className="absolute -top-4 text-yellow-500 fill-yellow-400 drop-shadow-[0_2px_0_#18181B]" />}
+                    </button>
+                    <span className={`mt-2 text-xs text-center max-w-[80px] whitespace-normal leading-tight ${labelStyle}`}>
+                      {label}
+                    </span>
+                 </div>
+               );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    case 'Weekly Recap': {
+      return (
+        <div className="w-full px-6 py-6 flex flex-col items-center gap-4">
+           <h3 className="text-xl font-black text-[#18181B] text-center w-full mb-2">{data.title || 'Your Week'}</h3>
+           
+           <div className="grid grid-cols-2 gap-4 w-full">
+              {/* Lessons */}
+              <div className="bg-[#3B82F6] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
+                 <LucideIcons.BookOpen size={28} className="text-white mb-2" />
+                 <span className="text-3xl font-black text-white">{data.lessons_completed || 0}</span>
+                 <span className="text-[10px] font-bold text-white/90 uppercase tracking-wider mt-1">Lessons</span>
+              </div>
+              
+              {/* XP */}
+              <div className="bg-[#FFD100] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
+                 <LucideIcons.Star size={28} className="text-[#18181B] fill-white mb-2" />
+                 <span className="text-3xl font-black text-[#18181B]">{data.xp_earned || 0}</span>
+                 <span className="text-[10px] font-bold text-[#18181B]/80 uppercase tracking-wider mt-1">XP Earned</span>
+              </div>
+
+              {/* Streak */}
+              <div className="bg-[#FF6B6B] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
+                 <LucideIcons.Flame size={28} className="text-white fill-orange-300 mb-2" />
+                 <span className="text-3xl font-black text-white">{data.streak_count || 0}</span>
+                 <span className="text-[10px] font-bold text-white/90 uppercase tracking-wider mt-1">Day Streak</span>
+              </div>
+
+              {/* League */}
+              <div className="bg-[#8B5CF6] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
+                 <LucideIcons.Trophy size={28} className="text-white fill-yellow-300 mb-2" />
+                 <span className="text-sm font-black text-white leading-tight mt-1">{data.league_status || 'Bronze'}</span>
+                 <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider mt-1">League</span>
+              </div>
+           </div>
+        </div>
+      );
+    }
+
+    case 'Combo Banner': {
+      const isSpeed = data.combo_type !== 'Accuracy';
+      const bgColor = isSpeed ? 'bg-gradient-to-r from-[#FFD100] to-[#FF9800]' : 'bg-gradient-to-r from-[#00E599] to-[#00BFA5]';
+      const Icon = isSpeed ? LucideIcons.Zap : LucideIcons.Target;
+      
+      return (
+        <div className="w-full px-6 py-4">
+           <div className={`w-full ${bgColor} border-4 border-[#18181B] shadow-[6px_6px_0_#18181B] rounded-2xl p-4 flex items-center justify-between animate-in slide-in-from-bottom-4 duration-500`}>
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-white border-2 border-[#18181B] rounded-full flex items-center justify-center shadow-[2px_2px_0_#18181B]">
+                    <Icon size={20} className="text-[#18181B] fill-current" />
+                 </div>
+                 <div className="flex flex-col">
+                    <span className="font-black text-[#18181B] text-lg uppercase leading-none italic">{data.combo_type || 'Speed'} Combo!</span>
+                    <span className="font-bold text-[#18181B]/80 text-sm">Multiplier {data.multiplier || 'x2'}</span>
+                 </div>
+              </div>
+              <div className="bg-white px-3 py-1 border-2 border-[#18181B] rounded-xl shadow-[2px_2px_0_#18181B] font-black text-[#8B5CF6]">
+                 +{data.bonus_xp || 15} XP
+              </div>
+           </div>
+        </div>
+      );
+    }
+
+    case 'Streak Risk': {
+      return (
+        <div className="w-full px-6 py-4">
+           <div className="w-full bg-[#18181B] border-4 border-[#FF4B4B] shadow-[6px_6px_0_#FF4B4B] rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-[#FF4B4B]/10 animate-pulse pointer-events-none"></div>
+              
+              <div className="flex items-center gap-3 w-full mb-2 z-10">
+                 <div className="animate-bounce">
+                    <LucideIcons.Flame size={32} className="text-[#FF4B4B] fill-[#FF4B4B] drop-shadow-[0_0_10px_rgba(255,75,75,0.8)]" />
+                 </div>
+                 <h3 className="text-[#FF4B4B] font-black text-xl uppercase tracking-wider flex-1">{data.hours_left || 2} Hours Left!</h3>
+              </div>
+              
+              <p className="text-white font-bold text-sm w-full z-10 leading-snug">
+                {data.message || 'Your streak is at risk! Complete a lesson now.'}
+              </p>
+           </div>
+        </div>
+      );
+    }
+
     default:
       return (
         <div className="w-full px-6 py-2">

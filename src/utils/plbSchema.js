@@ -622,6 +622,43 @@ export const plbSchema = {
       { name: 'share_text', label: 'Default Share Text', type: 'textarea', default: 'I just finished a lesson on PiggyPath!' }
     ]
   },
+  'Path Map': {
+    category: 'Activity', icon: 'Map',
+    fields: [
+      { name: 'theme', label: 'Theme (Background color/style)', type: 'dropdown', options: ['Forest (Green)', 'Space (Dark Purple)', 'Desert (Orange)', 'Ocean (Blue)', 'Default'], default: 'Default' },
+      { name: 'number_of_nodes', label: 'Number of Nodes (1-10)', type: 'number', required: true, default: 4 },
+      ...[1,2,3,4,5,6,7,8,9,10].flatMap(i => [
+        { name: `node_${i}_label`, label: `Node ${i} Label`, type: 'text', default: `Lesson ${i}` },
+        { name: `node_${i}_state`, label: `Node ${i} State`, type: 'dropdown', options: ['Hidden', 'Locked', 'Unlocked', 'Completed', 'Crown'], default: i === 1 ? 'Unlocked' : i <= 4 ? 'Locked' : 'Hidden' },
+        { name: `node_${i}_icon`, label: `Node ${i} Icon`, type: 'dropdown', options: ['Book', 'Star', 'Chest', 'Boss', 'Flag'], default: i === 4 ? 'Boss' : 'Book' }
+      ])
+    ]
+  },
+  'Weekly Recap': {
+    category: 'Feedback', icon: 'Calendar',
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', default: 'Your Week' },
+      { name: 'lessons_completed', label: 'Lessons Completed', type: 'number', default: 5 },
+      { name: 'xp_earned', label: 'XP Earned', type: 'number', default: 250 },
+      { name: 'streak_count', label: 'Streak Count', type: 'number', default: 3 },
+      { name: 'league_status', label: 'League Status', type: 'text', default: 'Advanced to Bronze!' }
+    ]
+  },
+  'Combo Banner': {
+    category: 'Feedback', icon: 'Zap',
+    fields: [
+      { name: 'combo_type', label: 'Combo Type', type: 'dropdown', options: ['Speed', 'Accuracy'], default: 'Speed' },
+      { name: 'multiplier', label: 'Multiplier (e.g. x2)', type: 'text', default: 'x2' },
+      { name: 'bonus_xp', label: 'Bonus XP', type: 'number', default: 15 }
+    ]
+  },
+  'Streak Risk': {
+    category: 'Feedback', icon: 'AlertTriangle',
+    fields: [
+      { name: 'hours_left', label: 'Hours Left', type: 'number', default: 2 },
+      { name: 'message', label: 'Message', type: 'textarea', default: 'Your 5-day streak is at risk!' }
+    ]
+  },
 
   // 8 Legacy Navigation (Hidden from builder, here to prevent existing lessons from crashing)
   'Continue Button': {
