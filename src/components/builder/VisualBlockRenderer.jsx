@@ -1785,7 +1785,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
           'Magician': LucideIcons.Sparkles,
           'Scientist': LucideIcons.FlaskConical
         };
-        const SelectedIcon = iconMap[name] || LucideIcons.Award;
+        const SelectedIcon = LucideIcons[name] || iconMap[name] || LucideIcons.Award;
         return <SelectedIcon size={48} strokeWidth={2.5} className="text-white drop-shadow-md" />;
       };
 

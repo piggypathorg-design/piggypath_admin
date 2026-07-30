@@ -518,7 +518,15 @@ export const plbSchema = {
     fields: [
       { name: 'badge_type', label: 'Badge Type', type: 'dropdown', options: ['Achievement Badge', 'Streak Badge', 'Combo Badge', 'League Badge', 'Leaderboard Rank Badge'], default: 'Achievement Badge', required: true },
       { name: 'badge_name', label: 'Badge Label (Bottom Text)', type: 'text', default: 'SCHOLAR' },
-      { name: 'badge_icon', label: 'Achievement Icon (e.g. Scholar, Pro, Champion)', type: 'dropdown', options: ['Scholar', 'Pro', 'Horticulturist', 'Champion', 'Adventurer', 'Director', 'Celebrity', 'Magician', 'Scientist'], default: 'Scholar' },
+      { name: 'badge_icon', label: 'Achievement Icon', type: 'dropdown', default: 'Award', groupedOptions: [
+        { group: 'CLASSIC', options: ['Scholar', 'Pro', 'Horticulturist', 'Champion', 'Adventurer', 'Director', 'Celebrity', 'Magician', 'Scientist'] },
+        { group: 'STREAKS', options: ['Flame', 'Zap', 'Activity', 'Star', 'Crown', 'Trophy', 'Medal', 'Rocket', 'Shield', 'Heart'] },
+        { group: 'LEARNING', options: ['BookOpen', 'Book', 'Library', 'GraduationCap', 'Scroll', 'Lightbulb', 'Glasses', 'Microscope', 'PenTool', 'Award'] },
+        { group: 'SAVING', options: ['Coins', 'Banknote', 'Wallet', 'PiggyBank', 'CreditCard', 'Vault', 'ShieldCheck', 'Landmark', 'Gem', 'Diamond'] },
+        { group: 'CONSISTENCY', options: ['Sunrise', 'Sunset', 'CloudSun', 'CloudMoon', 'CalendarDays', 'CalendarCheck', 'Clock', 'Hourglass', 'Zap', 'Star'] },
+        { group: 'SOCIAL', options: ['User', 'UserPlus', 'UserCheck', 'Users', 'MessageCircle', 'Share2', 'Globe', 'Radio', 'Megaphone', 'Smartphone'] },
+        { group: 'QUIZZES', options: ['Crosshair', 'Target', 'CheckCircle', 'CheckSquare', 'Brain', 'Lightbulb', 'Puzzle', 'Swords', 'Flag', 'Trophy'] }
+      ] },
       { name: 'day_count', label: 'Day Count', type: 'dropdown', options: ['7', '14', '21', '30', '50', '100'], default: '7' },
       { name: 'combo_tier', label: 'Combo Tier', type: 'dropdown', options: ['5', '10', '20', '50', '100'], default: '5' },
       { name: 'rank_number', label: 'Rank Number', type: 'dropdown', options: ['Top 1', 'Top 2', 'Top 3', 'Top 10', 'Top 50', 'Top 100'], default: 'Top 3' },

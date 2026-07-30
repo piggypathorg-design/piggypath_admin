@@ -1286,14 +1286,22 @@ const PLBBuilder = () => {
                               onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
                               className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all resize-y"
                             />
-                          ) : field.type === 'select' ? (
+                          ) : field.type === 'select' || field.type === 'dropdown' ? (
                             <div className="relative">
                               <select
                                 value={value}
                                 onChange={(e) => updateBlockData(selectedBlock.id, field.name, e.target.value)}
                                 className="w-full px-3 py-2 rounded-lg bg-white border-[2px] border-[#18181B] text-[#18181B] shadow-[2px_2px_0_#18181B] text-sm focus:outline-none focus:border-[#00E599] transition-all appearance-none cursor-pointer"
                               >
-                                {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                {field.groupedOptions ? (
+                                  field.groupedOptions.map(group => (
+                                    <optgroup key={group.group} label={group.group}>
+                                      {group.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                    </optgroup>
+                                  ))
+                                ) : (
+                                  field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)
+                                )}
                               </select>
                               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
