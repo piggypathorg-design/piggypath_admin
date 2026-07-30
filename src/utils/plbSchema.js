@@ -511,8 +511,11 @@ export const plbSchema = {
       { name: 'badge_type', label: 'Badge Type', type: 'dropdown', options: ['Achievement Badge', 'Streak Badge', 'Combo Badge', 'League Badge', 'Leaderboard Rank Badge'], default: 'Achievement Badge', required: true },
       { name: 'badge_name', label: 'Badge Label (Bottom Text)', type: 'text', default: 'SCHOLAR' },
       { name: 'badge_icon', label: 'Achievement Icon (e.g. Scholar, Pro, Champion)', type: 'dropdown', options: ['Scholar', 'Pro', 'Horticulturist', 'Champion', 'Adventurer', 'Director', 'Celebrity', 'Magician', 'Scientist'], default: 'Scholar' },
+      { name: 'day_count', label: 'Day Count', type: 'dropdown', options: ['7', '14', '21', '30', '50', '100'], default: '7' },
+      { name: 'combo_tier', label: 'Combo Tier', type: 'dropdown', options: ['5', '10', '20', '50', '100'], default: '5' },
+      { name: 'rank_number', label: 'Rank Number', type: 'dropdown', options: ['Top 1', 'Top 2', 'Top 3', 'Top 10', 'Top 50', 'Top 100'], default: 'Top 3' },
       { name: 'show_count', label: 'Show Multiplier Chip?', type: 'dropdown', options: ['No', 'Yes'], default: 'No' },
-      { name: 'count_value', label: 'Value (Multiplier / Days / Combo / Rank)', type: 'number', default: 1 },
+      { name: 'count_value', label: 'Value (Multiplier)', type: 'number', default: 1 },
       { name: 'league_tier', label: 'League Tier (For League Badge)', type: 'dropdown', options: ['Iron', 'Bronze', 'Silver', 'Gold'], default: 'Bronze' }
     ]
   },

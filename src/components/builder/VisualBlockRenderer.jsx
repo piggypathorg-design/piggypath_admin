@@ -1653,6 +1653,11 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
       const showCount = data.show_count === 'Yes';
       const countValue = Number(data.count_value) || 1;
       const leagueTier = data.league_tier || 'Bronze';
+      
+      let specificValue = 1;
+      if (badgeType === 'Streak Badge') specificValue = Number(data.day_count || 7);
+      if (badgeType === 'Combo Badge') specificValue = Number(data.combo_tier || 5);
+      if (badgeType === 'Leaderboard Rank Badge') specificValue = Number((data.rank_number || 'Top 3').replace('Top ', ''));
 
       const getIcon = (name) => {
         const iconMap = {
@@ -1720,7 +1725,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
               
               <div className="absolute w-24 h-24 bg-gradient-to-br from-[#FFD84D] to-[#FF7A1A] rounded-full border-[3px] border-[#18181B] flex flex-col items-center justify-center z-10">
                  <LucideIcons.Star size={16} className="text-white fill-white absolute top-2" />
-                 <span className="font-black text-4xl text-white drop-shadow-md leading-none mt-2">{countValue}</span>
+                 <span className="font-black text-4xl text-white drop-shadow-md leading-none mt-2">{specificValue}</span>
                  <span className="font-bold text-[10px] text-white/90 uppercase tracking-widest mt-1">Days</span>
               </div>
             </div>
@@ -1734,7 +1739,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
             <div className="w-32 h-32 bg-gradient-to-b from-[#38BDF8] to-[#0284C7] rounded-full border-[4px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden">
                <div className="absolute top-0 w-full h-[40%] bg-white/20 rounded-b-full"></div>
                <span className="font-bold text-[10px] text-white uppercase tracking-widest mt-2">Combo</span>
-               <span className="font-black text-4xl text-white drop-shadow-md leading-none mb-1">{countValue}</span>
+               <span className="font-black text-4xl text-white drop-shadow-md leading-none mb-1">{specificValue}</span>
                <div className="flex gap-0.5 z-10 mb-2">
                  {[...Array(5)].map((_, i) => (
                    <LucideIcons.Star key={i} size={10} className="text-[#FFD100] fill-[#FFD100]" />
@@ -1781,9 +1786,9 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
 
       const renderRankBadge = () => {
         let medalColor = 'from-[#475569] to-[#1E293B]'; // Dark
-        if (countValue === 1) medalColor = 'from-[#FDE047] to-[#CA8A04]';
-        if (countValue === 2) medalColor = 'from-[#E2E8F0] to-[#94A3B8]';
-        if (countValue === 3) medalColor = 'from-[#FDBA74] to-[#C2410C]';
+        if (specificValue === 1) medalColor = 'from-[#FDE047] to-[#CA8A04]';
+        if (specificValue === 2) medalColor = 'from-[#E2E8F0] to-[#94A3B8]';
+        if (specificValue === 3) medalColor = 'from-[#FDBA74] to-[#C2410C]';
 
         return (
           <div className="relative flex flex-col items-center animate-in slide-in-from-top-10 duration-500 mt-4 pb-8">
@@ -1794,7 +1799,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
             
             <div className={`w-28 h-28 bg-gradient-to-b ${medalColor} rounded-full border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative z-10`}>
                <div className="w-20 h-20 rounded-full border-[2px] border-white/30 flex flex-col items-center justify-center">
-                 <span className="font-black text-4xl text-white drop-shadow-md leading-none">{countValue}</span>
+                 <span className="font-black text-4xl text-white drop-shadow-md leading-none">{specificValue}</span>
                  <span className="font-bold text-[8px] text-white/80 uppercase tracking-widest mt-1">TOP</span>
                </div>
             </div>

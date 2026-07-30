@@ -40,7 +40,7 @@ export const SortablePageItem = ({
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`group border-[1px] rounded-lg overflow-hidden transition-all ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}
+      className={`group border-[1px] rounded-lg overflow-hidden transition-all flex flex-col min-h-0 ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}
     >
       <div className={`p-2.5 flex items-center justify-between font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-500 hover:bg-[#F4F4F5] hover:text-[#18181B]'}`}>
         <div className="flex items-center gap-2 truncate flex-1">
@@ -69,18 +69,18 @@ export const SortablePageItem = ({
       </div>
       
       {isActive && (
-        <div className="flex flex-col border-t border-[#18181B]/10">
-          <div className="px-3 py-2 flex justify-end bg-gray-50/50">
+        <div className="flex flex-col flex-1 border-t border-[#18181B]/10 min-h-0">
+          <div className="px-3 py-2 flex justify-end bg-gray-50/50 shrink-0">
              <label className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest cursor-pointer hover:text-[#18181B] transition-colors" onClick={(e) => e.stopPropagation()}>
                <input type="checkbox" checked={!!page.skippable} onChange={onToggleSkip} className="accent-[#00E599] w-3.5 h-3.5 cursor-pointer" />
                Skippable Page
              </label>
           </div>
-          <div className="relative">
+          <div className="relative flex-1 flex flex-col min-h-0">
             <div className="absolute top-0 left-0 right-0 py-1 bg-gray-100 border-b-[2px] border-[#18181B] text-center text-[10px] font-black uppercase text-[#18181B] z-10 pointer-events-none">
               {page.blocks.length} {page.blocks.length === 1 ? 'Block' : 'Blocks'}
             </div>
-            <div className="p-2 pt-8 flex flex-col gap-1 min-h-[80px] max-h-[300px] overflow-y-auto custom-scrollbar">
+            <div className="p-2 pt-8 flex-1 flex flex-col gap-1 min-h-0 max-h-[300px] overflow-y-auto custom-scrollbar">
               {page.blocks.length === 0 ? (
                 <div className="text-xs font-bold text-gray-500 p-3 text-center">Empty Page</div>
               ) : (

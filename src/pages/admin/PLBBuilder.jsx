@@ -105,7 +105,7 @@ const IconSelectField = ({ value, onChange }) => {
                 />
               </div>
             </div>
-            <div className="overflow-y-auto flex-1 p-2 flex flex-col gap-1">
+            <div className="overflow-y-auto custom-scrollbar flex-1 p-2 flex flex-col gap-1 min-h-0">
               {filtered.map(name => {
                 const IconComp = LucideIcons[name];
                 return (
@@ -862,17 +862,17 @@ const PLBBuilder = () => {
       </header>
 
       {/* 4-Column Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        
-        {/* Column 1: Components Library */}
-        {!isPreviewMode && (
-          <aside className="w-72 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
-            <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-baseline">
-              <h2 className="font-black text-lg text-[#18181B]">Components</h2>
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
-            </div>
-            
-            <div className="p-4 flex-1 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          
+          {/* Column 1: Components Library */}
+          {!isPreviewMode && (
+            <aside className="w-72 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10 min-h-0">
+              <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-baseline shrink-0">
+                <h2 className="font-black text-lg text-[#18181B]">Components</h2>
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{activeBlocks.length} BLOCKS</span>
+              </div>
+              
+              <div className="p-4 flex-1 flex flex-col gap-4 overflow-hidden min-h-0">
               <div className="relative shrink-0">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input 
@@ -952,9 +952,9 @@ const PLBBuilder = () => {
         )}
 
         {/* Column 2: Structure Panel */}
-        {!isPreviewMode && (
-          <aside className="w-64 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10">
-            <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-center">
+          {!isPreviewMode && (
+            <aside className="w-64 bg-white border-r-[3px] border-[#18181B] flex flex-col shrink-0 z-10 min-h-0">
+              <div className="p-4 border-b-[3px] border-[#18181B] flex justify-between items-center shrink-0">
               <div>
                 <h2 className="font-black text-lg text-[#18181B]">Structure</h2>
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">{pages.length} PAGES</div>
@@ -964,8 +964,8 @@ const PLBBuilder = () => {
               </button>
             </div>
             
-            <div className="relative flex-1 flex flex-col overflow-hidden">
-              <div className="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 flex flex-col gap-3">
+            <div className="relative flex-1 flex flex-col overflow-hidden min-h-0">
+              <div className="p-4 flex-1 overflow-y-auto custom-scrollbar pb-20 flex flex-col gap-3 min-h-0">
               <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -1009,10 +1009,10 @@ const PLBBuilder = () => {
         )}
 
         {/* Column 3: Main Canvas */}
-        <main 
-          className="flex-1 overflow-y-auto relative bg-[#F8FAFC] flex flex-col items-center p-8 custom-scrollbar"
-          onClick={() => setSelectedBlockId(null)}
-        >
+          <main 
+            className="flex-1 overflow-y-auto relative bg-[#F8FAFC] flex flex-col items-center p-8 custom-scrollbar min-h-0"
+            onClick={() => setSelectedBlockId(null)}
+          >
           {/* Canvas Header */}
           <div className={`w-full ${previewDevice === 'laptop' ? 'max-w-[1024px]' : previewDevice === 'tablet' ? 'max-w-[768px]' : 'max-w-[400px]'} flex justify-between items-center mb-6 transition-all duration-300`}>
             <div className="flex items-center gap-3">
@@ -1110,16 +1110,16 @@ const PLBBuilder = () => {
         </main>
 
         {/* Column 4: Properties Panel */}
-        {!isPreviewMode && (
-          <aside className="w-80 bg-white border-l-[3px] border-[#18181B] flex flex-col shrink-0 z-20">
-            <div className="p-4 border-b-[3px] border-[#18181B]">
-               <h2 className="font-black text-xl text-[#18181B]">Properties</h2>
-               <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Select a block</div>
-            </div>
-            
-            <div className="p-4 flex-1 overflow-y-auto">
-              {!selectedBlock ? (
-                <div className="flex-1 h-full flex items-center justify-center flex-col text-center opacity-30 mt-20">
+          {!isPreviewMode && (
+            <aside className="w-80 bg-white border-l-[3px] border-[#18181B] flex flex-col shrink-0 z-20 min-h-0">
+              <div className="p-4 border-b-[3px] border-[#18181B] shrink-0">
+                 <h2 className="font-black text-xl text-[#18181B]">Properties</h2>
+                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Select a block</div>
+              </div>
+              
+              <div className="p-4 flex-1 overflow-y-auto custom-scrollbar min-h-0">
+                {!selectedBlock ? (
+                  <div className="flex-1 h-full flex items-center justify-center flex-col text-center opacity-30 mt-20 min-h-0">
                   <MousePointer2 size={32} strokeWidth={2} className="mb-4" />
                   <p className="font-bold text-sm max-w-[200px]">Click a block on the canvas to edit its properties here.</p>
                 </div>
@@ -1171,18 +1171,19 @@ const PLBBuilder = () => {
                       let displayLabel = field.label;
                       if (selectedBlock.type === 'Badge') {
                         const badgeType = selectedBlock[version]['badge_type'] || 'Achievement Badge';
-                        if (badgeType === 'Streak Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
-                        if (badgeType === 'Combo Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
-                        if (badgeType === 'League Badge' && field.name === 'badge_icon') return null;
-                        if (badgeType === 'Leaderboard Rank Badge' && (field.name === 'league_tier' || field.name === 'badge_icon')) return null;
-                        if (badgeType === 'Achievement Badge' && (field.name === 'league_tier' || field.name === 'count_value')) return null;
+                        
+                        // Hide fields that don't apply to the selected badge type
+                        const isAchievement = badgeType === 'Achievement Badge';
+                        const isStreak = badgeType === 'Streak Badge';
+                        const isCombo = badgeType === 'Combo Badge';
+                        const isLeague = badgeType === 'League Badge';
+                        const isRank = badgeType === 'Leaderboard Rank Badge';
 
-                        if (field.name === 'count_value') {
-                          if (badgeType === 'Streak Badge') displayLabel = 'Days';
-                          else if (badgeType === 'Combo Badge') displayLabel = 'Combo Count';
-                          else if (badgeType === 'Leaderboard Rank Badge') displayLabel = 'Rank #';
-                          else displayLabel = 'Value';
-                        }
+                        if (!isAchievement && (field.name === 'badge_icon' || field.name === 'show_count' || field.name === 'count_value')) return null;
+                        if (!isStreak && field.name === 'day_count') return null;
+                        if (!isCombo && field.name === 'combo_tier') return null;
+                        if (!isLeague && field.name === 'league_tier') return null;
+                        if (!isRank && field.name === 'rank_number') return null;
                       }
 
                       // Special handling for the Mascot grid selector
