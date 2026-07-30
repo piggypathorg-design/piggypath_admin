@@ -622,18 +622,6 @@ export const plbSchema = {
       { name: 'share_text', label: 'Default Share Text', type: 'textarea', default: 'I just finished a lesson on PiggyPath!' }
     ]
   },
-  'Path Map': {
-    category: 'Activity', icon: 'Map',
-    fields: [
-      { name: 'theme', label: 'Theme (Background color/style)', type: 'dropdown', options: ['Forest (Green)', 'Space (Dark Purple)', 'Desert (Orange)', 'Ocean (Blue)', 'Default'], default: 'Default' },
-      { name: 'number_of_nodes', label: 'Number of Nodes (1-10)', type: 'number', required: true, default: 4 },
-      ...[1,2,3,4,5,6,7,8,9,10].flatMap(i => [
-        { name: `node_${i}_label`, label: `Node ${i} Label`, type: 'text', default: `Lesson ${i}` },
-        { name: `node_${i}_state`, label: `Node ${i} State`, type: 'dropdown', options: ['Hidden', 'Locked', 'Unlocked', 'Completed', 'Crown'], default: i === 1 ? 'Unlocked' : i <= 4 ? 'Locked' : 'Hidden' },
-        { name: `node_${i}_icon`, label: `Node ${i} Icon`, type: 'dropdown', options: ['Book', 'Star', 'Chest', 'Boss', 'Flag'], default: i === 4 ? 'Boss' : 'Book' }
-      ])
-    ]
-  },
   'Weekly Recap': {
     category: 'Feedback', icon: 'Calendar',
     fields: [
