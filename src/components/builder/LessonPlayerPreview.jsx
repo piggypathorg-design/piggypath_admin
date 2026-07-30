@@ -1,8 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, CheckCircle, XCircle, ArrowLeft, RefreshCw, Volume2, VolumeX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import VisualBlockRenderer from './VisualBlockRenderer';
 import HappyMascot from '../../assets/mascots/Happy.png';
 import Confetti from '../ui/Confetti';
+
+const CountUpNode = ({ value, duration = 1.2, prefix = "", suffix = "" }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = parseInt(value, 10) || 0;
+    if (end === 0) {
+      setDisplayValue(0);
+      return;
+    }
+    
+    let startTime = null;
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      setDisplayValue(Math.floor(progress * (end - start) + start));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    
+    const animId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(animId);
+  }, [value, duration]);
+
+  return <span>{prefix}{displayValue}{suffix}</span>;
+};
 
 const INTERACTIVE_TYPES = [
   'Chart Quiz',
@@ -28,6 +57,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const [blockAnswerState, setBlockAnswerState] = useState({});
   const [stats, setStats] = useState({ correct: 0, total: 0 });
   const [refillTimeLeft, setRefillTimeLeft] = useState(300); // 5 minutes in seconds
+  const [feedbackFlash, setFeedbackFlash] = useState(null); // 'correct' or 'incorrect'
   
   const [isMuted, setIsMuted] = useState(false);
   const [heartShake, setHeartShake] = useState(false);
@@ -40,52 +70,67 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
       const actx = new AudioContext();
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.connect(gain);
-      gain.connect(actx.destination);
+      const now = actx.currentTime;
+
+      // Clean tone helper with soft ADSR envelope
+      const playTone = (freq, startOffset, duration, waveType = 'sine', startGain = 0.15) => {
+        const osc = actx.createOscillator();
+        const gainNode = actx.createGain();
+        osc.type = waveType;
+        osc.frequency.setValueAtTime(freq, now + startOffset);
+        
+        // ADSR Envelope
+        gainNode.gain.setValueAtTime(0, now + startOffset);
+        gainNode.gain.linearRampToValueAtTime(startGain, now + startOffset + 0.03); // Attack
+        gainNode.gain.exponentialRampToValueAtTime(startGain * 0.4, now + startOffset + 0.1); // Decay
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + startOffset + duration); // Release/Sustain decay
+        
+        osc.connect(gainNode);
+        gainNode.connect(actx.destination);
+        
+        osc.start(now + startOffset);
+        osc.stop(now + startOffset + duration);
+      };
 
       if (type === 'correct') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, actx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1046.50, actx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0, actx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.3, actx.currentTime + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.3);
-        osc.start(actx.currentTime);
-        osc.stop(actx.currentTime + 0.3);
+        // Bright C Major 6th arpeggio chimes
+        playTone(523.25, 0, 0.4, 'triangle', 0.12);      // C5
+        playTone(659.25, 0.07, 0.4, 'triangle', 0.12);   // E5
+        playTone(783.99, 0.14, 0.4, 'triangle', 0.12);   // G5
+        playTone(1046.50, 0.21, 0.5, 'sine', 0.15);      // C6
       } else if (type === 'incorrect') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, actx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, actx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0, actx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.2, actx.currentTime + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.3);
-        osc.start(actx.currentTime);
-        osc.stop(actx.currentTime + 0.3);
+        // Detuned minor second buzzers
+        playTone(220.00, 0, 0.35, 'sawtooth', 0.08);     // A3
+        playTone(225.00, 0, 0.35, 'sawtooth', 0.08);     // Slightly detuned A3
+        playTone(165.00, 0.08, 0.4, 'sawtooth', 0.08);   // Descending E3
+      } else if (type === 'click') {
+        // Ultra brief bubble click
+        playTone(900, 0, 0.06, 'triangle', 0.15);
       } else if (type === 'whoosh') {
+        // Frequency sweep
+        const osc = actx.createOscillator();
+        const gainNode = actx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(300, actx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, actx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0, actx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.1, actx.currentTime + 0.1);
-        gain.gain.linearRampToValueAtTime(0.01, actx.currentTime + 0.2);
-        osc.start(actx.currentTime);
-        osc.stop(actx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(250, now);
+        osc.frequency.exponentialRampToValueAtTime(550, now + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.08, now + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        
+        osc.connect(gainNode);
+        gainNode.connect(actx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
       } else if (type === 'complete') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(440, actx.currentTime);
-        osc.frequency.setValueAtTime(554.37, actx.currentTime + 0.1);
-        osc.frequency.setValueAtTime(659.25, actx.currentTime + 0.2);
-        osc.frequency.setValueAtTime(880, actx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0, actx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.3, actx.currentTime + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.6);
-        osc.start(actx.currentTime);
-        osc.stop(actx.currentTime + 0.6);
+        // Triumphant full arpeggio roll
+        const scale = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+        scale.forEach((freq, idx) => {
+          playTone(freq, idx * 0.05, 0.6, idx === scale.length - 1 ? 'sine' : 'triangle', 0.1);
+        });
       }
     } catch(e) {
-      // Audio failed, ignore
+      // Audio fallback
     }
   };
 
@@ -141,11 +186,13 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
         if (!isAnswerCorrect) {
           setLives(prev => Math.max(0, prev - 1));
           playSound('incorrect');
+          setFeedbackFlash('incorrect');
           setHeartShake(true);
           setTimeout(() => setHeartShake(false), 500);
           if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         } else {
           playSound('correct');
+          setFeedbackFlash('correct');
           if (navigator.vibrate) navigator.vibrate(100);
         }
       } else {
@@ -161,6 +208,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const goBack = () => {
     if (currentIndex > 0) {
       playSound('whoosh');
+      setFeedbackFlash(null);
       setInteractionState({});
       setIsChecking(false);
       setBlockAnswerState({});
@@ -171,6 +219,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const advancePage = () => {
     if (currentIndex < pages.length - 1) {
       playSound('whoosh');
+      setFeedbackFlash(null);
       setInteractionState({});
       setIsChecking(false);
       setBlockAnswerState({});
@@ -208,7 +257,7 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
           {lives === 0 && (
             <div className="flex flex-col items-center gap-2 mb-8 bg-[#FF4B4B]/10 border-2 border-[#FF4B4B] rounded-2xl p-4 w-full max-w-xs shadow-[4px_4px_0_#FF4B4B]">
                <div className="flex items-center justify-center gap-2 text-[#FF4B4B] font-black text-xl animate-pulse">
-                  <LucideIcons.Heart size={24} className="fill-current" />
+                  <Heart size={24} className="fill-current" />
                   <span>Next heart in:</span>
                </div>
                <span className="text-3xl font-black text-[#18181B] drop-shadow-[0_2px_0_white]">
@@ -225,16 +274,22 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
                 <div className="w-full flex flex-col gap-3 mb-8">
                    <div className="flex justify-between items-center bg-white border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4">
                       <span className="font-bold text-gray-500 uppercase tracking-widest text-sm">Accuracy</span>
-                      <span className="font-black text-xl text-[#00E599]">{accuracy}%</span>
+                      <span className="font-black text-xl text-[#00E599]">
+                        <CountUpNode value={accuracy} suffix="%" />
+                      </span>
                    </div>
                    <div className="flex justify-between items-center bg-white border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4">
                       <span className="font-bold text-gray-500 uppercase tracking-widest text-sm">Base XP</span>
-                      <span className="font-black text-xl text-[#FFD100]">+{baseXP} XP</span>
+                      <span className="font-black text-xl text-[#FFD100]">
+                        <CountUpNode value={baseXP} prefix="+" suffix=" XP" />
+                      </span>
                    </div>
                    {perfectBonus > 0 && (
                      <div className="flex justify-between items-center bg-[#FFD100]/20 border-[3px] border-[#FFD100] shadow-[4px_4px_0_#FFD100] rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                         <span className="font-bold text-[#D97706] uppercase tracking-widest text-sm">Perfect Bonus!</span>
-                        <span className="font-black text-xl text-[#D97706]">+{perfectBonus} XP</span>
+                        <span className="font-black text-xl text-[#D97706]">
+                          <CountUpNode value={perfectBonus} prefix="+" suffix=" XP" />
+                        </span>
                      </div>
                    )}
                 </div>
@@ -255,8 +310,23 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
   const progressPercent = pages.length > 0 ? ((currentIndex + (isCompleted ? 1 : 0)) / pages.length) * 100 : 0;
 
   return (
-    <div className={`mx-auto flex flex-col h-[100dvh] overflow-hidden bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'}`}>
+    <div className={`mx-auto flex flex-col h-[100dvh] overflow-hidden bg-white shadow-sm sm:shadow-none transition-all duration-300 ${previewDevice === 'mobile' ? 'w-full max-w-[375px]' : 'w-full max-w-[600px]'} relative`}>
       
+      {/* Feedback Screen Flash Overlay */}
+      <AnimatePresence>
+        {feedbackFlash && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.45, 0.45, 0] }}
+            transition={{ duration: 0.75, times: [0, 0.15, 0.85, 1] }}
+            onAnimationComplete={() => setFeedbackFlash(null)}
+            className={`absolute inset-0 pointer-events-none z-50 ${
+              feedbackFlash === 'correct' ? 'bg-[#00E599]/20' : 'bg-[#FF4B4B]/20'
+            }`}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Top Header */}
       <div className="w-full px-4 py-4 flex items-center gap-4 bg-white z-20 shrink-0">
         <div className="flex items-center gap-1">
@@ -293,23 +363,33 @@ const LessonPlayerPreview = ({ pages = [], initialPageIndex = 0, version, previe
         ref={containerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pb-32"
       >
-        <div className="flex flex-col w-full animate-in slide-in-from-right-8 duration-300">
-          {blocks.map((block) => (
-            <div key={`${block.id}-${version}`} className="w-full relative z-0">
-              <VisualBlockRenderer 
-                block={block} 
-                version={version} 
-                isPreviewMode={true} 
-                progressValue={progressValues[block.id]}
-                externalInteractionState={interactionState}
-                setExternalInteractionState={setInteractionState}
-                isChecking={isChecking}
-                lives={lives}
-                onAnswered={(ans) => setBlockAnswerState(prev => ({ ...prev, [block.id]: ans }))}
-              />
-            </div>
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 35 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -35 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="flex flex-col w-full"
+          >
+            {blocks.map((block) => (
+              <div key={`${block.id}-${version}`} className="w-full relative z-0">
+                <VisualBlockRenderer 
+                  block={block} 
+                  version={version} 
+                  isPreviewMode={true} 
+                  progressValue={progressValues[block.id]}
+                  externalInteractionState={interactionState}
+                  setExternalInteractionState={setInteractionState}
+                  isChecking={isChecking}
+                  lives={lives}
+                  onAnswered={(ans) => setBlockAnswerState(prev => ({ ...prev, [block.id]: ans }))}
+                  playSound={playSound}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom Action Bar */}

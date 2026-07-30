@@ -23,6 +23,7 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { motion } from 'framer-motion';
 import { plbSchema } from '../../utils/plbSchema';
 import mascotGridImg from '../../assets/mascot_grid.png';
 import coinsImg from '../../assets/components/Coins.png';
@@ -150,7 +151,7 @@ const useShuffledOptions = (blockId, optionsArray) => {
   return shuffled;
 };
 
-const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking, playSound }) => {
   const shuffledOptions = useShuffledOptions(blockId, [
     { key: 'A', text: data.quiz_option_a },
     { key: 'B', text: data.quiz_option_b },
@@ -200,12 +201,14 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
             onKeyDown={(e) => {
               if (isPreviewMode && !isChecking && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
+                if (playSound) playSound('click');
                 setInteractionState({ ...interactionState, [blockId]: { ...interactionState?.[blockId], chartQuizSelectedKey: opt.key } });
                 if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
               }
             }}
             onClick={() => {
               if (isPreviewMode && !isChecking) {
+                if (playSound) playSound('click');
                 setInteractionState({ ...interactionState, [blockId]: { ...interactionState?.[blockId], chartQuizSelectedKey: opt.key } });
                 if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
               }
@@ -224,14 +227,14 @@ const ChartQuiz = ({ blockId, data, interactionState, setInteractionState, isPre
       {hasSelection && isChecking && (
         <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
           <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-          {isCorrectSelection ? (data.quiz_why_correct || 'Correct!') : (data.quiz_why_incorrect || 'Incorrect, please try again.')}
+          {isCorrectSelection ? (data.quiz_why_correct || 'That is correct!') : (data.quiz_why_incorrect || 'That is incorrect, please try again.')}
         </div>
       )}
     </div>
   );
 };
 
-const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+const MatchPairsInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking, playSound }) => {
   const numPairs = parseInt(data.number_of_pairs || '3', 10);
   
   const [shuffledRightItems, setShuffledRightItems] = React.useState([]);
@@ -259,6 +262,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   const handleLeftClick = (id) => {
     if (!isPreviewMode || isChecking) return;
     if (state.matchedPairs.includes(id)) return;
+    if (playSound) playSound('click');
     
     setInteractionState({
       ...interactionState,
@@ -278,6 +282,10 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
 
     const isMatch = state.leftSelected === id;
     
+    if (playSound) {
+      playSound(isMatch ? 'correct' : 'incorrect');
+    }
+
     if (isMatch) {
       const newMatched = [...state.matchedPairs, id];
       setInteractionState({
@@ -411,7 +419,7 @@ const MatchPairsInteractive = ({ blockId, data, interactionState, setInteraction
   );
 };
 
-const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+const HotspotInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking, playSound }) => {
   const state = (interactionState && interactionState[blockId]) || { status: 'idle', clickX: null, clickY: null };
 
   const handleImageClick = (e) => {
@@ -427,6 +435,10 @@ const HotspotInteractive = ({ blockId, data, interactionState, setInteractionSta
     const dist = Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
     const isCorrect = dist <= size;
     
+    if (playSound) {
+      playSound(isCorrect ? 'correct' : 'incorrect');
+    }
+
     setInteractionState({
       ...interactionState,
       [blockId]: {
@@ -563,7 +575,7 @@ const ArrangeSortableItem = ({ id, text, isPreviewMode, isChecking }) => {
   );
 };
 
-const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking, playSound }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -599,6 +611,7 @@ const ArrangeInteractive = ({ blockId, data, interactionState, setInteractionSta
     if (!isPreviewMode || isChecking) return;
     const { active, over } = event;
     if (over && active.id !== over.id) {
+      if (playSound) playSound('click');
       setItems((items) => {
         const oldIndex = items.findIndex(p => p.id === active.id);
         const newIndex = items.findIndex(p => p.id === over.id);
@@ -698,7 +711,7 @@ const DroppableBucket = ({ id, label, items, isCorrectState }) => {
   );
 };
 
-const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
+const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking, playSound }) => {
   const [bankItems, setBankItems] = React.useState([]);
   const [bucketItems, setBucketItems] = React.useState({ b1: [], b2: [], b3: [] });
   
@@ -739,6 +752,7 @@ const DragAndDropInteractive = ({ blockId, data, interactionState, setInteractio
     const { active, over } = event;
     
     if (over) {
+      if (playSound) playSound('click');
       const draggedItem = bankItems.find(i => i.id === active.id);
       if (draggedItem) {
         setBankItems(prev => {
@@ -1032,7 +1046,7 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
   );
 };
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, onAnswered, lives }) => {
+const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, onAnswered, lives, playSound }) => {
   if (plbSchema[block.type]?.category === 'Legacy Navigation') {
     return null;
   }
@@ -1320,9 +1334,28 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
       const hasSelection = interactionState?.[block.id]?.selectedKey !== undefined;
       const isCorrectSelection = hasSelection && interactionState?.[block.id]?.selectedKey === correctOptKey;
       
+      const containerVariants = {
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: 0.08
+          }
+        }
+      };
+
+      const itemVariants = {
+        hidden: { opacity: 0, y: 12 },
+        show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }
+      };
+
       return (
         <div className="w-full px-6 py-2">
-          <div className="w-full flex flex-col gap-3">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="w-full flex flex-col gap-3"
+          >
             <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
             
             {mcqShuffled.map((opt, index) => {
@@ -1348,41 +1381,47 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
               }
 
               return (
-                <div 
+                <motion.div 
+                  variants={itemVariants}
                   key={opt.key} 
                   role="button"
                   tabIndex={isPreviewMode && !isChecking ? 0 : -1}
                   onKeyDown={(e) => {
                     if (isPreviewMode && !isChecking && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
+                      if (playSound) playSound('click');
                       setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
                       if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
                     }
                   }}
                   onClick={() => {
                       if (isPreviewMode && !isChecking) {
+                        if (playSound) playSound('click');
                         setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
                         if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
                       }
                   }}
-                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all animate-in fade-in slide-in-from-bottom-2 ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
-                  style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
                 >
                   {isChecking && isSelected && opt.key === correctOptKey && <LucideIcons.CheckCircle size={16} />}
                   {isChecking && isSelected && opt.key !== correctOptKey && <LucideIcons.XCircle size={16} />}
                   {isChecking && !isSelected && opt.key === correctOptKey && hasSelection && <LucideIcons.CheckCircle size={16} />}
                   <span>{opt.text}</span>
-                </div>
+                </motion.div>
               );
             })}
             
             {hasSelection && isChecking && (
-              <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}
+              >
                 <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
                 {isCorrectSelection ? (data.why_correct || 'That is correct!') : (data.why_incorrect || 'That is incorrect, please try again.')}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         </div>
       );
     }
@@ -1537,15 +1576,15 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
     }
 
     case 'Drag & Drop':
-      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
+      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
     case 'Arrange':
-      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
+      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
     case 'Chart Quiz':
-      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
+      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
     case 'Hotspot':
-      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
+      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
     case 'Match Pairs':
-      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
+      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
 
     case 'Table': {
       const numCols = parseInt(data.number_of_columns || '2', 10);
