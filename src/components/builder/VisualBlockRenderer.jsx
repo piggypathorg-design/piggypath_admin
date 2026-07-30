@@ -838,6 +838,27 @@ const getMascotAnimation = (opt) => {
   return map[opt] || '';
 };
 
+const formatChartNumber = (val, format, symbol) => {
+  if (format === 'Percentage') return `${val}%`;
+  if (format === 'Currency') return `${symbol || '$'}${val.toLocaleString()}`;
+  return val.toLocaleString();
+};
+
+const ChartCard = ({ title, children, isVisual, legendElement, quizElement }) => (
+  <div className="w-full px-4 py-6 flex flex-col items-center justify-center relative">
+    <div className={`w-full max-w-[320px] flex flex-col items-center justify-center bg-white border-[4px] border-[#18181B] rounded-[24px] p-6 relative overflow-hidden shadow-[8px_8px_0_#18181B] transition-all`}>
+      {title && <p className="font-black text-center text-sm text-[#18181B] uppercase tracking-widest opacity-60 mb-6">{title}</p>}
+      {children}
+      {legendElement && <div className="mt-6 w-full">{legendElement}</div>}
+    </div>
+    {!isVisual && quizElement && (
+      <div className="mt-8 w-full max-w-[320px]">
+        {quizElement}
+      </div>
+    )}
+  </div>
+);
+
 const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
   const slices = [];
   for (let i = 1; i <= 10; i++) {
@@ -882,25 +903,54 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
     window.requestAnimationFrame(step);
   }, [total, centerLabel]);
 
-  const displayCenterNum = centerLabel ? (isNaN(Number(centerLabel)) ? centerLabel : animatedTotal) : total;
+  const displayCenterNum = centerLabel ? (isNaN(Number(centerLabel)) ? centerLabel : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol)) : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol);
 
   const isGauge = chartStyle === 'Half Gauge';
   const isSolid = chartStyle === 'Solid Pie';
-  const r = isSolid ? 25 : 40;
-  const strokeW = isSolid ? 50 : 20;
-  const circumference = 2 * Math.PI * r;
-  const arcLength = isGauge ? circumference / 2 : circumference;
-  const viewBox = isGauge ? "0 0 100 50" : "0 0 100 100";
-  const rotation = isGauge ? "-rotate-180" : "-rotate-90";
-  
+  const isMultiRing = chartStyle === 'Multi-Ring Donut';
+  const strokeW = isMultiRing ? Math.max(4, 40 / slices.length) : (isSolid ? 50 : 20);
+  const maxVal = Math.max(1, ...slices.map(s => s.value));
+
   let cumulativeValue = 0;
 
+  const legendElement = legendStyle === 'Chips' ? (
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 w-full">
+       {slices.map((slice, i) => (
+          <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isVisual ? 'bg-gray-50 border border-gray-200' : 'border-2 border-[#18181B] bg-white'}`}>
+             <div className="w-3 h-3 rounded-full shadow-inner shrink-0" style={{ backgroundColor: slice.color }}></div>
+             <div className="flex flex-col items-start leading-none truncate max-w-[120px]">
+                <span className="text-xs font-bold text-gray-600 truncate w-full">{slice.label}</span>
+                <span className="text-[10px] font-black text-[#18181B] mt-0.5 truncate w-full">
+                   {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
+                </span>
+             </div>
+          </div>
+       ))}
+    </div>
+  ) : (
+    <div className="flex flex-col w-full gap-2 mx-auto">
+       {slices.map((slice, i) => (
+          <div key={i} className="flex items-center justify-between gap-4">
+             <div className="flex items-center gap-2 truncate">
+               <div className="w-3 h-3 rounded-full shadow-inner shrink-0" style={{ backgroundColor: slice.color }}></div>
+               <span className="text-sm font-bold text-gray-600 truncate">{slice.label}</span>
+             </div>
+             <span className="text-sm font-black text-[#18181B] shrink-0">
+                {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
+             </span>
+          </div>
+       ))}
+    </div>
+  );
+
+  const quizElement = !isVisual ? (
+     <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+  ) : null;
+
   return (
-    <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-      <p className="font-black text-center text-sm text-[#18181B] uppercase tracking-widest opacity-60">{data.title || 'Pie Chart'}</p>
-      
+    <ChartCard title={data.title || 'Pie Chart'} isVisual={isVisual} legendElement={legendElement} quizElement={quizElement}>
       <div className={`relative flex flex-col items-center justify-center mt-2 mb-4 ${isGauge ? 'w-48 h-24 overflow-hidden' : 'w-48 h-48'}`}>
-         <svg viewBox={viewBox} className={`absolute ${isGauge ? 'inset-x-0 bottom-0 h-48 origin-bottom' : 'inset-0 w-full h-full'} transform ${rotation} filter ${isVisual ? 'drop-shadow-lg' : 'drop-shadow-md'}`}>
+         <svg viewBox={isGauge ? "0 0 100 50" : "0 0 100 100"} className={`absolute ${isGauge ? 'inset-x-0 bottom-0 h-48 origin-bottom' : 'inset-0 w-full h-full'} transform ${isGauge ? "-rotate-180" : "-rotate-90"} filter ${isVisual ? 'drop-shadow-lg' : 'drop-shadow-md'}`}>
             <defs>
               {slices.map((slice, i) => (
                 <linearGradient key={`grad-${i}`} id={`grad-${blockId}-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -909,9 +959,48 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
                 </linearGradient>
               ))}
             </defs>
-            <circle r={r} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${arcLength} ${circumference}`}></circle>
+            
+            {isMultiRing ? (
+              slices.map((slice, i) => {
+                const r = 45 - strokeW / 2 - i * (strokeW + 1);
+                if (r <= 0) return null;
+                const circumference = 2 * Math.PI * r;
+                return <circle key={`bg-${i}`} r={r} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${circumference} ${circumference}`}></circle>
+              })
+            ) : (
+              <circle r={isSolid ? 25 : 40} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${isGauge ? (2 * Math.PI * (isSolid ? 25 : 40)) / 2 : 2 * Math.PI * (isSolid ? 25 : 40)} ${2 * Math.PI * (isSolid ? 25 : 40)}`}></circle>
+            )}
+
             {slices.map((slice, i) => {
               if (total === 0) return null;
+              
+              if (isMultiRing) {
+                const r = 45 - strokeW / 2 - i * (strokeW + 1);
+                if (r <= 0) return null;
+                const circumference = 2 * Math.PI * r;
+                const sliceLength = (slice.value / maxVal) * circumference;
+                const animatedOffset = circumference - (circumference * dashOffsetMultiplier);
+                return (
+                  <circle 
+                    key={i} 
+                    r={r} 
+                    cx="50" 
+                    cy="50" 
+                    fill="transparent" 
+                    stroke={`url(#grad-${blockId}-${i})`} 
+                    strokeWidth={strokeW} 
+                    strokeDasharray={`${sliceLength} ${circumference}`} 
+                    strokeDashoffset={animatedOffset}
+                    strokeLinecap="round"
+                    className="transition-all duration-300 ease-out"
+                  />
+                );
+              }
+
+              const r = isSolid ? 25 : 40;
+              const circumference = 2 * Math.PI * r;
+              const arcLength = isGauge ? circumference / 2 : circumference;
+              
               const sliceLength = (slice.value / total) * arcLength;
               const sliceOffset = (cumulativeValue / total) * arcLength;
               const animatedOffset = -sliceOffset - (circumference * dashOffsetMultiplier);
@@ -939,41 +1028,7 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
            </div>
          )}
       </div>
-      
-      {legendStyle === 'Chips' ? (
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 w-full max-w-[300px]">
-           {slices.map((slice, i) => (
-              <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isVisual ? 'bg-gray-50 border border-gray-200' : 'border-2 border-[#18181B] bg-white'}`}>
-                 <div className="w-3 h-3 rounded-full shadow-inner" style={{ backgroundColor: slice.color }}></div>
-                 <div className="flex flex-col items-start leading-none">
-                    <span className="text-xs font-bold text-gray-600">{slice.label}</span>
-                    <span className="text-[10px] font-black text-[#18181B] mt-0.5">
-                       {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
-                    </span>
-                 </div>
-              </div>
-           ))}
-        </div>
-      ) : (
-        <div className="flex flex-col w-full max-w-[200px] gap-2">
-           {slices.map((slice, i) => (
-              <div key={i} className="flex items-center justify-between">
-                 <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded-full shadow-inner" style={{ backgroundColor: slice.color }}></div>
-                   <span className="text-sm font-bold text-gray-600">{slice.label}</span>
-                 </div>
-                 <span className="text-sm font-black text-[#18181B]">
-                    {slice.value}{data.show_percentage === 'Yes' ? '%' : ''}
-                 </span>
-              </div>
-           ))}
-        </div>
-      )}
-      
-      {!isVisual && (
-         <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
-      )}
-    </div>
+    </ChartCard>
   );
 };
 
@@ -1417,7 +1472,7 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
             
             <div className="flex flex-col items-center gap-2 mt-4">
               <div className="text-center font-black text-sm text-[#8B5CF6] mb-1">
-                {data.currency_symbol || '₹'}{val}{data.unit || ''}
+                {formatChartNumber(val, data.number_format, data.currency_symbol)}{data.unit || ''}
               </div>
               
               <div className="relative w-full max-w-[250px] h-10 flex items-center justify-center mx-auto">
@@ -1462,8 +1517,8 @@ const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, ext
               </div>
               
               <div className="flex justify-between w-full max-w-[250px] text-xs font-bold text-gray-500 mt-2">
-                <span>{data.currency_symbol || '₹'}{min}{data.unit || ''}</span>
-                <span>{data.currency_symbol || '₹'}{max}{data.unit || ''}</span>
+                <span>{formatChartNumber(min, data.number_format, data.currency_symbol)}{data.unit || ''}</span>
+                <span>{formatChartNumber(max, data.number_format, data.currency_symbol)}{data.unit || ''}</span>
               </div>
 
               {isChecking && hasAttempted && (
@@ -2181,49 +2236,57 @@ const BarGraphBlock = ({ blockId, data, interactionState, setInteractionState, i
   const maxVal = Math.max(1, ...bars.map(b => b.value));
   const isVertical = data.orientation !== 'Horizontal';
 
-  const [animProgress, setAnimProgress] = React.useState(0);
+  const [animTime, setAnimTime] = React.useState(0);
   React.useEffect(() => {
     let start = null;
+    const duration = 600 + (bars.length * 150); // Staggered duration
     const step = (timestamp) => {
       if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / 800, 1);
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
-      setAnimProgress(easeProgress);
+      const progress = Math.min((timestamp - start) / duration, 1);
+      setAnimTime(progress);
       if (progress < 1) window.requestAnimationFrame(step);
     };
     window.requestAnimationFrame(step);
-  }, []);
+  }, [bars.length]);
+
+  const quizElement = !isVisual ? (
+     <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+  ) : null;
 
   return (
-    <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-      <div className="w-full neo-card p-6 flex flex-col items-center shadow-[6px_6px_0_#18181B]">
-        <p className="font-black text-center text-sm text-[#18181B] mb-6">{data.title || 'Bar Graph'}</p>
-        <div className={`w-full max-w-[250px] flex ${isVertical ? 'flex-row items-end h-48 border-b-4 border-l-4' : 'flex-col justify-end border-l-4 border-b-4'} border-[#18181B] gap-3 p-2 relative`}>
-           {bars.map((bar, i) => (
+    <ChartCard title={data.title || 'Bar Graph'} isVisual={isVisual} quizElement={quizElement}>
+      <div className={`w-full max-w-[250px] flex ${isVertical ? 'flex-row items-end h-48 border-b-[3px] border-l-[3px]' : 'flex-col justify-end border-l-[3px] border-b-[3px]'} border-[#18181B] gap-3 p-2 relative`}>
+         {bars.map((bar, i) => {
+            const barStart = i * 0.1;
+            const barDuration = 0.4;
+            const barProgress = Math.max(0, Math.min((animTime - barStart) / barDuration, 1));
+            const easeProgress = 1 - Math.pow(1 - barProgress, 3);
+            const currentVal = Math.floor(bar.value * easeProgress);
+
+            return (
               <div key={i} className={`flex ${isVertical ? 'flex-col items-center justify-end flex-1 h-full' : 'flex-row items-center justify-start w-full flex-1'} gap-1`}>
                  {isVertical ? (
                     <>
-                      <span className="text-[10px] font-bold text-[#18181B] -mb-1">{Math.floor(bar.value * animProgress)}</span>
-                      <div className="w-full border-[2px] border-[#18181B] rounded-t-sm shadow-[2px_0_0_#18181B] transition-all relative overflow-hidden" style={{ height: `${(bar.value / maxVal) * 85 * animProgress}%`, backgroundColor: bar.color }}>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <span className="text-[10px] font-bold text-[#18181B] -mb-1">{formatChartNumber(currentVal, data.number_format, data.currency_symbol)}</span>
+                      <div className="w-full border-[2px] border-[#18181B] rounded-t-sm shadow-[2px_0_0_#18181B] transition-all relative overflow-hidden" style={{ height: `${(bar.value / maxVal) * 85 * easeProgress}%`, backgroundImage: `linear-gradient(to top, ${bar.color}, ${bar.color}90)` }}>
+                        <div className="absolute inset-x-0 top-0 h-1/3 bg-white/20"></div>
                       </div>
                       <span className="text-[10px] font-bold text-[#18181B] truncate w-full text-center mt-1">{bar.label}</span>
                     </>
                  ) : (
                     <>
                       <span className="text-[10px] font-bold text-[#18181B] truncate w-16 text-right pr-1 shrink-0">{bar.label}</span>
-                      <div className="h-full border-[2px] border-[#18181B] rounded-r-sm shadow-[0_2px_0_#18181B] transition-all relative overflow-hidden" style={{ width: `${(bar.value / maxVal) * 85 * animProgress}%`, backgroundColor: bar.color }}>
-                         <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+                      <div className="h-full border-[2px] border-[#18181B] rounded-r-sm shadow-[0_2px_0_#18181B] transition-all relative overflow-hidden" style={{ width: `${(bar.value / maxVal) * 85 * easeProgress}%`, backgroundImage: `linear-gradient(to right, ${bar.color}, ${bar.color}90)` }}>
+                         <div className="absolute inset-y-0 right-0 w-1/3 bg-white/20"></div>
                       </div>
-                      <span className="text-[10px] font-bold text-[#18181B] pl-1 shrink-0">{Math.floor(bar.value * animProgress)}</span>
+                      <span className="text-[10px] font-bold text-[#18181B] pl-1 shrink-0">{formatChartNumber(currentVal, data.number_format, data.currency_symbol)}</span>
                     </>
                  )}
               </div>
-           ))}
-        </div>
+            )
+         })}
       </div>
-      <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
-    </div>
+    </ChartCard>
   );
 };
 
@@ -2284,60 +2347,71 @@ const LineGraphBlock = ({ blockId, data, interactionState, setInteractionState, 
     window.requestAnimationFrame(step);
   }, []);
 
-  return (
-    <div className="w-full px-6 py-4 flex flex-col items-center gap-6">
-      <div className="w-full neo-card p-6 flex flex-col items-center relative shadow-[6px_6px_0_#18181B]">
-        <div className="flex items-center justify-between w-full mb-6 relative z-10">
-          {data.title ? <p className="font-black text-center text-sm text-[#18181B] flex-1">{data.title}</p> : <div className="flex-1" />}
-          {data.show_trend_label === 'On' && (
-             <div className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border-[2px] ${trendColor.replace('text-', 'border-').split(' ')[0]} ${trendColor}`}>
-               {trend}
-             </div>
-          )}
-        </div>
-        
-        <div className="w-full max-w-[250px] flex flex-col relative border-l-4 border-b-4 border-[#18181B] pt-4 pr-4">
-           {data.y_axis_label && <span className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider">{data.y_axis_label}</span>}
-           <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
-              <defs>
-                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={data.line_colour || '#3B82F6'} />
-                  <stop offset="100%" stopColor={data.line_colour || '#3B82F6'} stopOpacity="0.5" />
-                </linearGradient>
-              </defs>
-              <path 
-                ref={pathRef}
-                d={pathData} 
-                fill="none" 
-                stroke="url(#lineGrad)" 
-                strokeWidth="4" 
-                strokeLinejoin="round" 
-                strokeDasharray={pathLength}
-                strokeDashoffset={pathLength * (1 - animProgress)}
-                style={{ filter: 'drop-shadow(0px 4px 0px rgba(24,24,27,0.2))' }}
-              />
-              {coordinates.map((c, i) => (
-                <circle 
-                  key={i} 
-                  cx={c.x} 
-                  cy={c.y} 
-                  r="6" 
-                  fill={data.point_colour || '#18181B'} 
-                  style={{ opacity: animProgress > (i / coordinates.length) ? 1 : 0, transition: 'opacity 0.2s ease-in' }}
-                />
-              ))}
-           </svg>
-           <div className="flex justify-between mt-2 w-full">
-              {points.map((p, i) => (
-                 <span key={i} className="text-[8px] font-bold text-[#18181B] truncate" style={{ width: `${100/points.length}%`, textAlign: i===0?'left':i===points.length-1?'right':'center' }}>
-                   {p.label}
-                 </span>
-              ))}
-           </div>
-        </div>
-      </div>
-      <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+  const quizElement = !isVisual ? (
+     <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+  ) : null;
+
+  const trendElement = data.show_trend_label === 'On' ? (
+    <div className="w-full flex justify-end mb-2">
+       <div className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border-[2px] ${trendColor.replace('text-', 'border-').split(' ')[0]} ${trendColor} flex items-center gap-1`}>
+         <span>{lastPoint >= firstPoint ? '↑' : '↓'}</span>
+         <span>{lastPoint >= firstPoint ? 'Growing' : 'Shrinking'}</span>
+       </div>
     </div>
+  ) : null;
+
+  return (
+    <ChartCard title={data.title || 'Line Graph'} isVisual={isVisual} quizElement={quizElement}>
+      <div className="w-full max-w-[250px] flex flex-col relative border-l-[3px] border-b-[3px] border-[#18181B] pt-4 pr-4">
+         {trendElement}
+         {data.y_axis_label && <span className="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-[#A1A1AA] uppercase tracking-wider">{data.y_axis_label}</span>}
+         <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
+            <defs>
+              <linearGradient id={`lineGrad-${blockId}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={data.line_colour || '#3B82F6'} />
+                <stop offset="100%" stopColor={data.line_colour || '#3B82F6'} stopOpacity="0.3" />
+              </linearGradient>
+            </defs>
+            
+            {/* Fill under the line (optional, gives it more volume) */}
+            {pathData && (
+              <path
+                d={`${pathData} L ${coordinates[coordinates.length-1].x},${svgHeight} L 0,${svgHeight} Z`}
+                fill={`url(#lineGrad-${blockId})`}
+                opacity={animProgress}
+                style={{ transition: 'opacity 1s ease-out' }}
+              />
+            )}
+
+            <path 
+              ref={pathRef}
+              d={pathData} 
+              fill="none" 
+              stroke={data.line_colour || '#3B82F6'} 
+              strokeWidth="4" 
+              strokeLinejoin="round" 
+              strokeDasharray={pathLength}
+              strokeDashoffset={pathLength * (1 - animProgress)}
+              style={{ filter: 'drop-shadow(0px 4px 4px rgba(0,0,0,0.3))' }}
+            />
+            {coordinates.map((c, i) => (
+              <g key={i} style={{ opacity: animProgress > (i / (coordinates.length - 1 || 1)) ? 1 : 0, transition: 'opacity 0.2s ease-in' }}>
+                <circle cx={c.x} cy={c.y} r="6" fill={data.point_colour || '#18181B'} stroke="white" strokeWidth="2" style={{ filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.4))' }} />
+                <text x={c.x} y={c.y - 12} fontSize="10" fontWeight="bold" fill="#18181B" textAnchor={i === 0 ? 'start' : i === coordinates.length - 1 ? 'end' : 'middle'}>
+                  {formatChartNumber(c.value, data.number_format, data.currency_symbol)}
+                </text>
+              </g>
+            ))}
+         </svg>
+         <div className="flex justify-between mt-2 w-full border-t-[3px] border-[#18181B] pt-2 relative -left-[3px] w-[calc(100%+3px)]">
+            {points.map((p, i) => (
+               <span key={i} className="text-[10px] font-bold text-[#18181B] truncate" style={{ width: `${100/points.length}%`, textAlign: i===0?'left':i===points.length-1?'right':'center' }}>
+                 {p.label}
+               </span>
+            ))}
+         </div>
+      </div>
+    </ChartCard>
   );
 };
 
