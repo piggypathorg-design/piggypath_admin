@@ -29,20 +29,32 @@ import mascotGridImg from '../../assets/mascot_grid.png';
 import coinsImg from '../../assets/components/Coins.png';
 import gemsImg from '../../assets/components/gems.png';
 import xpImg from '../../assets/components/XP Icon.png';
+import mascotAngry from '../../assets/mascots/Angry.png';
+import mascotConfused from '../../assets/mascots/Confused.png';
+import mascotCool from '../../assets/mascots/Cool.png';
+import mascotHappy from '../../assets/mascots/Happy.png';
+import mascotLaughing from '../../assets/mascots/Laughing.png';
+import mascotLove from '../../assets/mascots/Love.png';
+import mascotSad from '../../assets/mascots/Sad.png';
+import mascotSleeping from '../../assets/mascots/Sleeping.png';
+import mascotSmart from '../../assets/mascots/Smart.png';
+import mascotSurprised from '../../assets/mascots/Surprised.png';
+import mascotThinking from '../../assets/mascots/Thinking.png';
+import mascotWinking from '../../assets/mascots/Winking.png';
 
 const MASCOT_IMAGES = {
-  Happy: '/assets/mascots/Happy.png',
-  Confused: '/assets/mascots/Confused.png',
-  Surprised: '/assets/mascots/Surprised.png',
-  Sleeping: '/assets/mascots/Sleeping.png',
-  Smart: '/assets/mascots/Smart.png',
-  Love: '/assets/mascots/Love.png',
-  Angry: '/assets/mascots/Angry.png',
-  Cool: '/assets/mascots/Cool.png',
-  Laughing: '/assets/mascots/Laughing.png',
-  Sad: '/assets/mascots/Sad.png',
-  Thinking: '/assets/mascots/Thinking.png',
-  Winking: '/assets/mascots/Winking.png'
+  Happy: mascotHappy,
+  Confused: mascotConfused,
+  Surprised: mascotSurprised,
+  Sleeping: mascotSleeping,
+  Smart: mascotSmart,
+  Love: mascotLove,
+  Angry: mascotAngry,
+  Cool: mascotCool,
+  Laughing: mascotLaughing,
+  Sad: mascotSad,
+  Thinking: mascotThinking,
+  Winking: mascotWinking
 };
 
 const TimerBlock = ({ blockId, data, isPreviewMode }) => {

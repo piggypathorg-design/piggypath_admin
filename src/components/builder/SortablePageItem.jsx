@@ -40,7 +40,7 @@ export const SortablePageItem = ({
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`group border-[1px] rounded-lg overflow-hidden transition-all flex flex-col min-h-0 ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}
+      className={`group border-[1px] rounded-lg overflow-hidden transition-all flex flex-col shrink-0 min-h-0 ${isActive ? 'border-[#18181B] bg-white border-[2px] shadow-[2px_2px_0_#18181B]' : 'border-transparent bg-transparent hover:border-[#18181B] hover:border-[2px]'}`}
     >
       <div className={`p-2.5 flex items-center justify-between font-black text-sm transition-colors ${isActive ? 'bg-[#00E599] text-black' : 'bg-transparent text-gray-500 hover:bg-[#F4F4F5] hover:text-[#18181B]'}`}>
         <div className="flex items-center gap-2 truncate flex-1">
