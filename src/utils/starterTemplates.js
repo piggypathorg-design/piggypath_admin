@@ -1,5 +1,34 @@
 export const starterTemplates = [
   {
+    id: 'myth_vs_fact',
+    name: 'Myth vs Fact',
+    icon: 'MessageCircle',
+    blocks: [
+      { type: 'Title', overrides: { title_text: 'Myth or Fact?' }, height: 80 },
+      { type: 'Paragraph', overrides: { text: 'Statement: You need a lot of money to start investing.' }, height: 120 },
+      { type: 'MCQ', overrides: { question: 'Is this a myth or a fact?', option_a: 'Myth', option_b: 'Fact', correct_option: 'A', why_correct: 'Correct! Thanks to fractional shares, you can start investing with just a few dollars.', why_incorrect: 'Incorrect. You don\'t need a lot of money to start!' }, height: 300 }
+    ]
+  },
+  {
+    id: 'data_deep_dive',
+    name: 'Data Deep-Dive',
+    icon: 'PieChart',
+    blocks: [
+      { type: 'Pie Chart', overrides: { type: 'Clickable', chart_style: 'Full Donut', title: 'Monthly Budget Breakdown', number_of_slices: '4', slice_label_1: 'Housing', slice_value_1: 40, slice_label_2: 'Food', slice_value_2: 25, slice_label_3: 'Transport', slice_value_3: 15, slice_label_4: 'Savings', slice_value_4: 20, quiz_question: 'Which category takes up the largest portion?', quiz_option_a: 'Housing', quiz_option_b: 'Food', quiz_option_c: 'Transport', quiz_option_d: 'Savings', quiz_correct_option: 'A', quiz_why_correct: 'Exactly. Housing is typically the largest expense.' }, height: 500 },
+      { type: 'Paragraph', overrides: { text: 'Takeaway: Keeping your housing costs under 30% of your income is a common rule of thumb.' }, height: 120 }
+    ]
+  },
+  {
+    id: 'badge_unlock',
+    name: 'Badge Unlock',
+    icon: 'Trophy',
+    blocks: [
+      { type: 'Achievement Card', overrides: { title: 'Lesson Complete!', gems_amount: 50, label: 'Gems Earned!' }, height: 350 },
+      { type: 'Sparkle XP', overrides: { label: 'XP Gained', xp_amount: 100 }, height: 250 }
+    ]
+  },
+
+  {
     id: 'concept_check',
     name: 'Concept + Check',
     icon: 'MessageSquare',

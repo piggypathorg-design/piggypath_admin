@@ -397,7 +397,33 @@ const PLBBuilder = () => {
   }, [handleUndo, handleRedo]);
 
   useEffect(() => {
-    const fetchLesson = async () => {
+    
+  const migratePageData = (pagesToMigrate) => {
+    return pagesToMigrate.map(page => {
+      const migratedBlocks = (page.blocks || []).map(block => {
+        const newBlock = { ...block };
+        Object.keys(newBlock).forEach(key => {
+          if (key !== 'id' && key !== 'type' && typeof newBlock[key] === 'object') {
+            const data = { ...newBlock[key] };
+            
+            if (newBlock.type === 'Image') {
+              if (data.image_url && !data.source) { data.source = data.image_url; delete data.image_url; }
+              if (data.url && !data.source) { data.source = data.url; delete data.url; }
+            }
+            if (newBlock.type === 'Pie Chart') {
+              if (data.chart_type && !data.chart_style) { data.chart_style = data.chart_type; delete data.chart_type; }
+            }
+            
+            newBlock[key] = data;
+          }
+        });
+        return newBlock;
+      });
+      return { ...page, blocks: migratedBlocks };
+    });
+  };
+
+  const fetchLesson = async () => {
       setIsLoading(true);
       setErrorMsg(null);
       const l = await getLesson(id);
@@ -417,9 +443,9 @@ const PLBBuilder = () => {
       let initialPages = [{ id: 'page_1', title: 'Page 1', blocks: [] }];
       if (Array.isArray(parsedData) && parsedData.length > 0) {
         if (parsedData[0].blocks) {
-          initialPages = parsedData;
+          initialPages = migratePageData(parsedData);
         } else if (parsedData[0].type) {
-          initialPages = [{ id: 'page_1', title: 'Page 1', blocks: parsedData }];
+          initialPages = migratePageData([{ id: 'page_1', title: 'Page 1', blocks: parsedData }]);
         }
       }
       setPages(initialPages);
@@ -447,8 +473,8 @@ const PLBBuilder = () => {
           
           let remotePages = [{ id: 'page_1', title: 'Page 1', blocks: [] }];
           if (Array.isArray(parsedData) && parsedData.length > 0) {
-            if (parsedData[0].blocks) remotePages = parsedData;
-            else if (parsedData[0].type) remotePages = [{ id: 'page_1', title: 'Page 1', blocks: parsedData }];
+            if (parsedData[0].blocks) remotePages = migratePageData(parsedData);
+            else if (parsedData[0].type) remotePages = migratePageData([{ id: 'page_1', title: 'Page 1', blocks: parsedData }]);
           }
           
           setPages((currentPages) => {
@@ -498,7 +524,29 @@ const PLBBuilder = () => {
       newStatus = lesson.status === 'Pending Approval' ? 'Draft' : 'Pending Approval';
     }
     
-    try {
+    
+      if (newStatus === 'Published' || newStatus === 'Pending Approval') {
+        let missingAltText = false;
+        for (const page of pages) {
+          for (const block of page.blocks) {
+            if (block.type === 'Image') {
+              const versionData = block[version] || {};
+              if (!versionData.alt_text || versionData.alt_text.trim() === '') {
+                missingAltText = true;
+                break;
+              }
+            }
+          }
+          if (missingAltText) break;
+        }
+        
+        if (missingAltText) {
+          showToast('Cannot publish: All Image blocks must have Alt Text for accessibility.', 'error');
+          setIsSaving(false);
+          return;
+        }
+      }
+      try {
       await updateLesson(id, { status: newStatus }, user.username || 'Admin');
       setLesson(prev => ({ ...prev, status: newStatus }));
     } catch (err) {
@@ -784,11 +832,11 @@ const PLBBuilder = () => {
   const selectedBlock = activeBlocks.find(b => b.id === selectedBlockId);
   const selectedSchema = selectedBlock ? plbSchema[selectedBlock.type] : null;
 
-  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'ICONS'];
+  const categories = ['ALL', 'TEMPLATES', 'CONTENT', 'MEDIA', 'MASCOT', 'ACTIVITY', 'VISUALISATION', 'FEEDBACK', 'REWARDS', 'ICONS'];
   const filteredTypes = Object.keys(plbSchema).filter(type => {
     const matchesSearch = type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategory === 'ALL' || plbSchema[type].category.toUpperCase() === activeCategory;
-    const isLegacy = plbSchema[type].category === 'Legacy Navigation';
+    const isLegacy = plbSchema[type].category === 'Legacy Navigation' || plbSchema[type].category === 'Legacy Rewards';
     return matchesSearch && matchesCategory && !isLegacy;
   });
 

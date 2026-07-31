@@ -1,9 +1,49 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  componentDidCatch(error, errorInfo) { console.error("Block rendering error:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="w-full p-6 border-2 border-red-200 bg-red-50 rounded-xl flex flex-col items-center justify-center">
+          <span className="text-red-500 font-bold mb-1">Block Error</span>
+          <span className="text-xs text-red-400 text-center">Something went wrong rendering this block.</span>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { 
   Star, Coins, Award, Trophy, MessageCircle, ArrowRight, ArrowLeft, FastForward,
   PieChart, BarChart2, TrendingUp, Table as TableIcon, HelpCircle, Move, Link, ListOrdered, Sliders, Edit3, MousePointer2, MessageSquare, Check, CheckCircle, GripVertical, Volume2
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  componentDidCatch(error, errorInfo) { console.error("Block rendering error:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="w-full p-6 border-2 border-red-200 bg-red-50 rounded-xl flex flex-col items-center justify-center">
+          <span className="text-red-500 font-bold mb-1">Block Error</span>
+          <span className="text-xs text-red-400 text-center">Something went wrong rendering this block.</span>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import {
   DndContext, 
   closestCenter,
@@ -15,6 +55,26 @@ import {
   useDraggable
 } from '@dnd-kit/core';
 import Confetti from '../ui/Confetti';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  componentDidCatch(error, errorInfo) { console.error("Block rendering error:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="w-full p-6 border-2 border-red-200 bg-red-50 rounded-xl flex flex-col items-center justify-center">
+          <span className="text-red-500 font-bold mb-1">Block Error</span>
+          <span className="text-xs text-red-400 text-center">Something went wrong rendering this block.</span>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import {
   arrayMove,
   SortableContext,
@@ -41,6 +101,26 @@ import mascotSmart from '../../assets/mascots/Smart.png';
 import mascotSurprised from '../../assets/mascots/Surprised.png';
 import mascotThinking from '../../assets/mascots/Thinking.png';
 import mascotWinking from '../../assets/mascots/Winking.png';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  componentDidCatch(error, errorInfo) { console.error("Block rendering error:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="w-full p-6 border-2 border-red-200 bg-red-50 rounded-xl flex flex-col items-center justify-center">
+          <span className="text-red-500 font-bold mb-1">Block Error</span>
+          <span className="text-xs text-red-400 text-center">Something went wrong rendering this block.</span>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const MASCOT_IMAGES = {
   Happy: mascotHappy,
@@ -886,126 +966,176 @@ const ChartCard = ({ title, children, isVisual, legendElement, quizElement }) =>
 );
 
 const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
-  const slices = [];
-  for (let i = 1; i <= 10; i++) {
-    if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
-      slices.push({ 
-        id: String(i),
-        label: data[`slice_label_${i}`], 
-        value: Number(data[`slice_value_${i}`]), 
-        color: data[`slice_color_${i}`] || '#FFD100'
-      });
-    }
-  }
-  if (slices.length === 0) slices.push({ id: '1', label: 'Savings', value: 50, color: '#FFD100' }, { id: '2', label: 'Food', value: 50, color: '#00E599' });
-  
-  const total = Math.max(1, slices.reduce((acc, s) => acc + s.value, 0));
-  
-  const chartStyle = data.chart_style || 'Full Donut';
-  const isVisual = data.type === 'Visual';
-  const legendStyle = data.legend_style || 'Chips';
-  const centerLabel = data.center_label || '';
-  const centerSublabel = data.center_sublabel || '';
-  
-  const [animatedTotal, setAnimatedTotal] = React.useState(0);
-  const [dashOffsetMultiplier, setDashOffsetMultiplier] = React.useState(1);
-  
-  React.useEffect(() => {
-    let start = null;
-    const duration = 800; // ms
-    const finalVal = centerLabel ? (Number(centerLabel) || 0) : total;
-    const canAnimateNumber = !isNaN(finalVal) && centerLabel !== '';
-    
-    const step = (timestamp) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
-      setDashOffsetMultiplier(1 - easeProgress);
-      if (canAnimateNumber) {
-        setAnimatedTotal(Math.floor(easeProgress * finalVal));
+    const slices = [];
+    for (let i = 1; i <= 10; i++) {
+      if (data[`slice_label_${i}`] && data[`slice_value_${i}`] > 0) {
+        slices.push({ 
+          id: String(i),
+          label: data[`slice_label_${i}`], 
+          value: Number(data[`slice_value_${i}`]), 
+          color: data[`slice_color_${i}`] || '#FFD100'
+        });
       }
-      if (progress < 1) window.requestAnimationFrame(step);
-    };
-    window.requestAnimationFrame(step);
-  }, [total, centerLabel]);
+    }
+    if (slices.length === 0) slices.push({ id: '1', label: 'Savings', value: 50, color: '#FFD100' }, { id: '2', label: 'Food', value: 50, color: '#00E599' });
+    
+    const total = Math.max(1, slices.reduce((acc, s) => acc + s.value, 0));
+    
+    const chartStyle = data.chart_style || 'Full Donut';
+    const isVisual = data.type === 'Visual';
+    const legendStyle = data.legend_style || 'Chips';
+    const centerLabel = data.center_label || '';
+    const centerSublabel = data.center_sublabel || '';
+    
+    const [animatedTotal, setAnimatedTotal] = React.useState(0);
+    const [dashOffsetMultiplier, setDashOffsetMultiplier] = React.useState(1);
+    
+    React.useEffect(() => {
+      let start = null;
+      const duration = 800; // ms
+      const finalVal = centerLabel ? (Number(centerLabel) || 0) : total;
+      const canAnimateNumber = !isNaN(finalVal) && centerLabel !== '';
+      
+      const step = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        setDashOffsetMultiplier(1 - easeProgress);
+        if (canAnimateNumber) {
+          setAnimatedTotal(Math.floor(easeProgress * finalVal));
+        }
+        if (progress < 1) window.requestAnimationFrame(step);
+      };
+      window.requestAnimationFrame(step);
+    }, [total, centerLabel]);
+  
+    const displayCenterNum = centerLabel ? (isNaN(Number(centerLabel)) ? centerLabel : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol)) : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol);
+  
+    const isGauge = chartStyle === 'Half Gauge';
+    const isSolid = chartStyle === 'Solid Pie';
+    const isMultiRing = chartStyle === 'Multi-Ring Donut';
+    const isDualRing = data.number_of_rings === '2' && !isMultiRing && !isSolid && !isGauge;
 
-  const displayCenterNum = centerLabel ? (isNaN(Number(centerLabel)) ? centerLabel : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol)) : formatChartNumber(animatedTotal, data.number_format, data.currency_symbol);
+    const innerSlices = [];
+    if (isDualRing) {
+      for (let i = 1; i <= 10; i++) {
+        if (data[`slice_label_${i}`] && data[`slice_inner_value_${i}`] > 0) {
+          innerSlices.push({
+            id: String(i),
+            label: data[`slice_label_${i}`],
+            value: Number(data[`slice_inner_value_${i}`]),
+            color: data[`slice_color_${i}`] || '#FFD100'
+          });
+        }
+      }
+    }
+    const innerTotal = Math.max(1, innerSlices.reduce((acc, s) => acc + s.value, 0));
+    let innerCumulativeValue = 0;
 
-  const isGauge = chartStyle === 'Half Gauge';
-  const isSolid = chartStyle === 'Solid Pie';
-  const isMultiRing = chartStyle === 'Multi-Ring Donut';
-  const strokeW = isMultiRing ? Math.max(4, 40 / slices.length) : (isSolid ? 50 : 20);
-  const maxVal = Math.max(1, ...slices.map(s => s.value));
-
-  let cumulativeValue = 0;
-
-  const legendElement = legendStyle === 'Chips' ? (
-    <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 w-full">
-       {slices.map((slice, i) => (
-          <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isVisual ? 'bg-gray-50 border border-gray-200' : 'border-2 border-[#18181B] bg-white'}`}>
-             <div className="w-3 h-3 rounded-full shadow-inner shrink-0" style={{ backgroundColor: slice.color }}></div>
-             <div className="flex flex-col items-start leading-none truncate max-w-[120px]">
-                <span className="text-xs font-bold text-gray-600 truncate w-full">{slice.label}</span>
-                <span className="text-[10px] font-black text-[#18181B] mt-0.5 truncate w-full">
-                   {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
-                </span>
-             </div>
-          </div>
-       ))}
-    </div>
-  ) : (
-    <div className="flex flex-col w-full gap-2 mx-auto">
-       {slices.map((slice, i) => (
-          <div key={i} className="flex items-center justify-between gap-4">
-             <div className="flex items-center gap-2 truncate">
+    const strokeW = isMultiRing ? Math.max(4, 40 / slices.length) : (isSolid ? 50 : (isDualRing ? 12 : 20));
+    const outerR = isSolid ? 25 : (isDualRing ? 42 : 40);
+    const innerR = 25;
+    const maxVal = Math.max(1, ...slices.map(s => s.value));
+  
+    let cumulativeValue = 0;
+  
+    const legendElement = legendStyle === 'Chips' ? (
+      <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 w-full">
+         {slices.map((slice, i) => (
+            <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isVisual ? 'bg-gray-50 border border-gray-200' : 'border-2 border-[#18181B] bg-white'}`}>
                <div className="w-3 h-3 rounded-full shadow-inner shrink-0" style={{ backgroundColor: slice.color }}></div>
-               <span className="text-sm font-bold text-gray-600 truncate">{slice.label}</span>
-             </div>
-             <span className="text-sm font-black text-[#18181B] shrink-0">
-                {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
-             </span>
-          </div>
-       ))}
-    </div>
-  );
-
-  const quizElement = !isVisual ? (
-     <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
-  ) : null;
-
-  return (
-    <ChartCard title={data.title || 'Pie Chart'} isVisual={isVisual} legendElement={legendElement} quizElement={quizElement}>
-      <div className={`relative flex flex-col items-center justify-center mt-2 mb-4 ${isGauge ? 'w-48 h-24 overflow-hidden' : 'w-48 h-48'}`}>
-         <svg viewBox={isGauge ? "0 0 100 50" : "0 0 100 100"} className={`absolute ${isGauge ? 'inset-x-0 bottom-0 h-48 origin-bottom' : 'inset-0 w-full h-full'} transform ${isGauge ? "-rotate-180" : "-rotate-90"} filter ${isVisual ? 'drop-shadow-lg' : 'drop-shadow-md'}`}>
-            <defs>
-              {slices.map((slice, i) => (
-                <linearGradient key={`grad-${i}`} id={`grad-${blockId}-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor={slice.color} />
-                  <stop offset="100%" stopColor={slice.color} stopOpacity={0.6} />
-                </linearGradient>
-              ))}
-            </defs>
-            
-            {isMultiRing ? (
-              slices.map((slice, i) => {
-                const r = 45 - strokeW / 2 - i * (strokeW + 1);
-                if (r <= 0) return null;
-                const circumference = 2 * Math.PI * r;
-                return <circle key={`bg-${i}`} r={r} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${circumference} ${circumference}`}></circle>
-              })
-            ) : (
-              <circle r={isSolid ? 25 : 40} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${isGauge ? (2 * Math.PI * (isSolid ? 25 : 40)) / 2 : 2 * Math.PI * (isSolid ? 25 : 40)} ${2 * Math.PI * (isSolid ? 25 : 40)}`}></circle>
-            )}
-
-            {slices.map((slice, i) => {
-              if (total === 0) return null;
+               <div className="flex flex-col items-start leading-none truncate max-w-[120px]">
+                  <span className="text-xs font-bold text-gray-600 truncate w-full">{slice.label}</span>
+                  <span className="text-[10px] font-black text-[#18181B] mt-0.5 truncate w-full">
+                     {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
+                  </span>
+               </div>
+            </div>
+         ))}
+      </div>
+    ) : (
+      <div className="flex flex-col w-full gap-2 mx-auto">
+         {slices.map((slice, i) => (
+            <div key={i} className="flex items-center justify-between gap-4">
+               <div className="flex items-center gap-2 truncate">
+                 <div className="w-3 h-3 rounded-full shadow-inner shrink-0" style={{ backgroundColor: slice.color }}></div>
+                 <span className="text-sm font-bold text-gray-600 truncate">{slice.label}</span>
+               </div>
+               <span className="text-sm font-black text-[#18181B] shrink-0">
+                  {formatChartNumber(slice.value, data.number_format, data.currency_symbol)}
+               </span>
+            </div>
+         ))}
+      </div>
+    );
+  
+    const quizElement = !isVisual ? (
+       <ChartQuiz blockId={blockId} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />
+    ) : null;
+  
+    return (
+      <ChartCard title={data.title || 'Pie Chart'} isVisual={isVisual} legendElement={legendElement} quizElement={quizElement}>
+        <div className={`relative flex flex-col items-center justify-center mt-2 mb-4 ${isGauge ? 'w-48 h-24 overflow-hidden' : 'w-48 h-48'}`}>
+           <svg viewBox={isGauge ? "0 0 100 50" : "0 0 100 100"} className={`absolute ${isGauge ? 'inset-x-0 bottom-0 h-48 origin-bottom' : 'inset-0 w-full h-full'} transform ${isGauge ? "-rotate-180" : "-rotate-90"} filter ${isVisual ? 'drop-shadow-lg' : 'drop-shadow-md'}`}>
+              <defs>
+                {slices.map((slice, i) => (
+                  <linearGradient key={`grad-${i}`} id={`grad-${blockId}-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={slice.color} />
+                    <stop offset="100%" stopColor={slice.color} stopOpacity={0.6} />
+                  </linearGradient>
+                ))}
+              </defs>
               
-              if (isMultiRing) {
-                const r = 45 - strokeW / 2 - i * (strokeW + 1);
-                if (r <= 0) return null;
+              {isMultiRing ? (
+                slices.map((slice, i) => {
+                  const r = 45 - strokeW / 2 - i * (strokeW + 1);
+                  if (r <= 0) return null;
+                  const circumference = 2 * Math.PI * r;
+                  return <circle key={`bg-${i}`} r={r} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${circumference} ${circumference}`}></circle>
+                })
+              ) : (
+                <>
+                  <circle r={outerR} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${isGauge ? (2 * Math.PI * outerR) / 2 : 2 * Math.PI * outerR} ${2 * Math.PI * outerR}`}></circle>
+                  {isDualRing && (
+                    <circle r={innerR} cx="50" cy="50" fill="transparent" stroke="#F4F4F5" strokeWidth={strokeW} strokeDasharray={`${2 * Math.PI * innerR} ${2 * Math.PI * innerR}`}></circle>
+                  )}
+                </>
+              )}
+  
+              {slices.map((slice, i) => {
+                if (total === 0) return null;
+                
+                if (isMultiRing) {
+                  const r = 45 - strokeW / 2 - i * (strokeW + 1);
+                  if (r <= 0) return null;
+                  const circumference = 2 * Math.PI * r;
+                  const sliceLength = (slice.value / maxVal) * circumference;
+                  const animatedOffset = circumference - (circumference * dashOffsetMultiplier);
+                  return (
+                    <circle 
+                      key={i} 
+                      r={r} 
+                      cx="50" 
+                      cy="50" 
+                      fill="transparent" 
+                      stroke={`url(#grad-${blockId}-${i})`} 
+                      strokeWidth={strokeW} 
+                      strokeDasharray={`${sliceLength} ${circumference}`} 
+                      strokeDashoffset={animatedOffset}
+                      strokeLinecap="round"
+                      className="transition-all duration-300 ease-out"
+                    />
+                  );
+                }
+  
+                const r = outerR;
                 const circumference = 2 * Math.PI * r;
-                const sliceLength = (slice.value / maxVal) * circumference;
-                const animatedOffset = circumference - (circumference * dashOffsetMultiplier);
+                const arcLength = isGauge ? circumference / 2 : circumference;
+                
+                const sliceLength = (slice.value / total) * arcLength;
+                const sliceOffset = (cumulativeValue / total) * arcLength;
+                const animatedOffset = -sliceOffset - (circumference * dashOffsetMultiplier);
+                cumulativeValue += slice.value;
                 return (
                   <circle 
                     key={i} 
@@ -1017,1354 +1147,54 @@ const PieChartBlock = ({ blockId, data, interactionState, setInteractionState, i
                     strokeWidth={strokeW} 
                     strokeDasharray={`${sliceLength} ${circumference}`} 
                     strokeDashoffset={animatedOffset}
-                    strokeLinecap="round"
                     className="transition-all duration-300 ease-out"
                   />
-                );
-              }
+                )
+              })}
 
-              const r = isSolid ? 25 : 40;
-              const circumference = 2 * Math.PI * r;
-              const arcLength = isGauge ? circumference / 2 : circumference;
-              
-              const sliceLength = (slice.value / total) * arcLength;
-              const sliceOffset = (cumulativeValue / total) * arcLength;
-              const animatedOffset = -sliceOffset - (circumference * dashOffsetMultiplier);
-              cumulativeValue += slice.value;
-              return (
-                <circle 
-                  key={i} 
-                  r={r} 
-                  cx="50" 
-                  cy="50" 
-                  fill="transparent" 
-                  stroke={`url(#grad-${blockId}-${i})`} 
-                  strokeWidth={strokeW} 
-                  strokeDasharray={`${sliceLength} ${circumference}`} 
-                  strokeDashoffset={animatedOffset}
-                  className="transition-all duration-300 ease-out"
-                />
-              )
-            })}
-         </svg>
-         {!isSolid && (
-           <div className={`relative z-10 flex flex-col items-center justify-center text-center ${isGauge ? 'mt-auto pb-2' : ''}`}>
-              <span className="text-4xl font-black text-[#18181B] tracking-tighter leading-none">{displayCenterNum}</span>
-              {(centerSublabel || (!centerLabel && !isGauge)) && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{centerSublabel || (centerLabel ? '' : 'Total')}</span>}
-           </div>
-         )}
-      </div>
-    </ChartCard>
-  );
-};
+              {isDualRing && innerSlices.map((slice, i) => {
+                const r = innerR;
+                const circumference = 2 * Math.PI * r;
+                const sliceLength = (slice.value / innerTotal) * circumference;
+                const sliceOffset = (innerCumulativeValue / innerTotal) * circumference;
+                const animatedOffset = -sliceOffset - (circumference * dashOffsetMultiplier);
+                innerCumulativeValue += slice.value;
+                return (
+                  <circle 
+                    key={`inner-${i}`} 
+                    r={r} 
+                    cx="50" 
+                    cy="50" 
+                    fill="transparent" 
+                    stroke={`url(#grad-${blockId}-${i})`} 
+                    strokeWidth={strokeW} 
+                    strokeDasharray={`${sliceLength} ${circumference}`} 
+                    strokeDashoffset={animatedOffset}
+                    className="transition-all duration-300 ease-out"
+                  />
+                )
+              })}
+           </svg>
+           
+           {!isGauge && !isMultiRing && (
+             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none rounded-full">
+               <div className={`flex flex-col items-center justify-center text-center ${isSolid ? 'bg-white/80 p-2 rounded-full min-w-[60px] min-h-[60px] shadow-sm backdrop-blur-sm' : ''}`}>
+                  <span className={`font-black text-[#18181B] tracking-tighter leading-none ${isSolid ? 'text-xl' : 'text-3xl'}`}>{displayCenterNum}</span>
+                  {centerSublabel && <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">{centerSublabel}</span>}
+               </div>
+             </div>
+           )}
 
-const VisualBlockRenderer = ({ block, version, isPreviewMode, progressValue, externalInteractionState, setExternalInteractionState, isChecking, isAnswerCorrect, onAnswered, lives, playSound }) => {
-  if (plbSchema[block.type]?.category === 'Legacy Navigation') {
-    return null;
-  }
-
-  const data = block[version] || {};
-  const [localInteractionState, setLocalInteractionState] = React.useState({});
-  
-  const interactionState = externalInteractionState || localInteractionState;
-  const setInteractionState = setExternalInteractionState || setLocalInteractionState;
-  
-  const getAlign = (align) => {
-    if (align === 'Center') return 'text-center justify-center';
-    if (align === 'Right') return 'text-right justify-end items-end';
-    return 'text-left justify-start items-start';
+           {isGauge && (
+             <div className={`relative z-10 flex flex-col items-center justify-center text-center ${isGauge ? 'mt-auto pb-2' : ''}`}>
+                <span className="text-4xl font-black text-[#18181B] tracking-tighter leading-none">{displayCenterNum}</span>
+                {(centerSublabel || (!centerLabel && !isGauge)) && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{centerSublabel || (centerLabel ? '' : 'Total')}</span>}
+             </div>
+           )}
+        </div>
+      </ChartCard>
+    );
   };
-
-  const alignClass = getAlign(data.alignment);
-  const color = data.text_colour || '#1E293B';
-  const font = data.font || 'Arial';
-
-  switch (block.type) {
-    case 'Icon': {
-      const IconComponent = LucideIcons[data.icon_name] || LucideIcons.HelpCircle;
-      const alignClass = data.align === 'left' ? 'justify-start' : data.align === 'right' ? 'justify-end' : 'justify-center';
-      return (
-        <div className={`flex w-full ${alignClass} py-4`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
-          <IconComponent size={data.size || 48} color={data.color || '#18181B'} />
-        </div>
-      );
-    }
-    case 'Title':
-      return (
-        <div className={`w-full flex ${alignClass} py-4 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
-          <h1 
-            className="break-words leading-tight"
-            style={{ color, fontFamily: font, fontSize: `${data.font_size || 32}px`, fontWeight: '900' }}
-          >
-            {data.title_text || 'Enter Title'}
-          </h1>
-        </div>
-      );
-
-    case 'Paragraph':
-    case 'Rich Text':
-      return (
-        <div className={`w-full flex ${alignClass} py-2 px-6`} style={{ backgroundColor: data.block_colour || 'transparent' }}>
-          <p 
-            className="break-words leading-relaxed whitespace-pre-wrap"
-            style={{ 
-              color, 
-              fontFamily: font, 
-              fontSize: `${data.font_size || 16}px`,
-              fontWeight: data.bold === 'On' ? 'bold' : 'normal',
-              fontStyle: data.italic === 'On' ? 'italic' : 'normal',
-              textDecoration: data.underline === 'On' ? 'underline' : 'none',
-            }}
-          >
-            {((data.content || data.text) || 'Enter text here...').replace(/\\n/g, '\n')}
-          </p>
-        </div>
-      );
-
-    case 'Divider':
-      return (
-        <div className="w-full flex items-center justify-center py-6 px-6">
-          <div 
-            className="w-full" 
-            style={{ borderBottom: `${data.thickness || 3}px ${data.style?.toLowerCase() || 'solid'} ${data.line_colour || '#E2E8F0'}` }}
-          ></div>
-        </div>
-      );
-
-    case 'Spacer':
-      return (
-        <div 
-           className="w-full"
-           style={{ height: `${data.height || 16}px`, backgroundColor: data.block_colour || 'transparent' }}
-        ></div>
-      );
-
-    case 'Card':
-      return (
-        <div className="w-full px-6 py-2">
-          <div 
-            className="w-full p-6 flex flex-col gap-3 shadow-[8px_8px_0_#18181B]"
-            style={{
-              backgroundColor: data.block_colour || '#FFFFFF',
-              border: data.border === 'None' ? 'none' : `4px ${data.border?.toLowerCase() || 'solid'} ${data.border_colour || '#18181B'}`,
-              borderRadius: `${data.border_radius !== undefined ? data.border_radius : 24}px`,
-              color: data.text_colour || '#18181B'
-            }}
-          >
-            {data.title_text && (
-              <h3 
-                className="leading-tight"
-                style={{
-                  fontSize: `${data.heading_font_size || 24}px`,
-                  fontWeight: data.heading_font_style === 'Normal' ? 'normal' : data.heading_font_style === 'Italic' ? 'normal' : '900',
-                  fontStyle: data.heading_font_style === 'Italic' ? 'italic' : 'normal'
-                }}
-              >
-                {data.title_text}
-              </h3>
-            )}
-            {data.body_text && (
-              <p 
-                className="opacity-90 leading-relaxed"
-                style={{
-                  fontSize: `${data.body_font_size || 16}px`,
-                  fontWeight: data.body_font_style === 'Bold' ? 'bold' : 'normal',
-                  fontStyle: data.body_font_style === 'Italic' ? 'italic' : 'normal'
-                }}
-              >
-                {data.body_text}
-              </p>
-            )}
-          </div>
-        </div>
-      );
-
-    case 'Image':
-    case 'Video':
-    case 'Animation':
-      return (
-        <div className={`w-full flex flex-col ${alignClass} py-4 px-6`}>
-          <div 
-            className={`bg-transparent flex items-center justify-center overflow-hidden w-full relative ${!data.source ? 'py-8 border-2 border-dashed border-gray-300 rounded-xl' : ''}`}
-            style={{
-              borderRadius: data.source ? (data.frame_shape === 'Circle' ? '50%' : `${data.frame_roundness || 16}px`) : undefined,
-              aspectRatio: data.source ? (data.frame_shape === 'Square' || data.frame_shape === 'Circle' ? '1/1' : '16/9') : undefined
-            }}
-          >
-            {data.source ? (
-              block.type === 'Image' ? (
-                <img 
-                  src={data.source} 
-                  alt={data.alt_text} 
-                  className="w-full h-full"
-                  style={{
-                    objectFit: getObjectFit(data.object_fit),
-                    objectPosition: `${data.image_x ?? 50}% ${data.image_y ?? 50}%`,
-                    transform: `scale(${(data.image_scale ?? 100) / 100})`
-                  }}
-                />
-              ) : (data.source.includes('youtube.com') || data.source.includes('youtu.be')) ? (
-                <iframe
-                  src={data.source.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                  className="w-full h-full"
-                  style={{
-                    objectFit: getObjectFit(data.object_fit)
-                  }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video 
-                  src={data.source} 
-                  className="w-full h-full z-10 relative pointer-events-auto" 
-                  style={{
-                    objectFit: getObjectFit(data.object_fit)
-                  }}
-                  autoPlay={data.autoplay === 'On'} 
-                  loop={data.loop === 'On'}
-                  controls={block.type === 'Video' || block.type === 'Animation'} 
-                  muted={data.autoplay === 'On'}
-                  playsInline
-                  onClick={(e) => {
-                    // Stop propagation so clicking the video doesn't select the block, allowing controls to work
-                    e.stopPropagation();
-                  }}
-                />
-              )
-            ) : (
-              <span className="text-[#A1A1AA] font-black uppercase tracking-widest text-sm">No Media</span>
-            )}
-          </div>
-          {data.caption && <p className="text-xs text-center mt-3 font-bold text-[#71717A] uppercase tracking-wider">{data.caption}</p>}
-        </div>
-      );
-
-    case 'Audio':
-      return <AudioBlock data={data} isPreviewMode={isPreviewMode} />;
-
-    case 'Mascot Feedback': {
-      let fbMascotType = data.mascot_type || 'Happy';
-      if (isChecking) {
-        fbMascotType = isAnswerCorrect ? 'Smart' : 'Confused';
-      }
-      const fbAlignClass = {
-        'Left': 'justify-start',
-        'Center': 'justify-center',
-        'Right': 'justify-end'
-      }[data.alignment || 'Center'];
-
-      return (
-        <div className={`w-full flex ${fbAlignClass} py-4 px-6 gap-4 items-center`}>
-          <div className={`w-20 h-20 shrink-0 flex items-center justify-center z-10 ${getMascotAnimation(fbMascotType)}`}>
-             <img 
-                src={MASCOT_IMAGES[fbMascotType] || MASCOT_IMAGES.Happy}
-                alt={fbMascotType}
-                className="w-full h-full object-contain drop-shadow-md"
-              />
-          </div>
-          <div className="relative flex-1 max-w-[75%]">
-            <div 
-              className="w-full p-4 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-lg)_var(--neo-shadow-offset-lg)_0_var(--neo-border-color)] bg-white relative z-10 text-left font-bold text-sm text-[#18181B]"
-            >
-              {data.message || 'Great job!'}
-            </div>
-            <div 
-              className="absolute -left-2 top-1/2 -translate-y-1/2 w-6 h-6 border-l-[var(--neo-border-width-lg)] border-b-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] transform rotate-45 z-0 bg-white"
-            ></div>
-          </div>
-        </div>
-      );
-    }
-
-    case 'Mascot Bubble':
-    case 'Text Bubble (no mascot)':
-      return (
-        <div className="w-full px-6 py-4 relative flex justify-center">
-          <div 
-            className="w-[80%] p-5 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-xl)_var(--neo-shadow-offset-xl)_0_var(--neo-border-color)] flex items-center justify-center relative z-10 whitespace-pre-wrap"
-            style={{
-              backgroundColor: data.bubble_colour || '#FFFFFF',
-              color: data.text_colour || '#18181B',
-              fontFamily: font,
-              fontSize: `${data.font_size || 16}px`,
-              fontWeight: data.font_style === 'Bold' ? '900' : 'bold',
-              fontStyle: data.font_style === 'Italic' ? 'italic' : 'normal',
-            }}
-          >
-            {(data.text || 'Mascot says...').replace(/\\n/g, '\n')}
-          </div>
-        </div>
-      );
-
-    case 'Reflection': {
-      return (
-        <div className="w-full px-6 py-4 flex flex-col gap-4">
-           {data.question && <p className="font-black text-center text-sm mb-2">{data.question}</p>}
-           
-           <textarea 
-             className="w-full bg-white border-[3px] border-[#18181B] rounded-xl p-4 shadow-[4px_4px_0_#18181B] min-h-[100px] text-[#18181B] font-bold text-sm outline-none resize-none focus:ring-2 focus:ring-[#8B5CF6]"
-             placeholder="Type your thoughts here..."
-             value={interactionState?.[block.id]?.reflectionText || ''}
-             disabled={!isPreviewMode || interactionState?.[block.id]?.revealedAnswer || isChecking}
-             onChange={(e) => {
-               if (!isPreviewMode) return;
-               const text = e.target.value;
-               setInteractionState({ ...interactionState, [block.id]: { ...interactionState?.[block.id], reflectionText: text } });
-               if (onAnswered) onAnswered({ isAnswered: text.trim().length > 0, isCorrect: true });
-             }}
-           />
-
-           {interactionState?.[block.id]?.reflectionText?.trim().length > 0 && !interactionState?.[block.id]?.revealedAnswer && (
-             <button
-               onClick={() => {
-                 if (!isPreviewMode) return;
-                 setInteractionState({ ...interactionState, [block.id]: { ...interactionState?.[block.id], revealedAnswer: true } });
-               }}
-               className="mx-auto px-6 py-2 bg-[#8B5CF6] text-white font-black text-sm rounded-xl border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] transition-all"
-             >
-               Reveal model answer
-             </button>
-           )}
-
-           {interactionState?.[block.id]?.revealedAnswer && data.model_answer && (
-             <div className="mt-2 p-4 rounded-xl border-[2px] border-dashed border-[#00E599] bg-[#00E599]/10">
-                <span className="text-xs font-bold text-[#00E599] uppercase tracking-wider block mb-1">Model Answer</span>
-                <p className="text-sm font-bold text-[#18181B]">{data.model_answer}</p>
-             </div>
-           )}
-           {interactionState?.[block.id]?.revealedAnswer && data.xp_reward && (
-             <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
-           )}
-        </div>
-      );
-    }
-
-    case 'MCQ': {
-      const mcqShuffled = useShuffledOptions(block.id, [
-        { key: 'A', text: data.option_a },
-        { key: 'B', text: data.option_b },
-        { key: 'C', text: data.option_c },
-        { key: 'D', text: data.option_d }
-      ]);
-      const correctOptKey = data.correct_option || 'A';
-      const hasSelection = interactionState?.[block.id]?.selectedKey !== undefined;
-      const isCorrectSelection = hasSelection && interactionState?.[block.id]?.selectedKey === correctOptKey;
-      
-      const containerVariants = {
-        hidden: {},
-        show: {
-          transition: {
-            staggerChildren: 0.08
-          }
-        }
-      };
-
-      const itemVariants = {
-        hidden: { opacity: 0, y: 12 },
-        show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 22 } }
-      };
-
-      return (
-        <div className="w-full px-6 py-2">
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="w-full flex flex-col gap-3"
-          >
-            <p className="font-black text-center text-sm mb-2">{data.question || 'Which item is most important to buy first?'}</p>
-            
-            {mcqShuffled.map((opt, index) => {
-              const isSelected = interactionState?.[block.id]?.selectedKey === opt.key;
-              let bgClass = "bg-white text-[#18181B]";
-              let animClass = "";
-              
-              if (isSelected) {
-                if (isChecking) {
-                  if (opt.key === correctOptKey) {
-                    bgClass = "bg-[#00E599] text-[#18181B]";
-                    animClass = "animate-mascot-bounce";
-                  } else {
-                    bgClass = "bg-[#FF6B6B] text-white";
-                    animClass = "animate-mascot-shake";
-                  }
-                } else {
-                  bgClass = "bg-blue-100 border-blue-500 text-blue-900";
-                  animClass = "scale-95";
-                }
-              } else if (isChecking && opt.key === correctOptKey && hasSelection) {
-                 bgClass = "bg-[#00E599]/30 text-[#18181B] border-[#00E599]";
-              }
-
-              return (
-                <motion.div 
-                  variants={itemVariants}
-                  key={opt.key} 
-                  role="button"
-                  tabIndex={isPreviewMode && !isChecking ? 0 : -1}
-                  onKeyDown={(e) => {
-                    if (isPreviewMode && !isChecking && (e.key === 'Enter' || e.key === ' ')) {
-                      e.preventDefault();
-                      if (playSound) playSound('click');
-                      setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
-                      if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
-                    }
-                  }}
-                  onClick={() => {
-                      if (isPreviewMode && !isChecking) {
-                        if (playSound) playSound('click');
-                        setInteractionState({ ...interactionState, [block.id]: { selectedKey: opt.key } });
-                        if (onAnswered) onAnswered({ isAnswered: true, isCorrect: opt.key === correctOptKey });
-                      }
-                  }}
-                  className={`px-4 py-3 rounded-lg text-sm font-bold shadow-[4px_4px_0_#18181B] border-[2px] break-words flex items-center justify-center gap-2 ${isSelected && !isChecking ? 'border-blue-500' : 'border-[#18181B]'} text-center transition-all ${isPreviewMode && !isChecking ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#18181B] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6] focus:ring-offset-2' : 'cursor-default focus:outline-none'} ${bgClass} ${animClass}`}
-                >
-                  {isChecking && isSelected && opt.key === correctOptKey && <LucideIcons.CheckCircle size={16} />}
-                  {isChecking && isSelected && opt.key !== correctOptKey && <LucideIcons.XCircle size={16} />}
-                  {isChecking && !isSelected && opt.key === correctOptKey && hasSelection && <LucideIcons.CheckCircle size={16} />}
-                  <span>{opt.text}</span>
-                </motion.div>
-              );
-            })}
-            
-            {hasSelection && isChecking && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isCorrectSelection ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}
-              >
-                <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-                {isCorrectSelection ? (data.why_correct || 'That is correct!') : (data.why_incorrect || 'That is incorrect, please try again.')}
-              </motion.div>
-            )}
-          </motion.div>
-        </div>
-      );
-    }
-
-    case 'Fill in the Blank': {
-      const parts = (data.question || 'A ___ fund should cover 3 to 6 months of essential expenses.').split(/_{2,}/);
-      const val = interactionState?.[block.id]?.value || '';
-      const isFillCorrect = isChecking && val.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
-      const isFillIncorrect = isChecking && !isFillCorrect && val.trim() !== '';
-      
-      let inputBorder = "border-[#18181B] border-[3px]";
-      let inputBg = "bg-[#F4F4F5]";
-      if (isFillCorrect) {
-        inputBorder = "border-[#00E599] border-[3px]";
-        inputBg = "bg-[#00E599]/20";
-      } else if (isFillIncorrect) {
-        inputBorder = "border-[#FF6B6B] border-[3px]";
-        inputBg = "bg-[#FF6B6B]/20";
-      }
-
-      return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col gap-4 bg-white border-[4px] border-[#18181B] rounded-[32px] p-6 shadow-[8px_8px_0_#18181B]">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#8B5CF6] rounded-full border-[3px] border-[#18181B] flex items-center justify-center shrink-0 shadow-[2px_2px_0_#18181B]">
-                <Edit3 className="text-white" size={20} strokeWidth={3} />
-              </div>
-              <div className="font-black text-lg text-[#18181B] leading-loose pt-1 flex flex-wrap items-center gap-2">
-                {parts.map((part, index) => (
-                  <React.Fragment key={index}>
-                    <span>{part}</span>
-                    {index < parts.length - 1 && (
-                      <input 
-                        type="text"
-                        disabled={!isPreviewMode || isChecking}
-                        className={`w-20 sm:w-28 px-2 py-1 rounded-xl text-center font-bold text-sm outline-none transition-all shrink ${inputBorder} ${inputBg}`}
-                        placeholder="Type..."
-                        value={val}
-                        onChange={(e) => {
-                          const newVal = e.target.value;
-                          setInteractionState({ ...interactionState, [block.id]: { value: e.target.value } });
-                          const correct = newVal.toLowerCase().trim() === (data.answer || '').toLowerCase().trim();
-                          if (onAnswered) onAnswered({ isAnswered: newVal.trim() !== '', isCorrect: correct });
-                        }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-            {data.hint && (
-              <p className="text-sm font-bold text-gray-400 mt-2">Hint: {data.hint}</p>
-            )}
-
-            {(isFillCorrect || isFillIncorrect) && (
-              <div className={`mt-2 p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold ${isFillCorrect ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
-                <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-                {isFillCorrect ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
-              </div>
-            )}
-            {isFillCorrect && data.xp_reward && (
-               <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    case 'Slider': {
-      const min = parseInt(data.min_value || 0, 10);
-      const max = parseInt(data.max_value || 100, 10);
-      const target = parseInt(data.target_value || 50, 10);
-      const tol = parseInt(data.tolerance || 5, 10);
-      
-      const val = interactionState?.[block.id]?.value ?? min;
-      const isCorrect = Math.abs(val - target) <= tol;
-      const hasAttempted = interactionState?.[block.id]?.hasAttempted;
-      
-      let trackColor = "bg-[#8B5CF6]";
-      if (isChecking && isCorrect) trackColor = "bg-[#00E599]";
-      if (isChecking && !isCorrect && hasAttempted) trackColor = "bg-[#FF6B6B]";
-
-      return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full flex flex-col gap-6">
-            <p className="font-black text-center text-sm">{data.question || 'Move the slider to show how much you think should be saved.'}</p>
-            
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <div className="text-center font-black text-sm text-[#8B5CF6] mb-1">
-                {formatChartNumber(val, data.number_format, data.currency_symbol)}{data.unit || ''}
-              </div>
-              
-              <div className="relative w-full max-w-[250px] h-10 flex items-center justify-center mx-auto">
-                {/* Custom track */}
-                <div className={`absolute left-0 right-0 h-3 rounded-full border-[2px] border-[#18181B] ${trackColor} transition-colors duration-300`}></div>
-                
-                {/* Hint Band */}
-                {hasAttempted && isChecking && !isCorrect && (
-                  <div 
-                    className="absolute h-3 rounded-full bg-[#00E599] opacity-40 pointer-events-none"
-                    style={{
-                      left: `${Math.max(0, (target - tol - min) / (max - min) * 100)}%`,
-                      right: `${Math.max(0, 100 - ((target + tol - min) / (max - min) * 100))}%`
-                    }}
-                  ></div>
-                )}
-                
-                {/* Range input visually hidden but functionally overlaid */}
-                <input 
-                  type="range"
-                  min={min}
-                  max={max}
-                  value={val}
-                  disabled={!isPreviewMode || isChecking}
-                  className="w-full absolute inset-0 opacity-0 cursor-pointer z-10"
-                  onChange={(e) => {
-                    if (!isPreviewMode) return;
-                    const newVal = parseInt(e.target.value);
-                    setInteractionState({ ...interactionState, [block.id]: { value: newVal, hasAttempted: true } });
-                    const correct = Math.abs(newVal - target) <= tol;
-                    if (onAnswered) onAnswered({ isAnswered: true, isCorrect: correct });
-                  }}
-                />
-                
-                {/* Custom thumb (Triangle pointing up) */}
-                <div 
-                  className="absolute pointer-events-none transition-all duration-75 flex flex-col items-center justify-center z-0"
-                  style={{ left: `calc(${((val - min) / (max - min)) * 100}%)`, transform: 'translateX(-50%)', top: '16px' }}
-                >
-                  <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] border-b-[#00E599] drop-shadow-[0_2px_0_#18181B]"></div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between w-full max-w-[250px] text-xs font-bold text-gray-500 mt-2">
-                <span>{formatChartNumber(min, data.number_format, data.currency_symbol)}{data.unit || ''}</span>
-                <span>{formatChartNumber(max, data.number_format, data.currency_symbol)}{data.unit || ''}</span>
-              </div>
-
-              {isChecking && hasAttempted && (
-                <div className={`mt-2 w-full max-w-[250px] p-4 rounded-lg border-[2px] border-[#18181B] shadow-[4px_4px_0_#18181B] text-sm font-bold text-left ${isCorrect ? 'bg-[#00E599] text-[#18181B]' : 'bg-[#FF6B6B] text-white'}`}>
-                  <span className="underline decoration-2 underline-offset-2 mb-1 block">Explanation</span>
-                  {isCorrect ? (data.why_correct || 'Correct!') : (data.why_incorrect || 'Incorrect, please try again.')}
-                </div>
-              )}
-              {isChecking && isCorrect && data.xp_reward && (
-                 <div className="mt-1 text-center text-[#FFD100] font-black text-sm drop-shadow-[0_1px_0_#18181B]">+{data.xp_reward} XP</div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    case 'Drag & Drop':
-      return <DragAndDropInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
-    case 'Arrange':
-      return <ArrangeInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
-    case 'Chart Quiz':
-      return <ChartQuiz blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
-    case 'Hotspot':
-      return <HotspotInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
-    case 'Match Pairs':
-      return <MatchPairsInteractive blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} playSound={playSound} />;
-
-    case 'Table': {
-      const numCols = parseInt(data.number_of_columns || '2', 10);
-      const numRows = parseInt(data.number_of_rows || '2', 10);
-      
-      const rawHeaders = data.headers ? data.headers.split(',').map(s => s.trim()).filter(Boolean) : ['Col 1', 'Col 2'];
-      const headers = rawHeaders.slice(0, numCols);
-      while(headers.length < numCols) headers.push(`Col ${headers.length + 1}`);
-
-      const rows = [];
-      for (let i = 1; i <= numRows; i++) {
-        const rowKey = `row_${i}`;
-        const rawRow = data[rowKey] ? data[rowKey].split(',').map(s => s.trim()) : [];
-        const finalRow = rawRow.slice(0, numCols);
-        while(finalRow.length < numCols) finalRow.push('');
-        rows.push(finalRow);
-      }
-      
-      const headerBg = data.header_bg || '#1E293B';
-      const headerText = data.header_text_colour || '#FFFFFF';
-      
-      return (
-        <div className="w-full px-6 py-4 flex flex-col items-center overflow-hidden">
-           <div className="w-full border-[3px] border-[#18181B] rounded-2xl overflow-x-auto shadow-[4px_4px_0_#18181B] bg-white">
-              <table className="w-full text-sm font-bold text-left whitespace-nowrap min-w-full">
-                 <thead style={{ backgroundColor: headerBg, color: headerText }} className="border-b-[3px] border-[#18181B]">
-                    <tr>
-                       {headers.map((h, i) => (
-                         <th key={i} className="p-3 border-r-[3px] border-[#18181B] last:border-r-0">{h}</th>
-                       ))}
-                    </tr>
-                 </thead>
-                 <tbody>
-                    {rows.map((row, i) => (
-                      <tr key={i} className={`border-b-[3px] border-[#18181B] last:border-b-0 ${data.alternate_rows !== 'Off' && i % 2 === 1 ? 'bg-[#F4F4F5]' : 'bg-white'}`}>
-                         {row.map((cell, j) => (
-                           <td key={j} className="p-3 border-r-[3px] border-[#18181B] last:border-r-0 text-[#18181B]">{cell}</td>
-                         ))}
-                      </tr>
-                    ))}
-                 </tbody>
-              </table>
-           </div>
-        </div>
-      );
-    }
-
-    case 'Pie Chart':
-      return <PieChartBlock blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
-
-    case 'Bar Graph':
-      return <BarGraphBlock blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
-    case 'Line Graph':
-      return <LineGraphBlock blockId={block.id} data={data} interactionState={interactionState} setInteractionState={setInteractionState} isPreviewMode={isPreviewMode} onAnswered={onAnswered} isChecking={isChecking} />;
-    case 'Sparkle XP':
-      return (
-        <div className="w-full px-6 py-10 flex flex-col items-center justify-center relative">
-          <div className="relative z-10 flex flex-col items-center gap-6">
-            {data.title && (
-              <h2 className="text-3xl font-black text-[#18181B] text-center tracking-tight">{data.title}</h2>
-            )}
-            <div className="flex flex-col items-center">
-              <span className="text-xs font-bold text-gray-400 mb-1">{data.label || 'Lifetime XP'}</span>
-              <div className="flex items-center gap-2">
-                <img src={xpImg} alt="XP" className="w-10 h-10 drop-shadow-sm" />
-                <span className="text-5xl font-black text-[#18181B]">+{data.xp_amount || 84}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Floating Sparkles */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[
-              { top: '20%', left: '20%', size: 16, delay: '0s' },
-              { top: '15%', left: '30%', size: 12, delay: '0.2s' },
-              { top: '40%', left: '15%', size: 24, delay: '0.4s' },
-              { top: '70%', left: '25%', size: 14, delay: '0.1s' },
-              { top: '80%', left: '45%', size: 20, delay: '0.5s' },
-              { top: '30%', left: '70%', size: 16, delay: '0.3s' },
-              { top: '65%', left: '80%', size: 12, delay: '0.6s' },
-              { top: '75%', left: '65%', size: 28, delay: '0.2s' },
-              { top: '25%', left: '60%', size: 18, delay: '0.1s' },
-              { top: '10%', left: '45%', size: 14, delay: '0.5s' },
-              { top: '50%', left: '85%', size: 22, delay: '0.3s' },
-              { top: '85%', left: '20%', size: 16, delay: '0.4s' },
-              { top: '45%', left: '30%', size: 12, delay: '0.7s' },
-              { top: '60%', left: '10%', size: 18, delay: '0.2s' },
-              { top: '15%', left: '75%', size: 20, delay: '0.6s' }
-            ].map((sparkle, i) => (
-              <svg 
-                key={i} 
-                className="absolute text-[#8B5CF6] animate-mascot-pulse" 
-                style={{ top: sparkle.top, left: sparkle.left, width: sparkle.size, height: sparkle.size, animationDelay: sparkle.delay }} 
-                viewBox="0 0 24 24" 
-                fill="currentColor"
-              >
-                <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
-              </svg>
-            ))}
-          </div>
-        </div>
-      );
-
-    case 'Mascot Platform': {
-      let mascotIcon = data.mascot_type || 'Happy';
-      if (isChecking) {
-        mascotIcon = isAnswerCorrect ? 'Smart' : 'Confused';
-      }
-      return (
-        <div className="w-full px-6 py-12 flex flex-col items-center justify-center">
-           <div className="relative flex flex-col items-center">
-             {/* Mascot Head */}
-             <div className="w-24 h-24 z-10 animate-mascot-float relative drop-shadow-xl">
-               <img 
-                 src={MASCOT_IMAGES[mascotIcon] || MASCOT_IMAGES.Happy}
-                 alt={mascotIcon}
-                 className="w-full h-full object-contain"
-               />
-             </div>
-             
-             {/* Platform Shadow */}
-             <div className="w-16 h-4 bg-black/5 rounded-[100%] absolute top-28 filter blur-sm"></div>
-             
-             {/* 3D Isometric Platform SVG */}
-             <div className="w-32 h-16 mt-4 relative z-0">
-               <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-[0_8px_0_rgba(0,0,0,0.1)]">
-                  {/* Top Face */}
-                  <polygon points="50,0 100,25 50,50 0,25" fill="#00E599" stroke="#00A36C" strokeWidth="1"/>
-                  {/* Left Face */}
-                  <polygon points="0,25 50,50 50,60 0,35" fill="#00A36C"/>
-                  {/* Right Face */}
-                  <polygon points="100,25 50,50 50,60 100,35" fill="#008055"/>
-                  
-                  {/* Circle and Checkmark */}
-                  <ellipse cx="50" cy="25" rx="16" ry="8" fill="#00A36C" />
-                  <path d="M44 25 L48 28 L56 21" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-               </svg>
-             </div>
-           </div>
-        </div>
-      );
-    }
-      
-    case 'Coin Reward':
-      return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <img src={coinsImg} alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />
-          <span className="font-black text-[32px] text-[#18181B]">{data.coins_amount ?? 0}</span>
-        </div>
-      );
-
-    case 'Gem Reward':
-      return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          <img src={gemsImg} alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />
-          <span className="font-black text-[32px] text-[#18181B]">{data.gems_amount ?? 0}</span>
-        </div>
-      );
-
-    case 'Badge':
-      const badgeType = data.badge_type || 'Achievement Badge';
-      const badgeName = data.badge_name || 'SCHOLAR';
-      const badgeIconName = data.badge_icon || 'Scholar';
-      const showCount = data.show_count === 'Yes';
-      const countValue = Number(data.count_value) || 1;
-      const leagueTier = data.league_tier || 'Bronze';
-      
-      let specificValue = 1;
-      if (badgeType === 'Streak Badge') specificValue = Number(data.day_count || 7);
-      if (badgeType === 'Combo Badge') specificValue = Number(data.combo_tier || 5);
-      if (badgeType === 'Leaderboard Rank Badge') specificValue = Number((data.rank_number || 'Top 3').replace('Top ', ''));
-
-      const getIcon = (name) => {
-        const iconMap = {
-          'Scholar': LucideIcons.GraduationCap,
-          'Pro': LucideIcons.Rocket,
-          'Horticulturist': LucideIcons.Flower2,
-          'Champion': LucideIcons.Trophy,
-          'Adventurer': LucideIcons.Compass,
-          'Director': LucideIcons.Clapperboard,
-          'Celebrity': LucideIcons.Star,
-          'Magician': LucideIcons.Sparkles,
-          'Scientist': LucideIcons.FlaskConical
-        };
-        const SelectedIcon = LucideIcons[name] || iconMap[name] || LucideIcons.Award;
-        return <SelectedIcon size={48} strokeWidth={2.5} className="text-white drop-shadow-md" />;
-      };
-
-      const getAchievementColor = (name) => {
-        const colors = {
-          'Scholar': 'from-[#3B82F6] to-[#1D4ED8]', // Blue
-          'Pro': 'from-[#38BDF8] to-[#0284C7]', // Light Blue
-          'Horticulturist': 'from-[#F43F5E] to-[#BE123C]', // Rose/Red
-          'Champion': 'from-[#F97316] to-[#C2410C]', // Orange
-          'Adventurer': 'from-[#A855F7] to-[#7E22CE]', // Purple
-          'Director': 'from-[#334155] to-[#0F172A]', // Slate
-          'Celebrity': 'from-[#FACC15] to-[#A16207]', // Yellow
-          'Magician': 'from-[#EC4899] to-[#BE185D]', // Pink
-          'Scientist': 'from-[#84CC16] to-[#4D7C0F]', // Lime
-        };
-        return colors[name] || 'from-[#806BFF] to-[#3F43BF]';
-      };
-
-      const renderAchievementBadge = () => {
-        const colorClass = getAchievementColor(badgeIconName);
-        return (
-          <div className="relative flex flex-col items-center animate-in zoom-in duration-500 spring mt-4">
-            <div className={`w-32 h-36 bg-gradient-to-b ${colorClass} rounded-t-[20px] rounded-b-[60px] border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden`}>
-               <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-white opacity-20 skew-x-[-20deg] animate-[shine_3s_ease-in-out_infinite]"></div>
-               <div className="mb-4">{getIcon(badgeIconName)}</div>
-            </div>
-            {showCount && (
-              <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#FFD100] rounded-full border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] flex items-center justify-center z-20 animate-bounce">
-                <span className="font-black text-sm">x{countValue}</span>
-              </div>
-            )}
-            <div className="bg-[#FFD100] px-6 py-2 border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-6 relative z-10 text-center flex items-center justify-center">
-              <div className="absolute -left-3 top-2 w-4 h-full bg-[#E5B800] border-[3px] border-[#18181B] -z-10 skew-y-[20deg]"></div>
-              <div className="absolute -right-3 top-2 w-4 h-full bg-[#E5B800] border-[3px] border-[#18181B] -z-10 skew-y-[-20deg]"></div>
-              <span className="font-black text-[12px] tracking-widest text-[#18181B] uppercase whitespace-nowrap">
-                {badgeName}
-              </span>
-            </div>
-          </div>
-        );
-      };
-
-      const renderStreakBadge = () => {
-        return (
-          <div className="relative flex flex-col items-center animate-pulse mt-4">
-            <div className="relative w-36 h-36 flex items-center justify-center">
-              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-0"></div>
-              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-45"></div>
-              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-[22.5deg]"></div>
-              <div className="absolute w-28 h-28 bg-[#FF7A1A] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rotate-[67.5deg]"></div>
-              
-              <div className="absolute w-24 h-24 bg-gradient-to-br from-[#FFD84D] to-[#FF7A1A] rounded-full border-[3px] border-[#18181B] flex flex-col items-center justify-center z-10">
-                 <LucideIcons.Star size={16} className="text-white fill-white absolute top-2" />
-                 <span className="font-black text-4xl text-white drop-shadow-md leading-none mt-2">{specificValue}</span>
-                 <span className="font-bold text-[10px] text-white/90 uppercase tracking-widest mt-1">Days</span>
-              </div>
-            </div>
-          </div>
-        );
-      };
-
-      const renderComboBadge = () => {
-        return (
-          <div className="relative flex flex-col items-center animate-bounce mt-4">
-            <div className="w-32 h-32 bg-gradient-to-b from-[#38BDF8] to-[#0284C7] rounded-full border-[4px] border-[#18181B] shadow-[6px_6px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden">
-               <div className="absolute top-0 w-full h-[40%] bg-white/20 rounded-b-full"></div>
-               <span className="font-bold text-[10px] text-white uppercase tracking-widest mt-2">Combo</span>
-               <span className="font-black text-4xl text-white drop-shadow-md leading-none mb-1">{specificValue}</span>
-               <div className="flex gap-0.5 z-10 mb-2">
-                 {[...Array(5)].map((_, i) => (
-                   <LucideIcons.Star key={i} size={10} className="text-[#FFD100] fill-[#FFD100]" />
-                 ))}
-               </div>
-            </div>
-          </div>
-        );
-      };
-
-      const renderLeagueBadge = () => {
-        const leagueColors = {
-          'Iron': 'from-[#94A3B8] to-[#475569]',
-          'Bronze': 'from-[#FDBA74] to-[#C2410C]',
-          'Silver': 'from-[#E2E8F0] to-[#94A3B8]',
-          'Gold': 'from-[#FDE047] to-[#CA8A04]'
-        };
-        const ribbonColors = {
-          'Iron': 'bg-[#EF4444]', // Red ribbon
-          'Bronze': 'bg-[#8B5CF6]', // Purple ribbon
-          'Silver': 'bg-[#3B82F6]', // Blue ribbon
-          'Gold': 'bg-[#8B5CF6]' // Purple ribbon
-        };
-        const bg = leagueColors[leagueTier] || leagueColors['Bronze'];
-        const rb = ribbonColors[leagueTier] || ribbonColors['Bronze'];
-
-        return (
-          <div className="relative flex flex-col items-center animate-in fade-in spin-in-12 duration-1000 mt-4">
-            <div className={`w-32 h-36 bg-gradient-to-b ${bg} rounded-t-[10px] rounded-b-[50px] border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative overflow-hidden z-10`}>
-               <div className="absolute top-0 w-full h-[50%] bg-white/20"></div>
-               <LucideIcons.Crown size={48} className="text-white drop-shadow-md fill-white" />
-            </div>
-            
-            <div className={`${rb} px-6 py-2 border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] -mt-6 relative z-20 text-center flex items-center justify-center`}>
-              <div className={`absolute -left-3 top-2 w-4 h-full ${rb} brightness-75 border-[3px] border-[#18181B] -z-10 skew-y-[20deg]`}></div>
-              <div className={`absolute -right-3 top-2 w-4 h-full ${rb} brightness-75 border-[3px] border-[#18181B] -z-10 skew-y-[-20deg]`}></div>
-              <span className="font-black text-[14px] tracking-widest text-white uppercase whitespace-nowrap drop-shadow-sm">
-                {leagueTier}
-              </span>
-            </div>
-          </div>
-        );
-      };
-
-      const renderRankBadge = () => {
-        let medalColor = 'from-[#475569] to-[#1E293B]'; // Dark
-        if (specificValue === 1) medalColor = 'from-[#FDE047] to-[#CA8A04]';
-        if (specificValue === 2) medalColor = 'from-[#E2E8F0] to-[#94A3B8]';
-        if (specificValue === 3) medalColor = 'from-[#FDBA74] to-[#C2410C]';
-
-        return (
-          <div className="relative flex flex-col items-center animate-in slide-in-from-top-10 duration-500 mt-4 pb-8">
-            <div className="absolute -bottom-6 flex gap-2 z-0">
-               <div className="w-6 h-12 bg-[#EF4444] shadow-[0px_4px_0_rgba(0,0,0,0.5)] transform rotate-[15deg] flex" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)' }}></div>
-               <div className="w-6 h-12 bg-[#3B82F6] shadow-[0px_4px_0_rgba(0,0,0,0.5)] transform -rotate-[15deg] flex" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)' }}></div>
-            </div>
-            
-            <div className={`w-28 h-28 bg-gradient-to-b ${medalColor} rounded-full border-[4px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center justify-center relative z-10`}>
-               <div className="w-20 h-20 rounded-full border-[2px] border-white/30 flex flex-col items-center justify-center">
-                 <span className="font-black text-4xl text-white drop-shadow-md leading-none">{specificValue}</span>
-                 <span className="font-bold text-[8px] text-white/80 uppercase tracking-widest mt-1">TOP</span>
-               </div>
-            </div>
-          </div>
-        );
-      };
-
-      return (
-        <div className="w-full px-4 py-8 flex flex-col items-center justify-center relative">
-          {isPreviewMode && lives !== 0 && badgeType === 'Achievement Badge' && <Confetti score={90} />}
-          
-          {badgeType === 'Achievement Badge' && renderAchievementBadge()}
-          {badgeType === 'Streak Badge' && renderStreakBadge()}
-          {badgeType === 'Combo Badge' && renderComboBadge()}
-          {badgeType === 'League Badge' && renderLeagueBadge()}
-          {badgeType === 'Leaderboard Rank Badge' && renderRankBadge()}
-          
-          <style>{`
-            @keyframes shine {
-              0% { left: -100%; }
-              20% { left: 200%; }
-              100% { left: 200%; }
-            }
-          `}</style>
-        </div>
-      );
-
-    case 'Achievement Card':
-      return (
-        <div className="w-full px-4 py-6 flex justify-center relative">
-          {isPreviewMode && lives !== 0 && <Confetti score={100} />}
-          <div className="w-full max-w-[320px] flex flex-col items-center justify-center bg-gradient-to-br from-[#191A2E] to-[#2A2350] border-[4px] border-[#18181B] rounded-[32px] p-8 text-white text-center relative overflow-hidden shadow-[8px_8px_0_#18181B] hover:translate-y-[-4px] hover:shadow-[12px_12px_0_#18181B] transition-all">
-            {/* Glow effects inside the dark card */}
-            <div className="absolute w-40 h-40 bg-[#01EF8E] opacity-20 rounded-full top-[-40px] right-[-20px] blur-[30px] pointer-events-none"></div>
-            <div className="absolute w-32 h-32 bg-[#FF73B5] opacity-20 rounded-full bottom-[-30px] left-[-30px] blur-[30px] pointer-events-none"></div>
-            
-            <div className="w-20 h-20 bg-gradient-to-br from-[#FFD84D] to-[#FF7A1A] rounded-[20px] flex items-center justify-center mb-5 relative z-10 shadow-[6px_6px_0_#18181B] border-[3px] border-[#18181B]">
-              <Trophy size={40} strokeWidth={2.5} className="text-[#18181B]" />
-            </div>
-            <h2 className="text-2xl font-black uppercase tracking-wide leading-tight text-white mb-2 relative z-10">{data.title || 'Achievement Unlocked'}</h2>
-            <p className="text-[14px] font-bold text-[#C9C9DE] relative z-10 leading-relaxed">{data.content || data.body || 'You finished the chapter!'}</p>
-          </div>
-        </div>
-      );
-
-    case 'Mascot Emotion':
-    case 'Mascot Character': {
-      const fontForMascot = data.font || 'Montserrat';
-      const mascotSize = data.size || 'Medium';
-      const sizeClasses = {
-        'Small': 'w-24 h-24',
-        'Medium': 'w-40 h-40',
-        'Large': 'w-64 h-64'
-      }[mascotSize] || 'w-40 h-40';
-      const showBubble = block.type === 'Mascot Character' ? (data.show_bubble !== 'Off') : false;
-
-      const mAlignClass = {
-        'Left': 'mr-auto',
-        'Center': 'mx-auto',
-        'Right': 'ml-auto'
-      }[data.mascot_alignment || data.alignment || 'Center'];
-
-      const bAlignClass = {
-        'Left': 'mr-auto',
-        'Center': 'mx-auto',
-        'Right': 'ml-auto'
-      }[data.bubble_alignment || data.alignment || 'Center'];
-
-      const tAlignClass = {
-        'Left': 'text-left',
-        'Center': 'text-center',
-        'Right': 'text-right'
-      }[data.text_alignment || data.alignment || 'Center'];
-
-      const tailClass = {
-        'Left': 'left-8',
-        'Center': 'left-1/2 -translate-x-1/2',
-        'Right': 'right-8'
-      }[data.mascot_alignment || data.alignment || 'Center'];
-
-      let mascotType = data.mascot_type || 'Happy';
-      if (isChecking) {
-        mascotType = isAnswerCorrect ? 'Smart' : 'Confused';
-      }
-
-      return (
-        <div className={`w-full flex flex-col py-4 px-6 gap-2`}>
-          {showBubble && (
-            <div className={`w-[80%] relative flex justify-center mb-2 ${bAlignClass}`}>
-              <div 
-                className={`w-full p-5 border-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] rounded-[var(--neo-radius-2xl)] shadow-[var(--neo-shadow-offset-xl)_var(--neo-shadow-offset-xl)_0_var(--neo-border-color)] flex flex-col justify-center relative z-10 ${tAlignClass}`}
-                style={{
-                  backgroundColor: data.bubble_colour || '#FFFFFF',
-                  color: data.text_colour || '#18181B',
-                  fontFamily: fontForMascot,
-                  fontSize: `${data.font_size || 15}px`,
-                  fontWeight: data.font_style === 'Bold' ? '900' : 'bold',
-                  fontStyle: data.font_style === 'Italic' ? 'italic' : 'normal',
-                }}
-              >
-                {data.text || 'Mascot says...'}
-              </div>
-              <div 
-                className={`absolute -bottom-2 w-8 h-8 border-b-[var(--neo-border-width-lg)] border-r-[var(--neo-border-width-lg)] border-[var(--neo-border-color)] transform rotate-45 z-0 ${tailClass}`}
-                style={{ backgroundColor: data.bubble_colour || '#FFFFFF' }}
-              ></div>
-            </div>
-          )}
-           <div className={`${sizeClasses} ${mAlignClass} flex items-center justify-center ${getMascotAnimation(mascotType)}`}>
-             <img 
-               src={MASCOT_IMAGES[mascotType] || MASCOT_IMAGES.Happy}
-               alt={mascotType}
-               className="w-full h-full object-contain drop-shadow-md"
-             />
-           </div>
-        </div>
-      );
-    }
-
-    case 'Progress Bar':
-      const finalProgress = progressValue !== undefined ? progressValue : (data.value || 50);
-      return (
-        <div className="w-full px-6 py-4">
-          <div className="w-full h-6 bg-white rounded-full border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] overflow-hidden p-0.5">
-            <div className="h-full bg-[#00E599] rounded-full border-r-[3px] border-[#18181B] transition-all duration-300" style={{ width: `${Math.min(100, Math.max(0, finalProgress))}%` }}></div>
-          </div>
-        </div>
-      );
-
-    case 'Continue Button':
-    case 'Back Button':
-    case 'Skip Button':
-      const NavMap = {
-        'Continue Button': { icon: ArrowRight, color: '#00E599', label: 'Continue' },
-        'Back Button': { icon: ArrowLeft, color: '#00E599', label: 'Back' },
-        'Skip Button': { icon: FastForward, color: '#00E599', label: 'Skip' }
-      };
-      const navConf = NavMap[block.type];
-      const NavIcon = navConf.icon;
-      return (
-        <div className="w-full px-6 py-4">
-          <button 
-            type="button"
-            className="w-full px-6 py-3 flex items-center justify-center gap-3 border-[2px] border-[#18181B] rounded-lg font-bold text-sm shadow-[4px_4px_0_#18181B] text-[#18181B] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
-            style={{ backgroundColor: navConf.color }}
-          >
-            {block.type === 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
-            {navConf.label}
-            {block.type !== 'Back Button' && <NavIcon size={16} strokeWidth={3} />}
-          </button>
-        </div>
-      );
-
-    case 'Next Lesson Button':
-      return (
-        <div className="w-full px-6 py-4">
-          <button 
-            type="button"
-            className="w-full px-6 py-2.5 flex items-center justify-center border-[2px] border-[#18181B] rounded-md shadow-[4px_4px_0_#18181B] text-[#18181B] font-bold text-lg hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#18181B] active:translate-y-[2px] active:shadow-[2px_2px_0_#18181B] transition-all"
-            style={{ backgroundColor: '#00E599' }}
-          >
-            {data.label || 'Next lesson'}
-          </button>
-        </div>
-      );
-    case 'Rewards Summary':
-      return (
-        <div className="w-full px-2 py-4">
-          <div className="w-full mx-auto max-w-[400px] bg-white border-[3px] border-[#18181B] rounded-[8px] shadow-[4px_4px_0_#18181B] py-2 px-2 flex flex-row items-center justify-between gap-1 overflow-hidden">
-            
-            {/* XP */}
-            <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src={xpImg} alt="XP" className="w-6 h-6 sm:w-8 sm:h-8 shrink-0 drop-shadow-sm" />
-              <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.xp_amount ?? 0}</span>
-            </div>
-
-            {/* Coins */}
-            <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src={coinsImg} alt="Coins" className="w-7 h-7 sm:w-9 sm:h-9 shrink-0 drop-shadow-sm" />
-              <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.coins_amount ?? 0}</span>
-            </div>
-
-            {/* Gems */}
-            <div className="flex items-center gap-1 shrink flex-1 justify-center">
-              <img src={gemsImg} alt="Gems" className="w-7 h-7 sm:w-9 sm:h-9 shrink-0 drop-shadow-sm" />
-              <span className="font-black text-lg sm:text-xl text-[#18181B] truncate">{data.gems_amount ?? 0}</span>
-            </div>
-
-          </div>
-        </div>
-      );
-
-    case 'Reward Icon':
-      const renderIcon = () => {
-        if (data.icon_type === 'Gold Coin') {
-          return <img src={coinsImg} alt="Coins" className="w-14 h-14 drop-shadow-sm animate-mascot-bounce" />;
-        } else if (data.icon_type === 'Green Gem') {
-          return <img src={gemsImg} alt="Gems" className="w-14 h-14 drop-shadow-sm animate-mascot-float" />;
-        } else {
-          // XP Sparkle
-          return <img src={xpImg} alt="XP" className="w-14 h-14 drop-shadow-sm animate-mascot-pulse" />;
-        }
-      };
-
-      return (
-        <div className="w-full px-6 py-6 flex flex-row items-center justify-center gap-4">
-          {renderIcon()}
-          {data.show_value !== 'Off' && (
-            <span className="font-black text-[32px] text-[#18181B]">{data.value ?? 0}</span>
-          )}
-        </div>
-      );
-
-    case 'Timer':
-      return <TimerBlock blockId={block.id} data={data} isPreviewMode={isPreviewMode} />;
-      
-    case 'Streak Freeze':
-      return (
-        <div className="w-full px-6 py-2">
-          <div className="w-full bg-[#18181B] text-white p-6 rounded-3xl border-[3px] border-white shadow-[0_0_15px_#FFD100] flex flex-col items-center gap-3 text-center">
-             <LucideIcons.Flame size={48} className="text-[#FFD100] animate-pulse" />
-             <h4 className="font-black text-2xl text-[#FFD100] uppercase tracking-wider">{data.title || 'Streak Freeze'}</h4>
-             <p className="font-bold opacity-90">{data.description || 'You kept your streak alive!'}</p>
-             <button className="mt-2 w-full py-3 bg-[#FFD100] text-[#18181B] font-black text-lg rounded-xl border-[3px] border-[#FFD100] hover:bg-transparent hover:text-[#FFD100] transition-colors">
-               Equip for {data.price || 200} Gems
-             </button>
-          </div>
-        </div>
-      );
-      
-    case 'Fact Card':
-      const isDark = data.theme === 'Dark';
-      const isColorful = data.theme === 'Colorful';
-      let cardBgClass = "bg-white text-[#18181B] border-[#18181B]";
-      if (isDark) cardBgClass = "bg-[#18181B] text-white border-[#18181B]";
-      if (isColorful) cardBgClass = "bg-gradient-to-br from-[#8B5CF6] to-[#00E599] text-white border-white shadow-[4px_4px_0_#18181B]";
-      return (
-        <div className="w-full px-6 py-2">
-          <div className={`w-full p-6 border-[3px] shadow-[4px_4px_0_rgba(24,24,27,1)] rounded-3xl flex gap-4 ${cardBgClass}`}>
-            <LucideIcons.Info size={32} className={`shrink-0 ${isDark || isColorful ? 'text-white' : 'text-[#8B5CF6]'}`} />
-            <div className="flex flex-col gap-1">
-               <h4 className="font-black text-lg uppercase tracking-wider">{data.title || 'Did You Know?'}</h4>
-               <p className="font-bold opacity-90 leading-relaxed whitespace-pre-line">{data.fact_text}</p>
-            </div>
-          </div>
-        </div>
-      );
-
-    case 'Audio Button':
-      return (
-        <div className="w-full px-6 py-2">
-          <button 
-            className="w-full flex items-center justify-center gap-3 p-4 bg-[#00E599] border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl active:translate-y-1 active:shadow-none transition-all text-[#18181B] font-black hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B]"
-            onClick={() => {
-              if (data.audio_url) {
-                new Audio(data.audio_url).play().catch(() => {});
-              }
-            }}
-          >
-            <LucideIcons.Volume2 size={24} />
-            <span className="text-xl tracking-wide">{data.label || 'Listen'}</span>
-          </button>
-        </div>
-      );
-
-    case 'Comparison':
-      return (
-        <div className="w-full px-6 py-2">
-          <div className="flex gap-4 w-full h-full">
-            <div className={`flex-1 p-5 rounded-3xl border-[3px] border-[#18181B] flex flex-col gap-2 shadow-[4px_4px_0_#18181B] ${data.highlight === 'Left' ? 'bg-[#00E599]' : 'bg-white'}`}>
-              <h4 className="font-black text-lg text-center">{data.title_a || 'Option A'}</h4>
-              <p className="font-bold text-sm text-center opacity-80 whitespace-pre-line">{data.desc_a}</p>
-            </div>
-            <div className="flex items-center justify-center font-black text-gray-400 shrink-0">VS</div>
-            <div className={`flex-1 p-5 rounded-3xl border-[3px] border-[#18181B] flex flex-col gap-2 shadow-[4px_4px_0_#18181B] ${data.highlight === 'Right' ? 'bg-[#00E599]' : 'bg-white'}`}>
-              <h4 className="font-black text-lg text-center">{data.title_b || 'Option B'}</h4>
-              <p className="font-bold text-sm text-center opacity-80 whitespace-pre-line">{data.desc_b}</p>
-            </div>
-          </div>
-        </div>
-      );
-
-    case 'Timeline': {
-      const events = (data.events || '').split('\n').filter(Boolean).map(e => e.split('|'));
-      return (
-        <div className="w-full px-6 py-4">
-           {data.title && <h3 className="font-black text-center mb-6 text-2xl uppercase tracking-wider">{data.title}</h3>}
-           <div className="flex flex-col gap-0 relative pt-2">
-             <div className="absolute left-6 top-4 bottom-4 w-1.5 bg-[#18181B] rounded-full" />
-             {events.map((ev, i) => (
-                <div key={i} className="flex items-start gap-6 py-3 relative z-10 animate-in fade-in slide-in-from-left-4" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
-                   <div className="w-[18px] shrink-0 flex justify-center mt-1">
-                     <div className="w-5 h-5 rounded-full bg-[#00E599] border-[3px] border-[#18181B] shadow-[2px_2px_0_#18181B] z-10 -ml-[5px]" />
-                   </div>
-                   <div className="flex-1 bg-white p-4 rounded-2xl shadow-[4px_4px_0_#18181B] border-[3px] border-[#18181B]">
-                     <span className="font-black text-sm text-[#8B5CF6] block mb-1 uppercase tracking-wider">{ev[0]}</span>
-                     <p className="font-bold text-[#18181B]">{ev[1]}</p>
-                   </div>
-                </div>
-             ))}
-           </div>
-        </div>
-      );
-    }
-    
-    case 'Text Reflection':
-      return (
-        <div className="w-full px-6 py-2 flex flex-col gap-3">
-          <p className="font-black text-center text-sm mb-2">{data.prompt || 'Reflection Prompt'}</p>
-          <textarea 
-            className="w-full p-4 rounded-2xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] font-bold outline-none focus:ring-2 focus:ring-[#8B5CF6] min-h-[120px] resize-none"
-            placeholder={data.placeholder || 'Type your answer here...'}
-            disabled={!isPreviewMode || isChecking}
-            value={interactionState?.[block.id]?.text || ''}
-            onChange={(e) => {
-              const val = e.target.value;
-              setInteractionState({ ...interactionState, [block.id]: { text: val } });
-              const minLen = parseInt(data.min_length || '10', 10);
-              if (onAnswered) onAnswered({ isAnswered: val.length >= minLen, isCorrect: true });
-            }}
-          />
-          {interactionState?.[block.id]?.text && interactionState[block.id].text.length > 0 && interactionState[block.id].text.length < parseInt(data.min_length || '10', 10) && (
-            <p className="text-xs text-[#FF6B6B] font-bold text-center">Keep going! Write a bit more.</p>
-          )}
-        </div>
-      );
-
-    case 'Share':
-      return (
-        <div className="w-full px-6 py-2">
-          <div className="w-full bg-[#8B5CF6] text-white p-6 rounded-3xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] flex flex-col items-center gap-3 text-center">
-             <LucideIcons.Share2 size={40} className="text-white" />
-             <h4 className="font-black text-2xl uppercase tracking-wider">{data.title || 'Share your progress!'}</h4>
-             <button 
-                className="mt-2 w-full py-3 bg-white text-[#8B5CF6] font-black text-lg rounded-xl border-[3px] border-[#18181B] shadow-[4px_4px_0_#18181B] active:translate-y-1 active:shadow-none hover:-translate-y-1 hover:shadow-[6px_6px_0_#18181B] transition-all flex items-center justify-center gap-2"
-                onClick={() => {
-                  if (navigator.share) navigator.share({ title: data.title, text: data.share_text });
-                }}
-             >
-               <LucideIcons.Upload size={20} />
-               Share
-             </button>
-          </div>
-        </div>
-      );
-
-    case 'Back to Courses Button':
-      return (
-        <div className="w-full px-6 py-4 flex justify-center">
-          <button className="w-full neo-btn text-white bg-gray-500 py-3 flex items-center justify-center gap-2">
-            <LucideIcons.ArrowLeft strokeWidth={2.5} className="w-5 h-5 shrink-0" />
-            <span className="truncate">{data.label || 'Back to courses'}</span>
-          </button>
-        </div>
-      );
-
-
-    case 'Weekly Recap': {
-      return (
-        <div className="w-full px-6 py-6 flex flex-col items-center gap-4">
-           <h3 className="text-xl font-black text-[#18181B] text-center w-full mb-2">{data.title || 'Your Week'}</h3>
-           
-           <div className="grid grid-cols-2 gap-4 w-full">
-              {/* Lessons */}
-              <div className="bg-[#3B82F6] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
-                 <LucideIcons.BookOpen size={28} className="text-white mb-2" />
-                 <span className="text-3xl font-black text-white">{data.lessons_completed || 0}</span>
-                 <span className="text-[10px] font-bold text-white/90 uppercase tracking-wider mt-1">Lessons</span>
-              </div>
-              
-              {/* XP */}
-              <div className="bg-[#FFD100] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
-                 <LucideIcons.Star size={28} className="text-[#18181B] fill-white mb-2" />
-                 <span className="text-3xl font-black text-[#18181B]">{data.xp_earned || 0}</span>
-                 <span className="text-[10px] font-bold text-[#18181B]/80 uppercase tracking-wider mt-1">XP Earned</span>
-              </div>
-
-              {/* Streak */}
-              <div className="bg-[#FF6B6B] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
-                 <LucideIcons.Flame size={28} className="text-white fill-orange-300 mb-2" />
-                 <span className="text-3xl font-black text-white">{data.streak_count || 0}</span>
-                 <span className="text-[10px] font-bold text-white/90 uppercase tracking-wider mt-1">Day Streak</span>
-              </div>
-
-              {/* League */}
-              <div className="bg-[#8B5CF6] border-4 border-[#18181B] shadow-[4px_4px_0_#18181B] rounded-2xl p-4 flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform">
-                 <LucideIcons.Trophy size={28} className="text-white fill-yellow-300 mb-2" />
-                 <span className="text-sm font-black text-white leading-tight mt-1">{data.league_status || 'Bronze'}</span>
-                 <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider mt-1">League</span>
-              </div>
-           </div>
-        </div>
-      );
-    }
-
-    case 'Combo Banner': {
-      const isSpeed = data.combo_type !== 'Accuracy';
-      const bgColor = isSpeed ? 'bg-gradient-to-r from-[#FFD100] to-[#FF9800]' : 'bg-gradient-to-r from-[#00E599] to-[#00BFA5]';
-      const Icon = isSpeed ? LucideIcons.Zap : LucideIcons.Target;
-      
-      return (
-        <div className="w-full px-6 py-4">
-           <div className={`w-full ${bgColor} border-4 border-[#18181B] shadow-[6px_6px_0_#18181B] rounded-2xl p-4 flex items-center justify-between animate-in slide-in-from-bottom-4 duration-500`}>
-              <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-white border-2 border-[#18181B] rounded-full flex items-center justify-center shadow-[2px_2px_0_#18181B]">
-                    <Icon size={20} className="text-[#18181B] fill-current" />
-                 </div>
-                 <div className="flex flex-col">
-                    <span className="font-black text-[#18181B] text-lg uppercase leading-none italic">{data.combo_type || 'Speed'} Combo!</span>
-                    <span className="font-bold text-[#18181B]/80 text-sm">Multiplier {data.multiplier || 'x2'}</span>
-                 </div>
-              </div>
-              <div className="bg-white px-3 py-1 border-2 border-[#18181B] rounded-xl shadow-[2px_2px_0_#18181B] font-black text-[#8B5CF6]">
-                 +{data.bonus_xp || 15} XP
-              </div>
-           </div>
-        </div>
-      );
-    }
-
-    case 'Streak Risk': {
-      return (
-        <div className="w-full px-6 py-4">
-           <div className="w-full bg-[#18181B] border-4 border-[#FF4B4B] shadow-[6px_6px_0_#FF4B4B] rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-[#FF4B4B]/10 animate-pulse pointer-events-none"></div>
-              
-              <div className="flex items-center gap-3 w-full mb-2 z-10">
-                 <div className="animate-bounce">
-                    <LucideIcons.Flame size={32} className="text-[#FF4B4B] fill-[#FF4B4B] drop-shadow-[0_0_10px_rgba(255,75,75,0.8)]" />
-                 </div>
-                 <h3 className="text-[#FF4B4B] font-black text-xl uppercase tracking-wider flex-1">{data.hours_left || 2} Hours Left!</h3>
-              </div>
-              
-              <p className="text-white font-bold text-sm w-full z-10 leading-snug">
-                {data.message || 'Your streak is at risk! Complete a lesson now.'}
-              </p>
-           </div>
-        </div>
-      );
-    }
-
-    default:
-      return (
-        <div className="w-full px-6 py-2">
-          <div className="w-full bg-white border-[4px] border-[#18181B] rounded-[24px] shadow-[4px_4px_0_#18181B] flex items-center justify-center text-center p-6">
-            <p className="font-black text-[#18181B]">{block.type}</p>
-          </div>
-        </div>
-      );
-  }
-};
 
 
 const BarGraphBlock = ({ blockId, data, interactionState, setInteractionState, isPreviewMode, onAnswered, isChecking }) => {
@@ -2563,4 +1393,9 @@ const LineGraphBlock = ({ blockId, data, interactionState, setInteractionState, 
   );
 };
 
+const VisualBlockRenderer = (props) => (
+  <ErrorBoundary>
+    <VisualBlockRendererInner {...props} />
+  </ErrorBoundary>
+);
 export default VisualBlockRenderer;
